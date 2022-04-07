@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-
 const { Schema, model }  = mongoose
 
 const  userSchema = new Schema({
@@ -33,7 +32,23 @@ const  userSchema = new Schema({
             graduation_year: { type: Number }
         }],
         select: false
-    }
+    },
+    following: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'User'}],
+        select: false
+    },
+    followingTopics: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Topic'}],
+        select: false       
+    },
+    linkingAnswers: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+        select: false
+    },
+    dislinkingAnswers: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+        select: false
+    },
 
 })
 
