@@ -1,0 +1,31 @@
+{
+  "name": "koa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./app/index.js",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cross-env": "^7.0.3",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.13.4",
+    "koa-body": "^4.2.0",
+    "koa-json-error": "^3.1.2",
+    "koa-jwt": "^4.0.3",
+    "koa-parameter": "^3.0.1",
+    "koa-router": "^10.1.1",
+    "koa-static": "^5.0.0",
+    "moment": "^2.29.2",
+    "mongoose": "^6.2.7",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=dev nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
