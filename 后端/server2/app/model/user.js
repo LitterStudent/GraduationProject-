@@ -22,11 +22,37 @@ User.init({
         // 备注
         comment: '用户昵称'
     },
+    avatar_url: {
+        type: DataTypes.STRING(256),
+        defaultValue: "https://pic1.zhimg.com/v2-c951a81312d4457f3cfec3ce2f4ea261_is.jpg?source=32738c0c",
+        comment: '用户头像'
+    },
     email: {
         type: DataTypes.STRING(50),
         allowNull: false,
         unique: 'user_email_unique',
         comment: '登录邮箱'
+    },
+    gender: {
+        type: DataTypes.TINYINT,
+        allowNull: true,
+        defaultValue: 0,
+        comment: '用户性别:0-男,1-女'
+    },
+    headline: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: "个性签名"
+    },
+    location: {
+        type: DataTypes.STRING(128),
+        allowNull: true,
+        comment: '居住地'
+    },
+    business: {
+        type: DataTypes.STRING(128),
+        allowNull: true,
+        comment: "所处行业"
     },
     password: {
         type: DataTypes.STRING,

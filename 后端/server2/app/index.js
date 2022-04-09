@@ -8,7 +8,7 @@ const parameter = require('koa-parameter')
 // 路由
 const routing = require('./route')
 // 数据库
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
 // 解析请求报文的内容 
 const koaBody = require('koa-body')
 // 静态资源

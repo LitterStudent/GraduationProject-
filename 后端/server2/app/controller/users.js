@@ -3,10 +3,13 @@ const  User =   require('../model/user')
 const jsonwebtoken = require('jsonwebtoken')
 const { secret } = require('../config/config')
 const Answer = require('../model/answers')
-
+const Auth = require('../utils/auth')
+const bcrypt = require('bcryptjs')
+const AUTH_USER = 8
+const AUTH_ADMIN = 16
 class UsersCtl {
     async checkOwner(ctx, next) {
-        if (ctx.params.id !== ctx.state.user._id) { ctx.throw(403, '没有权限') }
+        if (ctx.params.id != ctx.auth.id) { ctx.throw(403, '没有权限') }
         await next()
     }
     async findAll(ctx) {
@@ -15,17 +18,57 @@ class UsersCtl {
         // const { fileds } = ctx.query || []
         // const selectFileds = fileds.split(';').filter(f => f).map(f => ' +' + f).join('')
         let { per_page = 10, page = 1 } = ctx.query
-        page = Math.max(page * 1, 1) - 1
-        per_page = Math.max(per_page * 1, 1)
-        ctx.body = await User.find({name: new RegExp(ctx.query.q)}).limit(per_page).skip(page * per_page)
+        const scop = 'bh'
+        per_page = per_page - 0
+        page = page - 0
+        const user = await User.scope(scop).findAndCountAll({
+            limit: per_page,
+            offset: (page - 1) * per_page,
+            order: [
+                ['created_at', 'DESC']
+            ]
+        })
+        const data = {
+            data: user.rows,
+            // 分页
+            meta: {
+                current_page: parseInt(page),
+                per_page: 10,
+                count: user.count,
+                total: user.count,
+                total_pages: Math.ceil(user.count / 10),
+            }
+        }
+        ctx.body = data
     }
     async findById(ctx) {
-        const { fileds = '' } = ctx.query
+        const id = ctx.params.id
+        const { email, status, username } = ctx.query
         // if (!fileds) { fileds = []} 
-        const selectFileds = fileds.split(';').filter(f => f).map(f => ' +' + f).join('')
-        const user = await User.findById(ctx.params.id).select(selectFileds)
+        const scop = 'bh'
+        const filter = {}
+        if(email) {
+            filter.email = email
+          }
+        if(id) {
+            filter.id = id
+        }
+        if(status) {
+            filter.status = status
+        }
+        if (username) {
+            filter.username = {
+            [Op.like]: `%${username}%`
+            };
+        }
+        const user = await User.scope(scop).findAndCountAll({
+            where: filter
+        })
         if(!user) { ctx.throw(404, '用户不存在') }
-        ctx.body = user
+      const data = {
+        data: user.rows,
+      }
+      ctx.body = data
     }
     async updateById(ctx) {
         ctx.verifyParams({
@@ -34,18 +77,22 @@ class UsersCtl {
             avator_url: { type: 'string', required: false},
             gender: { type: 'string', required: false},
             headline: { type: 'string', required: false},
-            location: { type: 'array', itemType: 'string', required: false},
-            employments: { type: 'array', itemType: 'object', required: false },
-            educations: { type: 'array', itemType: 'object', required: false}
+            location: { type: 'string', itemType: 'string', required: false},
+            employments: { type: 'string', itemType: 'object', required: false },
+            educations: { type: 'string', itemType: 'object', required: false}
         });
-        const user = await User.findByIdAndUpdate(ctx.params.id, ctx.request.body)
+        const user = await User.findByPk(ctx.params.id)
         if (!user) { ctx.throw(404, '用户不存在') }
+        user.set(ctx.request.body)
+        await user.save()
         ctx.body = user
     }
     async deleteById(ctx) {
 
-        const user = await User.findByIdAndRemove(ctx.params.id)
+        const user = await User.findOne({ where: { id: ctx.params.id }})
         if (!user) { ctx.throw(404, '用户不存在') }
+        user.status = 0
+        user.save()
         ctx.status = 204
     }
     async create(ctx) {
@@ -60,36 +107,35 @@ class UsersCtl {
                  email
              }
              })
-        if( repeateUser ) { ctx.throw(409, '用户已经占用')}
+        if( repeateUser ) { ctx.throw(409, '该邮箱已经注册')}
         const user = new User();
         user.username = name
         user.email = email
         user.password = password
-        try {
-            const res = await user.save();
-            const data = {
-              code: 200,
-              email: res.email,
-              username: res.username
-            }
-            ctx.body =  [null, data]
-          } catch (err) {
-            ctx.body = [err, null]
-          }
+        const res = await user.save();
+        const data = {
+            code: 200,
+            email: res.email,
+            username: res.username
+        }
+        ctx.body = data
     }
     async login (ctx) {
         ctx.verifyParams({
-            name: { type: 'string', required: true },
+            email: { type: 'string', required: true },
             password: { type: 'string', required: true }
         })
-        const user = await User.findOne(ctx.request.body)
+        const email = ctx.request.body.email
+        const password = ctx.request.body.password
+        const user = await User.findOne({ where: { email, status: 1 } })
         if(!user) { ctx.throw(401, '用户名或者密码不正确')}
-        const { _id, name } = user
-        const token = jsonwebtoken.sign({_id, name}, secret, { expiresIn: '1d'})
+        const correct = bcrypt.compareSync(password, user.password)
+        if(!correct) { ctx.throw(401, '用户名或者密码错误') }
+        const token = jsonwebtoken.sign({ email, scope: AUTH_USER, id: user.id }, secret, { expiresIn: '1d'})
         ctx.body = {token : token}
     }
     async checkUserExist(ctx, next) {
-        const user = await User.findById(ctx.params.id)
+        const user = await User.findByPk(ctx.params.id)
         if (!user) { ctx.throw(404, '用户不存在') }
         await next()
     }

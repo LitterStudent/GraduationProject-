@@ -4,6 +4,7 @@
   "description": "",
   "main": "./app/index.js",
   "dependencies": {
+    "basic-auth": "^2.0.1",
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
     "jsonwebtoken": "^8.5.1",
