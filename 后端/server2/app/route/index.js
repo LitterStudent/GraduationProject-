@@ -5,7 +5,7 @@ module.exports = (app) => {
     // app.use(bodyparser())
     fs.readdirSync(__dirname).forEach(file => {
         if (file === 'index.js' || file === 'answers.js' ||file === 'home.js'
-        ||file === 'questions.js' ||file === 'topics.js' ) { return ;}
+        ||file === 'questions.js' ) { return ;}
         const route = require(`./${file}`)
         // use里面的函数就是中间件 
         // 下面的箭头函数就是中间件

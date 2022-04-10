@@ -40,7 +40,7 @@ router.get('/:id', findById)
 router.patch('/:id', new Auth(AUTH_USER).m, checkOwner, updateById)
 // 删除用户
 // router.delete('/:id',auth, checkOwner, deleteById)
-router.delete('/:id',new Auth(AUTH_USER).m, deleteById)
+router.delete('/:id',new Auth(AUTH_ADMIN).m, deleteById)
 router.post('/login', login)
 
 // 获取用户的关注列表

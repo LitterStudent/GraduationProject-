@@ -1,10 +1,12 @@
 const  User =   require('../model/user')
+const Follow = require('../model/follow')
 // const Question = require('../model/questions')
 const jsonwebtoken = require('jsonwebtoken')
 const { secret } = require('../config/config')
 const Answer = require('../model/answers')
 const Auth = require('../utils/auth')
 const bcrypt = require('bcryptjs')
+const { Op } = require('sequelize')
 const AUTH_USER = 8
 const AUTH_ADMIN = 16
 class UsersCtl {
@@ -17,11 +19,24 @@ class UsersCtl {
         // ctx.body = await User.find().select('password').select('name')
         // const { fileds } = ctx.query || []
         // const selectFileds = fileds.split(';').filter(f => f).map(f => ' +' + f).join('')
-        let { per_page = 10, page = 1 } = ctx.query
+        let { per_page = 10, page = 1, email, status, username } = ctx.query
         const scop = 'bh'
         per_page = per_page - 0
         page = page - 0
+        const filter = {}
+        if(email) {
+          filter.email = email
+        }
+        if(status) {
+          filter.status = status
+        }
+        if(username) {
+          filter.username = {
+            [Op.like]: `%${username}%`
+          };
+        }
         const user = await User.scope(scop).findAndCountAll({
+            where: filter,
             limit: per_page,
             offset: (page - 1) * per_page,
             order: [
@@ -141,34 +156,57 @@ class UsersCtl {
     }
     // 添加关注
     async follow(ctx) {
-        const me = await User.findById(ctx.state.user._id).select('+following')
-        if (!me.following.map(id => id.toString()).includes(ctx.params.id)) {
-            me.following.push(ctx.params.id);
-            me.save()
+        const user_id = ctx.auth.id
+        const followed_id = ctx.params.id
+        if (user_id == followed_id) { ctx.throw(403, '不能关注自己') }
+        const follow = await Follow.findOne({ where: { user_id, followed_id }})
+
+        if (!follow) {
+            const followItem = new Follow()
+            followItem.user_id = user_id
+            followItem.followed_id = followed_id
+            await followItem.save()
+        } else if (follow.status === 0) {
+            follow.status = 1
+            await follow.save()
         }
         ctx.status = 204
     }
     // 查询关注
     async listFollowing(ctx) {
-        const user = await User.findById(ctx.params.id).select('+following').populate('following')
-        if (!user) { ctx.throw(404, '用户不存在') }
-        ctx.body = user.following
+        const followedList = await Follow.findAll({ where: { user_id: ctx.params.id, status: 1}})
+        if (followedList) {
+            const followedIds = followedList.map((item) => item.followed_id )
+            const followed_users = await User.scope('bh').findAll({ where: { id: { [Op.in]: followedIds } }}) 
+            ctx.body = followed_users
+        } else {
+            ctx.body = []
+        }
+        
     }
     // 取消关注
     async unfollow(ctx) {
-        const me = await User.findById(ctx.state.user._id).select('+following')
-        const index = me.following.map(id => id.toString()).indexOf(ctx.params.id)
-        if (index > -1) {
-            me.following.splice(index, 1)
-            me.save()
+        const user_id = ctx.auth.id
+        const followed_id = ctx.params.id
+        const followItem = await Follow.findOne({ where: { user_id, followed_id} })
+        if (followItem) {
+            followItem.status = 0
+            followItem.save()
         }
         ctx.status = 204
     }
     // 查询粉丝
     async listFollower (ctx) {
         // 查询用户，限制条件：关注列表内有 ctx.params.id 的用户
-        const users = await User.find({ following: ctx.params.id })
-        ctx.body = users
+        const followed_id = ctx.params.id
+        const users = await Follow.findAll({ where: { followed_id } })
+        if (users) {
+            const userIds = users.map((item) => item.user_id)
+            const userList = await User.scope('bh').findAll({ where: { id: { [Op.in]: userIds }}})
+            ctx.body = userList
+        } else{
+            ctx.body = users
+        }
     }
 
     // 添加话题关注

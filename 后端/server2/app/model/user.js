@@ -2,7 +2,6 @@ const moment = require('moment');
 const bcrypt = require('bcryptjs')
 const { sequelize } = require('../config/db')
 const { DataTypes, Model } = require('sequelize')
-
 // 定义用户模型
 class User extends Model {
 
@@ -85,6 +84,5 @@ User.init({
     modelName: 'user',
     tableName: 'user'
 })
-
 
 module.exports = User

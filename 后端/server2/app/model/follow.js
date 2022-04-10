@@ -1,6 +1,7 @@
 const { sequelize } = require('../config/db')
 const { DataTypes, Model } = require('sequelize')
-
+const moment = require('moment')
+const User = require('./user')
 // 定义关注模型
 class Follow extends Model {
 
@@ -32,12 +33,17 @@ Follow.init({
         get() {
             return moment(this.getDataValue('created_at')).format('YYYY-MM-DD HH:mm:ss');
         }
+    },
+    status: {
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        defaultValue: 1,
+        comment: '1-正在关注 0-取消关注'
     }
 }, {
     sequelize,
     modelName: 'follow',
     tableName: 'follow'
 })
-
 
 module.exports = Follow
