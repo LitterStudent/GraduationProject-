@@ -11,6 +11,7 @@ const AUTH_USER = 8
 const AUTH_ADMIN = 16
 const FollowTopic = require('../model/followTopic')
 const Topic = require('../model/topic')
+const LikeAnswer = require('../model/likeAnswer')
 class UsersCtl {
     async checkOwner(ctx, next) {
         if (ctx.params.id != ctx.auth.id) { ctx.throw(403, '没有权限') }
@@ -260,30 +261,52 @@ class UsersCtl {
     }
 
     // 点赞
-    async likeAnswer(ctx, next) {
-        const me = await User.findById(ctx.state.user._id).select('+linkingAnswers')
-        if (!me.linkingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
-            me.linkingAnswers.push(ctx.params.id);
-            me.save()
-            await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: 1 }})
+    async likeAnswer(ctx) {
+        const user_id = ctx.auth.id
+        const answer_id = ctx.params.id - 0
+        const likeAnswerItem = await LikeAnswer.findOne({ where: { user_id, answer_id }})
+        if (!likeAnswerItem) {
+            const likeanswer = new LikeAnswer()
+            likeanswer.user_id = user_id
+            likeanswer.answer_id = answer_id
+            await likeanswer.save()
+        } else if (likeAnswerItem.status == 0){
+            likeAnswerItem.status = 1
+            await likeAnswerItem.save()
         }
         ctx.status = 204
-        await next();
     }
     // 列出点赞
     async listLikingAnswer(ctx) {
-        const user = await User.findById(ctx.params.id).select('+linkingAnswers').populate('linkingAnswers')
-        if (!user) { ctx.throw(404, '用户不存在') }
-        ctx.body = user.linkingAnswers
+        const user_id = ctx.params.id
+        const likeAnswerList = await LikeAnswer.findAll({ 
+            where: {
+                user_id,
+                status: 1
+            }
+        })
+        const answerIds = likeAnswerList.map(item => item.answer_id)
+        const answerList = await Answer.findAll({
+            where: {
+                id: {
+                    [Op.in]: answerIds
+                }
+            },
+            attributes: {
+                exclude: ['created_at', 'question_id', 'pageviews', 'favorite_num', 'admin_id', 'status', 'updated_at', 'deleted_at']
+            }
+        })
+        if (!answerList) { ctx.throw(404, '用户不存在') }
+        ctx.body = answerList
     }
     // 取消点赞
     async unLikingAnswer(ctx) {
-        const me = await User.findById(ctx.state.user._id).select('+linkingAnswers')
-        const index = me.linkingAnswers.map(id => id.toString()).indexOf(ctx.params.id)
-        if (index > -1) {
-            me.linkingAnswers.splice(index, 1)
-            me.save()
-            await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: - 1 }})
+        const user_id = ctx.auth.id
+        const answer_id = ctx.params.id - 0
+        const likeAnswerItem = await LikeAnswer.findOne({ where: { user_id, answer_id }})
+        if (likeAnswerItem && likeAnswerItem.status != 0) {
+            likeAnswerItem.status = 0
+            await likeAnswerItem.save()
         }
         ctx.status = 204
     }

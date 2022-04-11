@@ -50,7 +50,17 @@ class AnswerssCtl {
     }
     async checkAnswerExist(ctx, next) {
         const answer = await Answer.findByPk(ctx.params.id)
-        if (!answer) { ctx.throw(404, '回答不存在')}
+        if (!answer || answer.status != 1) { ctx.throw(404, '回答不存在')}
+        // 只有在删改查答案时才检查该逻辑，赞和踩的时候不检查
+        // if ( ctx.params.questionId && ctx.params.questionId !== answer.questionId ) {
+        //      ctx.throw(404, '该问题下没有此答案') 
+        // }
+        ctx.state.answer = answer
+        await next()
+    }
+    async checkAnswerExist2(ctx, next) {
+        const answer = await Answer.findByPk(ctx.params.id)
+        if (!answer || answer.status == 0) { ctx.throw(404, '回答不存在')}
         // 只有在删改查答案时才检查该逻辑，赞和踩的时候不检查
         // if ( ctx.params.questionId && ctx.params.questionId !== answer.questionId ) {
         //      ctx.throw(404, '该问题下没有此答案') 
@@ -74,7 +84,9 @@ class AnswerssCtl {
         ctx.body = answer
     }
     async deleteAnswer(ctx) {
-        await Answer.findByIdAndRemove(ctx.params.id)
+        const answer = ctx.state.answer
+        answer.status = 0
+        answer.save()
         ctx.status = 204
     }
 }

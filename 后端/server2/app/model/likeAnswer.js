@@ -2,17 +2,17 @@ const { sequelize } = require('../config/db')
 const { DataTypes, Model } = require('sequelize')
 const moment = require('moment')
 // 定义关注模型
-class FollowQuestion extends Model {
+class  LikeAnswer extends Model {
 
 }
 
 // 初始关注模型
-FollowQuestion.init({
+LikeAnswer.init({
     id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
-        comment: '关注问题表主键ID'
+        comment: '点赞回答表主键ID'
     },
     user_id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
@@ -20,15 +20,15 @@ FollowQuestion.init({
         // 备注
         comment: '用户id'
     },
-    question_id: {
+    answer_id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
         allowNull: false,
-        comment: '问题id'
+        comment: '回答id'
     },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false,
-        comment: '关注时间',
+        comment: '点赞时间',
         get() {
             return moment(this.getDataValue('created_at')).format('YYYY-MM-DD HH:mm:ss');
         }
@@ -37,12 +37,12 @@ FollowQuestion.init({
         type: DataTypes.TINYINT,
         allowNull: false,
         defaultValue: 1,
-        comment: '1-正在关注 0-取消关注'
+        comment: '1-点赞 0-取消点赞'
     }
 }, {
     sequelize,
-    modelName: 'follow_question',
-    tableName: 'follow_question'
+    modelName: 'like_answer',
+    tableName: 'like_answer'
 })
 
-module.exports = FollowQuestion
+module.exports = LikeAnswer

@@ -90,16 +90,16 @@ router.get('/:id/followingquestion', listFollowingQuestions)
 // 查询某个用户点赞列表
 router.get('/:id/likinganswer', listLikingAnswer)
 // 点赞某个回答
-router.put('/likinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, likeAnswer, undisLikingAnswer)
+router.put('/likinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, likeAnswer)
 // 取消点赞某个回答
 router.delete('/likinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, unLikingAnswer)
 
-// 查询某个用户点赞列表
-router.get('/:id/dislikinganswer', listdisLinkingAnswer)
-// 点赞某个回答
-router.put('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, dislikeAnswer, unLikingAnswer)
-// 取消点赞某个回答
-router.delete('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, undisLikingAnswer)
+// // 查询某个用户点赞列表
+// router.get('/:id/dislikinganswer', listdisLinkingAnswer)
+// // 点赞某个回答
+// router.put('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, dislikeAnswer, unLikingAnswer)
+// // 取消点赞某个回答
+// router.delete('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, undisLikingAnswer)
 
 
 module.exports = router

@@ -41,8 +41,8 @@ FollowTopic.init({
     }
 }, {
     sequelize,
-    modelName: 'followTopic',
-    tableName: 'followTopic'
+    modelName: 'follow_topic',
+    tableName: 'follow_topic'
 })
 
 module.exports = FollowTopic
