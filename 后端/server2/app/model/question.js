@@ -20,7 +20,7 @@ Question.init({
         // 备注
         comment: '问题名称'
     },
-    introduction: {
+    description: {
         type: DataTypes.TEXT,
         allowNull: true,
         comment: "问题描述"
@@ -35,11 +35,26 @@ Question.init({
         allowNull: false,
         comment: '问题所属的话题id'       
     },
+    answer_number: {
+        type: DataTypes.INTEGER(64),
+        defaultValue: 0,
+        comment: '问题的回答数'
+    },
+    follow_number: {
+        type: DataTypes.INTEGER(64),
+        defaultValue: 0,
+        comment: '问题的关注人数'        
+    },
+    pageviews: {
+        type: DataTypes.INTEGER(64),
+        defaultValue: 0,
+        comment: '问题的浏览量'
+    },
     status: {
         type: DataTypes.TINYINT,
         allowNull: true,
-        defaultValue: 1,
-        comment: '问题状态:0-禁用,1-正常'
+        defaultValue: 2,
+        comment: '问题状态:0-禁用,1-正常,2待审核'
     },
     created_at: {
         type: DataTypes.DATE,

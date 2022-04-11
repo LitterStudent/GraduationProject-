@@ -1,16 +1,35 @@
 const Router  = require('koa-router')
 const router = new Router({prefix: '/users'})
-const  { listFollowing, follow, findAll, findById, 
-         updateById, deleteById, create, login, checkOwner, 
-         unfollow, listFollower, checkUserExist,
-         followTopic, unfollowTopic, listFollowingTopics,
+const  { listFollowing,
+         follow, 
+         findAll, 
+         findById, 
+         updateById, 
+         deleteById, 
+         create, 
+         login, 
+         checkOwner, 
+         unfollow, 
+         listFollower, 
+         checkUserExist,
+         followTopic, 
+         unfollowTopic, 
+         listFollowingTopics,
          listQuestions,
-         listLikingAnswer,likeAnswer,unLikingAnswer,
-         listdisLinkingAnswer, dislikeAnswer, undisLikingAnswer
+         listLikingAnswer,
+         likeAnswer,
+         unLikingAnswer,
+         listdisLinkingAnswer, 
+         dislikeAnswer, 
+         undisLikingAnswer
         } = require('../controller/users')
 const { checkTopicExist } = require('../controller/topics')
 const { checkAnswerExist } = require('../controller/answer')
-
+const { followQuestion,
+        unfollowQuestion,
+        checkQuestioner,
+        checkQuestionExist,
+        listFollowingQuestions } = require('../controller/questions')
 // const jsonwebtoken = require('jsonwebtoken')
 
 //  1.手写认证
@@ -61,6 +80,12 @@ router.delete('/followingTopic/:id', new Auth(AUTH_USER).m, checkTopicExist, unf
 
 // 用户的问题列表
 router.get('/:id/questions', listQuestions)
+// 关注问题
+router.put('/followingquestion/:id', new Auth(AUTH_USER).m, checkQuestionExist, followQuestion)
+// 取消关注问题
+router.delete('/followingquestion/:id', new Auth(AUTH_USER).m, checkQuestionExist, unfollowQuestion)
+// 查询某个用户关注的话题
+router.get('/:id/followingquestion', listFollowingQuestions)
 
 // 查询某个用户点赞列表
 router.get('/:id/likinganswer', listLikingAnswer)

@@ -1,9 +1,9 @@
 const  User =   require('../model/user')
 const Follow = require('../model/follow')
-// const Question = require('../model/questions')
+const Question = require('../model/question')
 const jsonwebtoken = require('jsonwebtoken')
 const { secret } = require('../config/config')
-const Answer = require('../model/answers')
+const Answer = require('../model/answer')
 const Auth = require('../utils/auth')
 const bcrypt = require('bcryptjs')
 const { Op } = require('sequelize')
@@ -250,7 +250,12 @@ class UsersCtl {
         ctx.status = 204
     }
     async listQuestions(ctx) {
-        const questions = await Question.find({ questioner: ctx.params.id})
+        const questions = await Question.findAll({
+             where: { created_user: ctx.params.id, status: 1 },
+             attributes: {
+                 exclude: ['created_user', 'updated_at', 'deleted_at', 'description', 'pageviews', 'status'] 
+             }
+            })
         ctx.body = questions
     }
 

@@ -1,54 +1,78 @@
-const  Answer = require('../model/answers')
+const  Answer = require('../model/answer')
+const { Op } = require('sequelize')
 
 class AnswerssCtl {
-    async findAll(ctx) {
-        let { per_page = 10, page = 1 } = ctx.query
-        page = Math.max(page * 1, 1) - 1
-        per_page = Math.max(per_page * 1, 1)
-        const reg = new RegExp(ctx.query.q)
-        ctx.body = await Answer.find({ content: reg, questionId: ctx.params.questionId }).limit(per_page).skip(page * per_page)
-    }
-    async checkAnswerExist(ctx, next) {
-        const answer = await Answer.findById(ctx.params.id).select('+answerer')
-        if (!answer) { ctx.throw(404, '回答不存在')}
-        // 只有在删改查答案时才检查该逻辑，赞和踩的时候不检查
-        if ( ctx.params.questionId && ctx.params.questionId !== answer.questionId ) {
-             ctx.throw(404, '该问题下没有此答案') 
-        }
-        ctx.state.answer = answer
-        await next()
-    }
-    async findById(ctx) {
-        const { fields = '' } = ctx.query
-        const id = ctx.params.id
-        const selectFields = fields.split(';').filter(f => f).map(f => ' +'+ f.toString()).join('')
-        const answer = await Answer.findById(id).select(selectFields).populate('answerer')
-        if(!answer) { ctx.throw(404, '回答不存在')}
-        ctx.body = answer
-    }
     async create(ctx) {
         ctx.verifyParams({
             content: { type: 'string', required: true },
         })
-        const data = ctx.request.body
-        const answerer = ctx.state.user._id
-        const questionId = ctx.params.questionId
-        const answer = await new Answer({ ...data, answerer, questionId }).save()
-        ctx.body = answer
+        const { content } = ctx.request.body
+        const user_id = ctx.auth.id
+        const question_id = ctx.params.questionId
+        const answer = await Answer.findOne({ where: { user_id, question_id }})
+        if (answer) {
+            ctx.throw(403, '该用户已经回答过该问题')
+        } else {
+            const answerItem = new Answer()
+            answerItem.user_id =user_id
+            answerItem.question_id = question_id
+            answerItem.content = content
+            await answerItem.save()
+            ctx.body = answerItem
+        }
     }
     async checkAnswerer(ctx, next) {
-        const { answer } = ctx.state;
-        if(answer.answerer.toString() !== ctx.state.user._id) { ctx.throw(403, '没有权限') }
+        const user_id = ctx.auth.id;
+        const answer = ctx.state.answer
+        if(answer.user_id!= user_id) { ctx.throw(403, '没有权限') }
         await next();
+    }
+    async findAll(ctx) {
+        let { per_page = 10, page = 1, keyword } = ctx.query
+        page = Math.max(page * 1, 1) - 1
+        per_page = Math.max(per_page * 1, 1)
+        const filter = { status: 1 }
+        if (keyword) {
+            filter.content = {
+                [Op.like]: `%${keyword}%`
+            }
+        }
+        filter.question_id = ctx.params.questionId - 0
+        const AnswerList = await Answer.findAll({
+             where: filter,
+             limit: per_page,
+             offset: page * per_page,
+             order: [
+                 ['created_at', 'DESC']
+             ]
+            })
+        ctx.body = AnswerList
+    }
+    async checkAnswerExist(ctx, next) {
+        const answer = await Answer.findByPk(ctx.params.id)
+        if (!answer) { ctx.throw(404, '回答不存在')}
+        // 只有在删改查答案时才检查该逻辑，赞和踩的时候不检查
+        // if ( ctx.params.questionId && ctx.params.questionId !== answer.questionId ) {
+        //      ctx.throw(404, '该问题下没有此答案') 
+        // }
+        ctx.state.answer = answer
+        await next()
+    }
+    async findById(ctx) {
+        const answer = ctx.state.answer
+        ctx.body = answer
     }
     async updateById(ctx) {
         ctx.verifyParams({
             content: { type: 'string', required: false },
         })
-        await ctx.state.answer.update(ctx.request.body)
-        ctx.body = ctx.state.answer
+        const { content } = ctx.request.body
+        const answer = ctx.state.answer
+        answer.content = content
+        answer.status = 2
+        await answer.save()
+        ctx.body = answer
     }
-
     async deleteAnswer(ctx) {
         await Answer.findByIdAndRemove(ctx.params.id)
         ctx.status = 204

@@ -1,7 +1,7 @@
 const  Topic =  require('../model/topic')
 const User = require('../model/user')
 const FollowTopic = require('../model/followTopic')
-const Question = require('../model/questions2')
+const Question = require('../model/question')
 const { Op } = require('sequelize')
 class TopicsCtl {
     async findAll(ctx) {
@@ -78,8 +78,24 @@ class TopicsCtl {
         ctx.body = users
     }
     async listQuestions(ctx) {
-        const questions = await Question.find({ topics: ctx.params.id })
-        ctx.body = questions
+        let { per_page = 10, page = 1, keyword } = ctx.query
+        page = Math.max(page * 1, 1) - 1
+        per_page = Math.max(per_page * 1, 1)
+        const filter = {}
+        if (keyword) {
+            filter.topic_name = {
+                [Op.like]: `%${keyword}%`
+            }
+        }
+        filter.topic_id = ctx.params.id
+        ctx.body = await Question.findAll({
+             where: filter,
+             limit: per_page,
+             offset: page * per_page,
+             order: [
+                 ['created_at', 'DESC']
+             ]
+            })
     } 
 }
 
