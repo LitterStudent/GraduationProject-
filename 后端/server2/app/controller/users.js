@@ -9,6 +9,8 @@ const bcrypt = require('bcryptjs')
 const { Op } = require('sequelize')
 const AUTH_USER = 8
 const AUTH_ADMIN = 16
+const FollowTopic = require('../model/followTopic')
+const Topic = require('../model/topic')
 class UsersCtl {
     async checkOwner(ctx, next) {
         if (ctx.params.id != ctx.auth.id) { ctx.throw(403, '没有权限') }
@@ -211,27 +213,40 @@ class UsersCtl {
 
     // 添加话题关注
     async followTopic(ctx) {
-        const me = await User.findById(ctx.state.user._id).select('+followingTopics')
-        if (!me.followingTopics.map(id => id.toString()).includes(ctx.params.id)) {
-            me.followingTopics.push(ctx.params.id);
-            me.save()
+        // const me = await User.findByPk(ctx.auth.id)
+        const followTopic = await FollowTopic.findOne({ where: { user_id: ctx.auth.id, topic_id: ctx.params.id}})
+        if (!followTopic) {
+            const followTopicItem = new FollowTopic()
+            followTopicItem.user_id = ctx.auth.id
+            followTopicItem.topic_id = ctx.params.id
+            await followTopicItem.save()
+        } else if( followTopic.status == 0) {
+            followTopic.status = 1
+            await followTopic.save()
         }
         ctx.status = 204
     }
     // 查询关注话题
     async listFollowingTopics(ctx) {
-        const user = await User.findById(ctx.params.id).select('+followingTopics').populate('followingTopics')
-        if (!user) { ctx.throw(404, '用户不存在') }
-        ctx.body = user.followingTopics
+        const followTopicList = await FollowTopic.findAll({ where: { user_id: ctx.params.id, status: 1 }})
+        const topicIds = followTopicList.map(item => item.topic_id)
+        const TopicList = await Topic.findAll({
+             where: { id: { [Op.in]:topicIds }},
+             attributes: {
+                 exclude: ['updated_at', 'status', 'created_at', 'created_admin', 'deleted_at']
+             }
+            })
+        if (!followTopicList) { ctx.body = [] }
+        ctx.body = TopicList
     }
     // 取消话题关注
     async unfollowTopic(ctx) {
-        const me = await User.findById(ctx.state.user._id).select('+followingTopics')
-        const index = me.followingTopics.map(id => id.toString()).indexOf(ctx.params.id)
-        if (index > -1) {
-            me.followingTopics.splice(index, 1)
-            me.save()
+        const followTopicItem = await FollowTopic.findOne({ where: { user_id: ctx.auth.id, topic_id: ctx.params.id }})
+        if (followTopicItem) {
+            followTopicItem.status = 0
+            await followTopicItem.save()
         }
+        
         ctx.status = 204
     }
     async listQuestions(ctx) {

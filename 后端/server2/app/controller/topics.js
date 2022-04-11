@@ -1,6 +1,7 @@
 const  Topic =  require('../model/topic')
 const User = require('../model/user')
-const Question = require('../model/questions')
+const FollowTopic = require('../model/followTopic')
+const Question = require('../model/questions2')
 const { Op } = require('sequelize')
 class TopicsCtl {
     async findAll(ctx) {
@@ -71,7 +72,9 @@ class TopicsCtl {
         await next()
     }
     async listFollowers (ctx) {
-        const users = await User.find({ followingTopics: ctx.params.id })
+        const followTopicList = await FollowTopic.findAll({ where: { topic_id: ctx.params.id }})
+        const userids = followTopicList.map(item => item.user_id)
+        const users = await User.scope('bh').findAll({ where: { id: {[Op.in]: userids }} })
         ctx.body = users
     }
     async listQuestions(ctx) {
