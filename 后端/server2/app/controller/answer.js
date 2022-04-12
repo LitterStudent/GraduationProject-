@@ -86,7 +86,7 @@ class AnswerssCtl {
     async deleteAnswer(ctx) {
         const answer = ctx.state.answer
         answer.status = 0
-        answer.save()
+        await answer.save()
         ctx.status = 204
     }
 }

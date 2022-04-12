@@ -14,6 +14,11 @@ Comment.init({
     autoIncrement: true,
     comment: '评论主键ID'
   },
+  type: {
+    type: DataTypes.TINYINT,
+    allowNull: false,
+    comment: '评论类型：0-文章 1回答'
+  },
   content: {
     type: DataTypes.TEXT,
     allowNull: false,
