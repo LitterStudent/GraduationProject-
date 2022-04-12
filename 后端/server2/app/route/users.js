@@ -21,7 +21,9 @@ const  { listFollowing,
          unLikingAnswer,
          listdisLinkingAnswer, 
          dislikeAnswer, 
-         undisLikingAnswer
+         undisLikingAnswer,
+         commentAnswer,
+         commentAnswerReply
         } = require('../controller/users')
 const { checkTopicExist } = require('../controller/topics')
 const { checkAnswerExist } = require('../controller/answer')
@@ -101,5 +103,6 @@ router.delete('/likinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, unLi
 // // 取消点赞某个回答
 // router.delete('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, undisLikingAnswer)
 
+// 评论answer
 
 module.exports = router

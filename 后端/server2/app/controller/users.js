@@ -12,6 +12,7 @@ const AUTH_ADMIN = 16
 const FollowTopic = require('../model/followTopic')
 const Topic = require('../model/topic')
 const LikeAnswer = require('../model/likeAnswer')
+const Comment = require('../model/comment')
 class UsersCtl {
     async checkOwner(ctx, next) {
         if (ctx.params.id != ctx.auth.id) { ctx.throw(403, '没有权限') }
@@ -339,7 +340,7 @@ class UsersCtl {
         }
         ctx.status = 204
     }
-    
+
 }
 
 module.exports = new UsersCtl()
