@@ -40,7 +40,7 @@ CommentReply.init({
     type: DataTypes.INTEGER(10).UNSIGNED,
     allowNull: true,
     defaultValue: 0,
-    comment: '回复用户ID'
+    comment: '发表回复的用户ID'
   },
   reply_user_id: {
     type: DataTypes.INTEGER(10).UNSIGNED,

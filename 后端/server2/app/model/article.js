@@ -39,13 +39,7 @@ Answer.init({
         type: DataTypes.INTEGER(10).UNSIGNED,
         allowNull: true,
         defaultValue: 0,
-        comment: '回答点赞次数'
-    },
-    comment_num: {
-        type: DataTypes.INTEGER(10).UNSIGNED,
-        allowNull: true,
-        defaultValue: 0,
-        comment: '回答评论数'
+        comment: '文章点赞次数'
     },
     admin_id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
