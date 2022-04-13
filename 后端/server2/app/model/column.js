@@ -48,7 +48,7 @@ Column.init({
     },
     status: {
         type: DataTypes.TINYINT,
-        defaultValue: 2,
+        defaultValue: 1,
         comment: '专栏状态:0-禁用,1-正常'
     },
     created_at: {

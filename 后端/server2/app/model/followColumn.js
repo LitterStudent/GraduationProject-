@@ -2,17 +2,17 @@ const { sequelize } = require('../config/db')
 const { DataTypes, Model } = require('sequelize')
 const moment = require('moment')
 // 定义关注模型
-class FollowQuestion extends Model {
+class FollowColumn extends Model {
 
 }
 
 // 初始关注模型
-FollowQuestion.init({
+FollowColumn.init({
     id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
-        comment: '关注问题表主键ID'
+        comment: '关注专栏表主键ID'
     },
     user_id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
@@ -20,10 +20,10 @@ FollowQuestion.init({
         // 备注
         comment: '用户id'
     },
-    question_id: {
+    column_id: {
         type: DataTypes.INTEGER(10).UNSIGNED,
         allowNull: false,
-        comment: '问题id'
+        comment: '专栏id'
     },
     created_at: {
         type: DataTypes.DATE,
@@ -41,8 +41,8 @@ FollowQuestion.init({
     }
 }, {
     sequelize,
-    modelName: 'follow_question',
-    tableName: 'follow_question'
+    modelName: 'follow_column',
+    tableName: 'follow_column'
 })
 
-module.exports = FollowQuestion
+module.exports = FollowColumn
