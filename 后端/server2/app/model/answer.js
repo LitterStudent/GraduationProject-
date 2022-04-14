@@ -1,12 +1,12 @@
 const moment = require('moment');
 const { sequelize } = require('../config/db')
 const { DataTypes, Model } = require('sequelize')
-// 定义用户模型
+// 定义回答模型
 class Answer extends Model {
 
 }
 
-// 初始用户模型
+// 初始回答模型
 Answer.init({
     id: {
         type: DataTypes.INTEGER(10).UNSIGNED,

@@ -25,11 +25,6 @@ Article.init({
         allowNull: false,
         comment: '创建文章的用户id'
     },
-    column_id: {
-        type: DataTypes.INTEGER(10),
-        allowNull: true,
-        comment: '文章的所属专栏id,可以不所属专栏'
-    },
     title: {
         type: DataTypes.STRING(50),
         allowNull: false,

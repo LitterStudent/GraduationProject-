@@ -2,6 +2,7 @@ const { Op } = require('sequelize')
 const Article = require('../model/article')
 const User = require('../model/user')
 const Column = require('../model/column')
+const ColumnArticle = require('../model/column_article')
 
 class ColumnCtl {
     async create(ctx) {
@@ -44,8 +45,8 @@ class ColumnCtl {
         ctx.body = ColumnList
     }
     async checkColumnExist(ctx, next) {
-        const column = await Column.findByPk(ctx.params.id)
-        if (!column || column.status != 1) { ctx.throw(404, '文章不存在')}
+        const column = await Column.findByPk(ctx.params.column_id)
+        if (!column || column.status != 1) { ctx.throw(404, '专栏不存在')}
         ctx.state.column = column
         await next()
     }
@@ -54,9 +55,38 @@ class ColumnCtl {
         const column = await Column.findByPk(id)
         if (!column || column.status == 0) { ctx.throw(404, '专栏不存在') }
         const user = await User.scope('bh').findByPk(column.user_id)
-        const res = article.dataValues
+        const res = column.dataValues
         res.user = user.dataValues
         ctx.body = res
+    }
+    async findArticleByColumn (ctx) {
+        const column_id = ctx.params.id;
+        let { per_page = 10, page = 1, keyword } = ctx.query
+        page = Math.max(page * 1, 1) - 1
+        per_page = Math.max(per_page * 1, 1)
+        const filter = { status: 1, column_id }
+        if (keyword) {
+            filter.content = {
+                [Op.like]: `%${keyword}%`
+            }
+        }
+        const ColumnArticleList = await ColumnArticle.findAll({
+             where: filter,
+             limit: per_page,
+             offset: page * per_page,
+             order: [
+                 ['created_at', 'DESC']
+             ]
+            })
+        const articleIds = ColumnArticleList.map(item => item.article_id)
+        const articleList = await Article.findAll({
+            where: {
+                id: {
+                    [Op.in]: articleIds
+                }
+            }
+        })
+        ctx.body = articleList 
     }
     async findByUserId(ctx) {
         const user_id = ctx.params.id
@@ -84,10 +114,23 @@ class ColumnCtl {
     // 将文章添加到专栏
     async addingColumn(ctx) {
         const column_id = ctx.params.column_id
-        const article = ctx.state.article
-        article.column_id = column_id
-        await article.save()
+        const article_id = ctx.params.article_id
+        const column_article = new ColumnArticle()
+        column_article.column_id = column_id
+        column_article.article_id = article_id
+        await column_article.save()
         ctx.status = 200
+    }
+    // 将文章从专栏删除
+    async deleteFromColumn(ctx) {
+        const article_id = ctx.params.article_id
+        const column_id = ctx.params.column_id
+        const column_article = await ColumnArticle.findOne({
+            where:{ article_id, column_id }
+        })
+        column_article.status = 0
+        await column_article.save()
+        ctx.status = 204
     }
 }
 

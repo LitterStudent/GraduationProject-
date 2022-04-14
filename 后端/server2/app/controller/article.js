@@ -55,7 +55,13 @@ class AnswerssCtl {
         ctx.body = AnswerList
     }
     async checkArticleExist(ctx, next) {
-        const article = await Article.findByPk(ctx.params.id)
+        let id = undefined
+        if (ctx.params.id) {
+            id = ctx.params.id
+        } else if (ctx.params.article_id) {
+            id = ctx.params.article_id
+        }
+        const article = await Article.findByPk(id)
         if (!article || article.status != 1) { ctx.throw(404, '文章不存在')}
         // 只有在删改查答案时才检查该逻辑，赞和踩的时候不检查
         // if ( ctx.params.questionId && ctx.params.questionId !== answer.questionId ) {
