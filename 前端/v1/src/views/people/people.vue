@@ -26,24 +26,45 @@
           </div>
         </div>
         <div class="profile-content">
-          <div class="content-head">Musiciandd nihhhhhhhhhhhhhhhhh</div>
-          <div class="content-body"></div>
-          <div class="content-footer"></div>
+          <div class="content-head">
+            <h1>
+              <span class="head-name">Musiciandd</span>
+              <span class="head-line">nihhhhhhhhhhhhhhhhh</span>
+            </h1>
+          </div>
+          <div class="content-body">
+            <div class="detail-item">
+              <span class="detail-lable">居住地</span>
+              <span class="detail-value">现居广东省</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-lable">所在行业</span>
+              <span class="detail-value">互联网</span>
+            </div>
+          </div>
+          <div class="content-footer">
+            <button class="edit-profile">编辑个人资料</button>
+          </div>
         </div>
       </div>
     </el-header>
-    <el-container>
-      <el-aside>this is aside one </el-aside>
-      <el-aside>this is aside tew</el-aside>
+    <el-container class="profile-main">
+      <el-aside class="main">
+        <aside-header></aside-header>
+        this is aside one
+      </el-aside>
+      <el-aside class="aside">this is aside tew</el-aside>
     </el-container>
   </el-container>
 </template>
 
 <script>
 import { CameraFilled } from '@element-plus/icons-vue'
+import AsideHeader from './cpns/aside_header.vue'
 export default {
   components: {
-    CameraFilled
+    CameraFilled,
+    AsideHeader
   }
 }
 </script>
@@ -67,7 +88,7 @@ export default {
 .people-info {
   margin-top: 10px;
   height: 410px;
-  width: 1000px;
+  width: 1010px;
   /* background-color: red; */
 }
 .people-cover {
@@ -96,10 +117,13 @@ export default {
   object-fit: cover;
 }
 .people-content {
+  background: #fff;
   width: 100%;
   height: 162px;
   position: relative;
-  margin: 0 20px 24px;
+  /* margin: 0 20px 24px; */
+  padding-bottom: 20px;
+  box-shadow: rgba(18, 18, 18, 0.1) 0px 1px 3px 0px;
 }
 .people-avatar {
   cursor: pointer;
@@ -144,8 +168,69 @@ export default {
 }
 .profile-content {
   margin-left: 174px;
+  padding-left: 32px;
+  padding-top: 16px;
   width: 764px;
   height: 146px;
-  border: 1px solid red;
+  /* border: 1px solid red; */
+}
+.head-name {
+  font-size: 26px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.content-head {
+  padding-bottom: 16px;
+}
+.head-line {
+  margin-left: 12px;
+  font-size: 18px;
+  font-weight: 400;
+}
+.detail-item {
+  display: flex;
+  margin-bottom: 10px;
+}
+.detail-lable {
+  font-size: 14px;
+  width: 60px;
+  margin-right: 37px;
+  font-weight: 600;
+}
+.detail-value {
+  font-size: 14px;
+}
+.content-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+.edit-profile {
+  color: #06f;
+  border-color: #06f;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  display: inline-block;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  background: none;
+  border: 1px solid;
+  border-radius: 3px;
+}
+.profile-main {
+  margin-top: 25px;
+}
+.main {
+  width: 700px;
+  background-color: white;
+  margin-right: 10px;
+  box-shadow: rgba(18, 18, 18, 0.1) 0px 1px 3px 0px;
+}
+.aside {
+  width: 300px;
+  background-color: white;
+  box-shadow: rgba(18, 18, 18, 0.1) 0px 1px 3px 0px;
 }
 </style>
