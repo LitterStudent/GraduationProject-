@@ -4,6 +4,7 @@
       <rich-content :item="item"></rich-content>
     </template>
   </div>
+  <h2>this is recomment</h2>
 </template>
 
 <script>

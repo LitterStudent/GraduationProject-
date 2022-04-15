@@ -137,7 +137,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .nav_header {
   height: 100%;
   display: flex;
@@ -154,6 +154,7 @@ export default {
   width: 400px;
   margin-left: 200px;
   margin-right: 40px;
+  /* border-radius: 40px; */
 }
 .el-input__inner {
   height: 36px !important;
