@@ -27,9 +27,51 @@ const routes = [
     component: () => import('../views/question/question.vue')
   },
   {
-    path: '/people',
+    path: '/people/:id',
     name: 'People',
-    component: () => import('../views/people/people.vue')
+    component: () => import('../views/people/people.vue'),
+    children: [
+      {
+        path: 'index',
+        component: () => import('../views/people/views/index.vue')
+      },
+      {
+        path: 'answer',
+        component: () => import('../views/people/views/answer.vue')
+      },
+      {
+        path: 'question',
+        component: () => import('../views/people/views/question.vue')
+      },
+      {
+        path: 'article',
+        component: () => import('../views/people/views/article.vue')
+      },
+      {
+        path: 'column',
+        component: () => import('../views/people/views/column.vue')
+      },
+      {
+        path: 'follow',
+        component: () => import('../views/people/views/follow.vue')
+      },
+      {
+        path: 'follower',
+        component: () => import('../views/people/views/follower.vue')
+      },
+      {
+        path: 'followquestion',
+        component: () => import('../views/people/views/followquestion.vue')
+      },
+      {
+        path: 'followcolumn',
+        component: () => import('../views/people/views/followcolumn.vue')
+      },
+      {
+        path: 'followtopic',
+        component: () => import('../views/people/views/followtopic.vue')
+      }
+    ]
   },
   {
     path: '/editor',

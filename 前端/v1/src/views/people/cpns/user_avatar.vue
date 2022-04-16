@@ -1,39 +1,29 @@
 <template>
   <div class="user_avatar">
-    <div class="user_avatar_info">{{ item.user_name }}回答了该问题-1小时前</div>
     <div class="user_avatar_pic">
       <div class="pic-box">
-        <img
-          src="https://pic2.zhimg.com/v2-a4d688045f174c62a60115bd4048c823_s.jpg?source=3af55fa1"
-          alt=""
-          style="width: 100%; height: 100%"
-        />
+        <img :src="user.avatar_url" alt="" style="width: 100%; height: 100%" />
       </div>
-      <span class="pic-name">小小妮 </span>
+      <span class="pic-name">{{ user.name }} </span>
       <span>,</span>
-      <span class="pic-line">满足现状不求上进的小妮儿一枚。</span>
+      <span class="pic-line">{{ user.line }}</span>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['item']
+  props: ['item', 'user']
 }
 </script>
 
 <style scoped>
 .user_avatar {
   margin-top: 15px;
-  margin-left: 20px;
+  /* margin-left: 20px; */
   /* margin-bottom: 10px; */
 }
-.user_avatar_info {
-  color: #8590a6;
-  margin-bottom: 6px;
-  height: 24px;
-  font-size: 15;
-}
+
 .user_avatar_pic {
   display: flex;
   align-items: center;

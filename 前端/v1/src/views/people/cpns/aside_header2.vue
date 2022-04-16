@@ -1,7 +1,7 @@
 <template>
   <div class="aside_header">
     <el-menu
-      :default-active="1"
+      :default-active="defaultActive"
       class="el-menu-demo"
       mode="horizontal"
       @select="handleSelect"
@@ -19,7 +19,7 @@
 <script>
 import { useRouter } from 'vue-router'
 export default {
-  props: ['menus'],
+  props: ['menus', 'defaultActive'],
   setup() {
     const router = useRouter()
     const handleCilck = (menuItem) => {
@@ -52,7 +52,7 @@ export default {
 }
 .el-menu-item {
   color: rgb(18, 18, 18) !important;
-  font-size: 16px !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
   padding-left: 10px;
   padding-right: 10px;
@@ -61,7 +61,7 @@ export default {
   height: 30px;
 }
 .el-menu--horizontal > .el-menu-item.is-active {
-  border-bottom: 2px solid rgb(0, 102, 255);
+  border-bottom: 2px solid transparent;
   color: black !important;
   font-weight: 700 !important;
 }

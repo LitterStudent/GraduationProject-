@@ -50,8 +50,9 @@
     </el-header>
     <el-container class="profile-main">
       <el-aside class="main">
-        <aside-header></aside-header>
-        this is aside one
+        <aside-header :menus="menus"></aside-header>
+        <router-view></router-view>
+        <!-- this is aside one -->
       </el-aside>
       <el-aside class="aside">this is aside tew</el-aside>
     </el-container>
@@ -65,6 +66,19 @@ export default {
   components: {
     CameraFilled,
     AsideHeader
+  },
+  setup() {
+    const menus = [
+      { index: 1, value: '动态', url: '/people/1/index' },
+      { index: 2, value: '回答', url: '/people/1/answer' },
+      { index: 3, value: '提问', url: '/people/1/question' },
+      { index: 4, value: '文章', url: '/people/1/article' },
+      { index: 5, value: '专栏', url: '/people/1/column' },
+      { index: 6, value: '关注', url: '/people/1/follow' }
+    ]
+    return {
+      menus
+    }
   }
 }
 </script>
