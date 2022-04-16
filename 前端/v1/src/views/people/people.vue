@@ -54,17 +54,47 @@
         <router-view></router-view>
         <!-- this is aside one -->
       </el-aside>
-      <el-aside class="aside">this is aside tew</el-aside>
+      <el-aside class="aside">
+        <div class="card">
+          <div class="card-head">个人成就</div>
+          <div class="card-content">
+            <div class="card-item">
+              <el-icon style="margin-right: 10px; font-size: 20px"
+                ><star-filled
+              /></el-icon>
+              <span>获得 4 次赞同</span>
+            </div>
+            <div class="card-item" style="margin-top: 20px">
+              <el-icon style="margin-right: 10px; font-size: 20px"
+                ><edit-pen
+              /></el-icon>
+              <span>回答了 22 次问题</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-follow">
+          <div class="follow-item" style="border-right: 1px solid #ebebeb">
+            <div class="follow-item-title">关注了</div>
+            <div class="follow-item-num">38</div>
+          </div>
+          <div class="follow-item">
+            <div class="follow-item-title">关注者</div>
+            <div class="follow-item-num">1</div>
+          </div>
+        </div>
+      </el-aside>
     </el-container>
   </el-container>
 </template>
 
 <script>
-import { CameraFilled } from '@element-plus/icons-vue'
+import { CameraFilled, StarFilled, EditPen } from '@element-plus/icons-vue'
 import AsideHeader from './cpns/aside_header.vue'
 export default {
   components: {
     CameraFilled,
+    StarFilled,
+    EditPen,
     AsideHeader
   },
   setup() {
@@ -243,8 +273,68 @@ export default {
   box-shadow: rgba(18, 18, 18, 0.1) 0px 1px 3px 0px;
 }
 .aside {
+  /* height: 300px; */
   width: 300px;
-  background-color: white;
-  box-shadow: rgba(18, 18, 18, 0.1) 0px 1px 3px 0px;
+  /* background-color: white; */
+  /* box-shadow: rgba(18, 18, 18, 0.1) 0px 1px 3px 0px; */
+}
+.card {
+  width: 100%;
+  height: 163px;
+  margin-bottom: 10px;
+  background: #fff;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgb(18 18 18 / 10%);
+  box-sizing: border-box;
+}
+.card-head {
+  display: flex;
+  margin-left: 10px;
+  align-items: center;
+  height: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #646464;
+  border-bottom: 1px solid #f6f6f6;
+}
+.card-content {
+  height: 90px;
+  padding: 12px 0;
+}
+.card-item {
+  padding: 6px 20px;
+  width: 256px;
+  height: 20px;
+  color: #646464;
+  font-size: 15px;
+}
+.card-follow {
+  display: flex;
+  width: 300px;
+  height: 75px;
+  color: #646464;
+  margin-bottom: 10px;
+  /* padding-bottom: 10px; */
+  background: #fff;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.follow-item {
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
+  width: 150px;
+}
+.follow-item-title {
+  margin-left: 40px;
+  margin-top: 15px;
+}
+.follow-item-num {
+  padding-top: 5px;
+  margin-left: 55px;
+  font-size: 18px;
+  font-weight: 600;
+  color: black;
 }
 </style>

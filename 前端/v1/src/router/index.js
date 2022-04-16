@@ -1,7 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Index from '../views/index/index.vue'
-
+import localCache from '@/utils/cache'
 const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/login/login.vue')
+  },
   {
     path: '/',
     name: 'index',
@@ -12,11 +17,11 @@ const routes = [
         component: () => import('@/views/index/recommend/recommend.vue')
       },
       {
-        path: '/follow',
+        path: 'follow',
         component: () => import('@/views/index/follow/follow.vue')
       },
       {
-        path: '/hot',
+        path: 'hot',
         component: () => import('@/views/index/hot/hot.vue')
       }
     ]
@@ -87,6 +92,14 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes
+})
+router.beforeEach((to) => {
+  if (to.path !== '/login') {
+    const token = localCache.getCache('token')
+    if (!token) {
+      return '/login'
+    }
+  }
 })
 
 export default router

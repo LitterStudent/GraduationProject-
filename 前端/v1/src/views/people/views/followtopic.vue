@@ -2,7 +2,20 @@
   <div class="follow">
     <!-- <div class="title">我的关注</div> -->
     <aside-header :menus="menus" :defaultActive="defaultActive"></aside-header>
-    <h2>这是我关注的话题</h2>
+    <div class="topic-item">
+      <div class="img">
+        <img
+          src="https://pic2.zhimg.com/v2-a13c66a27e327443841fdc6bd4860eb4_im.jpg?source=57bbeac9"
+          style="width: 100%; height: 100%; border-radius: 5px"
+        />
+      </div>
+      <div class="topic-info">
+        <div class="info-title">动漫</div>
+        <span style="font-size: 14px; color: #175199; margin-top: 5px"
+          >900 个问题</span
+        >
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -38,5 +51,22 @@ export default {
   border-bottom-color: rgb(240, 242, 247);
   border-bottom-width: 1px;
   border-bottom-style: solid;
+}
+.topic-item {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+}
+.img {
+  width: 60px;
+  height: 60px;
+}
+.topic-info {
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.info-title {
+  cursor: pointer;
 }
 </style>

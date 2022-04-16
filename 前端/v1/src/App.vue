@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-header class="header">
+    <el-header class="header" v-if="!isLogin">
       <nav-header></nav-header>
     </el-header>
     <router-view />
@@ -9,9 +9,24 @@
 
 <script>
 import NavHeader from '@/components/nav_header_user'
-
+import { useRoute } from 'vue-router'
+import { watch, ref } from 'vue'
 export default {
-  components: { NavHeader }
+  components: { NavHeader },
+  setup() {
+    const isLogin = ref(false)
+    const route = useRoute()
+    watch(route, () => {
+      if (route.path === '/login') {
+        isLogin.value = true
+      } else {
+        isLogin.value = false
+      }
+    })
+    return {
+      isLogin
+    }
+  }
 }
 </script>
 <style>

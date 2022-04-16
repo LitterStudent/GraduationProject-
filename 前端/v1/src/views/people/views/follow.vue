@@ -22,6 +22,66 @@
         <button class="item-extra">已关注</button>
       </div>
     </div>
+    <div class="follow-item">
+      <div class="item-image">
+        <img
+          src="https://pic2.zhimg.com/v2-4820351241edd8f23ac32645cd53afed_im.jpg?source=32738c0c"
+          style="width: 100%; height: 100%; border-radius: 5px"
+        />
+      </div>
+      <div class="item-head">
+        <h2 class="item-head-title">洹水之滨</h2>
+        <div class="item-head-line">狼胥山前秋风紧，黄沙漠漠起塞声。</div>
+        <div class="item-head-meta">
+          <span>994 回答</span>
+          <span style="margin: 0 10px">396 文章</span>
+          <span>2,419 关注者</span>
+        </div>
+      </div>
+      <div>
+        <button class="item-extra">已关注</button>
+      </div>
+    </div>
+    <div class="follow-item">
+      <div class="item-image">
+        <img
+          src="https://pic2.zhimg.com/v2-4820351241edd8f23ac32645cd53afed_im.jpg?source=32738c0c"
+          style="width: 100%; height: 100%; border-radius: 5px"
+        />
+      </div>
+      <div class="item-head">
+        <h2 class="item-head-title">洹水之滨</h2>
+        <div class="item-head-line">狼胥山前秋风紧，黄沙漠漠起塞声。</div>
+        <div class="item-head-meta">
+          <span>994 回答</span>
+          <span style="margin: 0 10px">396 文章</span>
+          <span>2,419 关注者</span>
+        </div>
+      </div>
+      <div>
+        <button class="item-extra">已关注</button>
+      </div>
+    </div>
+    <div class="follow-item">
+      <div class="item-image">
+        <img
+          src="https://pic2.zhimg.com/v2-4820351241edd8f23ac32645cd53afed_im.jpg?source=32738c0c"
+          style="width: 100%; height: 100%; border-radius: 5px"
+        />
+      </div>
+      <div class="item-head">
+        <h2 class="item-head-title">洹水之滨</h2>
+        <div class="item-head-line">狼胥山前秋风紧，黄沙漠漠起塞声。</div>
+        <div class="item-head-meta">
+          <span>994 回答</span>
+          <span style="margin: 0 10px">396 文章</span>
+          <span>2,419 关注者</span>
+        </div>
+      </div>
+      <div>
+        <button class="item-extra">已关注</button>
+      </div>
+    </div>
   </div>
 </template>
 <script>

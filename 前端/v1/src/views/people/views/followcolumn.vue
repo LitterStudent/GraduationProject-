@@ -2,7 +2,38 @@
   <div class="follow">
     <!-- <div class="title">我的关注</div> -->
     <aside-header :menus="menus" :defaultActive="defaultActive"></aside-header>
-    <h2>这是我关注的专栏</h2>
+    <div class="column-item">
+      <h2 class="column-item-title">游戏开发启示录</h2>
+      <div class="column-item-description">聊聊游戏谈谈天</div>
+      <div class="column-item-status">
+        <span style="margin-right: 8px">38 篇内容</span>
+        <span>4,641 赞同</span>
+      </div>
+    </div>
+    <div class="column-item">
+      <h2 class="column-item-title">游戏开发启示录</h2>
+      <div class="column-item-description">聊聊游戏谈谈天</div>
+      <div class="column-item-status">
+        <span style="margin-right: 8px">38 篇内容</span>
+        <span>4,641 赞同</span>
+      </div>
+    </div>
+    <div class="column-item">
+      <h2 class="column-item-title">游戏开发启示录</h2>
+      <div class="column-item-description">聊聊游戏谈谈天</div>
+      <div class="column-item-status">
+        <span style="margin-right: 8px">38 篇内容</span>
+        <span>4,641 赞同</span>
+      </div>
+    </div>
+    <div class="column-item">
+      <h2 class="column-item-title">游戏开发启示录</h2>
+      <div class="column-item-description">聊聊游戏谈谈天</div>
+      <div class="column-item-status">
+        <span style="margin-right: 8px">38 篇内容</span>
+        <span>4,641 赞同</span>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -38,5 +69,21 @@ export default {
   border-bottom-color: rgb(240, 242, 247);
   border-bottom-width: 1px;
   border-bottom-style: solid;
+}
+.column-item {
+  padding: 16px 20px;
+}
+.column-item-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.column-item-description {
+  font-size: 15px;
+  color: #646464;
+  margin: 5px 0;
+}
+.column-item-status {
+  color: #8590a6;
+  font-size: 14px;
 }
 </style>

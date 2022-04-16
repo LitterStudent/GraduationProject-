@@ -54,7 +54,7 @@
                 <el-icon> <user-filled /> </el-icon>
               </template>
             </el-dropdown-item>
-            <el-dropdown-item>
+            <el-dropdown-item @click="handlelogout">
               <template #>
                 退出登录
                 <el-icon><switch-button /></el-icon>
@@ -70,6 +70,8 @@
 <script>
 import { Search, UserFilled, SwitchButton } from '@element-plus/icons-vue'
 import { onMounted, ref } from 'vue'
+import localCache from '@/utils/cache'
+import router from '@/router'
 export default {
   components: {
     Search,
@@ -80,6 +82,10 @@ export default {
     const handleIconClick = (e) => {
       console.log(e)
       console.log(this)
+    }
+    const handlelogout = () => {
+      localCache.deleteCache('token')
+      router.push('/login')
     }
     const state = ref('叮当的')
     const loadAll = () => {
@@ -131,7 +137,8 @@ export default {
       handleSelect,
       handleIconClick,
       querySearch,
-      squareUrl
+      squareUrl,
+      handlelogout
     }
   }
 }
