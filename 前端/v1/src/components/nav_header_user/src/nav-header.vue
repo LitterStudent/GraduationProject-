@@ -40,15 +40,17 @@
         </template>
       </el-autocomplete>
     </div>
-    <el-button color="rgb(0, 102, 255)" round>提问</el-button>
+    <el-button @click="handClickQuestion" color="rgb(0, 102, 255)" round
+      >提问</el-button
+    >
     <div class="info">
       <el-dropdown>
         <span class="el-dropdown-link">
-          <el-avatar shape="square" :src="squareUrl" />
+          <el-avatar shape="square" :src="avatar_url" />
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>
+            <el-dropdown-item @click="handlePeople">
               <template #>
                 我的主页
                 <el-icon> <user-filled /> </el-icon>
@@ -72,13 +74,15 @@ import { Search, UserFilled, SwitchButton } from '@element-plus/icons-vue'
 import { onMounted, ref } from 'vue'
 import localCache from '@/utils/cache'
 import router from '@/router'
+import { useStore } from 'vuex'
 export default {
   components: {
     Search,
     UserFilled,
     SwitchButton
   },
-  setup() {
+  emits: ['dialogVisible'],
+  setup(props, { emit }) {
     const handleIconClick = (e) => {
       console.log(e)
       console.log(this)
@@ -86,6 +90,14 @@ export default {
     const handlelogout = () => {
       localCache.deleteCache('token')
       router.push('/login')
+    }
+    const store = useStore()
+    const userId = store.state.login.userInfo.id
+    const avatar_url = store.state.login.userInfo.avatar_url
+    console.log(avatar_url)
+    const handlePeople = () => {
+      const path = `/people/${userId}/index`
+      router.push(path)
     }
     const state = ref('叮当的')
     const loadAll = () => {
@@ -132,13 +144,20 @@ export default {
       'https://pica.zhimg.com/v2-c951a81312d4457f3cfec3ce2f4ea261_is.jpg?source=32738c0c'
     )
 
+    const handClickQuestion = () => {
+      console.log(props)
+      emit('dialogVisible')
+    }
     return {
       state,
       handleSelect,
       handleIconClick,
       querySearch,
       squareUrl,
-      handlelogout
+      handlelogout,
+      handlePeople,
+      avatar_url,
+      handClickQuestion
     }
   }
 }

@@ -26,17 +26,28 @@
 </template>
 <script>
 import AsideHeader from '../cpns/aside_header2.vue'
+import { useStore } from 'vuex'
 export default {
   components: {
     AsideHeader
   },
   setup() {
+    const store = useStore()
+    const userId = store.state.login.userInfo.id
     const menus = [
-      { index: 1, value: '我关注的人', url: '/people/1/follow' },
-      { index: 2, value: '关注我的人', url: '/people/1/follower' },
-      { index: 3, value: '我关注的问题', url: '/people/1/followquestion' },
-      { index: 4, value: '我关注的专栏', url: '/people/1/followcolumn' },
-      { index: 5, value: '我关注的话题', url: '/people/1/followtopic' }
+      { index: 1, value: '我关注的人', url: `/people/${userId}/follow` },
+      { index: 2, value: '关注我的人', url: `/people/${userId}/follower` },
+      {
+        index: 3,
+        value: '我关注的问题',
+        url: `/people/${userId}/followquestion`
+      },
+      {
+        index: 4,
+        value: '我关注的专栏',
+        url: `/people/${userId}/followcolumn`
+      },
+      { index: 5, value: '我关注的话题', url: `/people/${userId}/followtopic` }
     ]
     const defaultActive = 2
     return {

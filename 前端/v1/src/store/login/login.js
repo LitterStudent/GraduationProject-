@@ -1,5 +1,6 @@
 import localCache from '@/utils/cache'
 import { userLoginRequest, userInfoRequest } from '@/service/login/login.js'
+import { changeUserInfoRequest } from '@/service/user/user'
 import router from '@/router'
 const loginModule = {
   namespaced: true,
@@ -34,17 +35,14 @@ const loginModule = {
       // 4.跳转首页
       router.push('/')
     },
-    loadLocalLogin({ commit, dispatch }) {
+    loadLocalLogin({ commit }) {
       const token = localCache.getCache('token')
       if (token) {
-        console.log('object')
         commit('changeToken', token)
-        // 发送初始化的请求(完整的role/department)
-        dispatch('getInitialDataAction', null, { root: true })
       }
       const userInfo = localCache.getCache('userInfo')
       if (userInfo) {
-        commit('changeUserInfo', userInfo)
+        commit('changeUserInfo', userInfo.data[0])
       }
     },
     setuplogin({ commit }) {
@@ -60,6 +58,11 @@ const loginModule = {
       if (token) {
         commit('changeUserMenus', userMenus)
       }
+    },
+    async changeUserInfo({ commit }, payload) {
+      commit('changeUserInfo', payload)
+      localCache.setCache('userInfo', { data: [payload] })
+      await changeUserInfoRequest(payload)
     }
   }
 }

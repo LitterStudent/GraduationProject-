@@ -1,6 +1,6 @@
 <template>
   <div class="quesiton">
-    <question-header></question-header>
+    <question-header :questionInfo="questionInfo"></question-header>
     <div class="mian">
       <div class="answer-num">
         <h4>499个回答</h4>
@@ -17,10 +17,26 @@
 <script>
 import QuestionHeader from './cpns/header.vue'
 import QuestionContent from './cpns/content.vue'
+import { useRoute } from 'vue-router'
+import { findQuestionRequest } from '@/service/user/user'
+import { onMounted, reactive } from 'vue'
 export default {
   components: {
     QuestionHeader,
     QuestionContent
+  },
+  created() {},
+  setup() {
+    const route = useRoute()
+    const questionId = route.params.id
+    const questionInfo = reactive({ question: {}, topic: {} })
+    onMounted(async () => {
+      const res = await findQuestionRequest(questionId)
+      questionInfo.question = res.question
+      questionInfo.topic = res.topic
+      console.log(questionInfo)
+    })
+    return { questionInfo }
   }
 }
 </script>

@@ -27,7 +27,7 @@ const routes = [
     ]
   },
   {
-    path: '/question',
+    path: '/question/:id',
     name: 'Question',
     component: () => import('../views/question/question.vue')
   },
@@ -77,6 +77,10 @@ const routes = [
         component: () => import('../views/people/views/followtopic.vue')
       }
     ]
+  },
+  {
+    path: '/editProfile',
+    component: () => import('../views/people/views/edit.vue')
   },
   {
     path: '/editor',

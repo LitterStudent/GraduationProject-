@@ -5,14 +5,14 @@
         <div class="question-header-content">
           <div class="question-header-main">
             <div class="question-header-tag">
-              <span>俄罗斯</span>
+              <span>{{ questionInfo.topic.topic_name }}</span>
             </div>
             <h1 class="question-header-title">
-              如何评价俄罗斯黑海舰队旗舰「莫斯科号」导弹巡洋舰，在拖拽过程中沉没？
+              {{ questionInfo.question.question_name }}
             </h1>
             <div class="question-header-text">
-              <span id="spantext">
-                当地时间14日，俄罗斯国防部表示，俄黑海舰队“莫斯科”号导弹巡洋舰在被拖往目的地港口的过程中，船身失去稳定性，在狂风大浪中沉没。俄罗斯国防部此前证实，…
+              <span id="spantext" v-html="questionInfo.question.description">
+                <!-- {{  }} -->
               </span>
               <button
                 v-if="!isShowAll"
@@ -54,12 +54,14 @@
 
 <script>
 import { EditPen } from '@element-plus/icons-vue'
-import { ref } from '@vue/reactivity'
+import { ref, reactive } from '@vue/reactivity'
 export default {
   components: {
     EditPen
   },
-  setup() {
+  props: ['questionInfo'],
+  setup(props) {
+    console.log(props.questionInfo)
     const isShowAll = ref(false)
     const formatStr =
       '当地时间14日，俄罗斯国防部表示，俄黑海舰队“莫斯科”号导弹巡洋舰在被拖往目的地港口的过程中，船身失去稳定性，在狂风大浪中沉没。俄罗斯国防部此前证实，…'
@@ -75,10 +77,14 @@ export default {
       span.innerHTML = formatStr
       isShowAll.value = false
     }
+
+    const questionInfo2 = reactive(props.questionInfo)
+    console.log(questionInfo2)
     return {
       handleShowAll,
       isShowAll,
-      handleShowPart
+      handleShowPart,
+      questionInfo2
     }
   }
 }

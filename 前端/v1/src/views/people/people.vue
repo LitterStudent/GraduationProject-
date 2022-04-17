@@ -5,17 +5,11 @@
         <button class="editPic">
           <el-icon class="icon"><camera-filled /></el-icon>编辑封面图片
         </button>
-        <img
-          src="https://pic1.zhimg.com/80/v2-2711607b1fcf406f12a878f0ac9dd8a1_r.jpg?source=32738c0c"
-          class="peo-pic"
-        />
+        <img :src="userInfo.background_url" class="peo-pic" />
       </div>
       <div class="people-content">
         <div class="people-avatar">
-          <img
-            src="https://pic1.zhimg.com/v2-c951a81312d4457f3cfec3ce2f4ea261_xl.jpg?source=32738c0c"
-            class="people-pic"
-          />
+          <img :src="userInfo.avatar_url" class="people-pic" />
           <div class="mask">
             <div class="mask-text">
               <div>
@@ -28,8 +22,8 @@
         <div class="profile-content">
           <div class="content-head">
             <h1>
-              <span class="head-name">Musiciandd</span>
-              <span class="head-line">nihhhhhhhhhhhhhhhhh</span>
+              <span class="head-name">{{ userInfo.username }}</span>
+              <span class="head-line">{{ userInfo.headline }}</span>
             </h1>
           </div>
           <div class="content-body">
@@ -43,7 +37,9 @@
             </div>
           </div>
           <div class="content-footer">
-            <button class="edit-profile">编辑个人资料</button>
+            <button class="edit-profile" @click="handleEditProfile">
+              编辑个人资料
+            </button>
           </div>
         </div>
       </div>
@@ -90,6 +86,8 @@
 <script>
 import { CameraFilled, StarFilled, EditPen } from '@element-plus/icons-vue'
 import AsideHeader from './cpns/aside_header.vue'
+import { useStore } from 'vuex'
+import router from '@/router'
 export default {
   components: {
     CameraFilled,
@@ -98,16 +96,24 @@ export default {
     AsideHeader
   },
   setup() {
+    const store = useStore()
+    const userInfo = store.state.login.userInfo
+    const userId = userInfo.id
     const menus = [
-      { index: 1, value: '动态', url: '/people/1/index' },
-      { index: 2, value: '回答', url: '/people/1/answer' },
-      { index: 3, value: '提问', url: '/people/1/question' },
-      { index: 4, value: '文章', url: '/people/1/article' },
-      { index: 5, value: '专栏', url: '/people/1/column' },
-      { index: 6, value: '关注', url: '/people/1/follow' }
+      { index: 1, value: '动态', url: `/people/${userId}/index` },
+      { index: 2, value: '回答', url: `/people/${userId}/answer` },
+      { index: 3, value: '提问', url: `/people/${userId}/question` },
+      { index: 4, value: '文章', url: `/people/${userId}/article` },
+      { index: 5, value: '专栏', url: `/people/${userId}/column` },
+      { index: 6, value: '关注', url: `/people/${userId}/follow` }
     ]
+    const handleEditProfile = () => {
+      router.push('/editProfile')
+    }
     return {
-      menus
+      menus,
+      handleEditProfile,
+      userInfo
     }
   }
 }
@@ -174,7 +180,7 @@ export default {
   width: 160px;
   height: 160px;
   position: absolute;
-  left: 0;
+  left: 20px;
   top: -25px;
   border: 4px solid #fff;
   border-radius: 8px;
