@@ -1,6 +1,7 @@
 <template>
   <div class="quesiton">
     <question-header :questionInfo="questionInfo"></question-header>
+    <router-view></router-view>
     <div class="mian">
       <div class="answer-num">
         <h4>499个回答</h4>
@@ -30,12 +31,15 @@ export default {
     const route = useRoute()
     const questionId = route.params.id
     const questionInfo = reactive({ question: {}, topic: {} })
+    const answerList = reactive([])
     onMounted(async () => {
       const res = await findQuestionRequest(questionId)
       questionInfo.question = res.question
       questionInfo.topic = res.topic
       console.log(questionInfo)
+      answerList = await fin
     })
+
     return { questionInfo }
   }
 }

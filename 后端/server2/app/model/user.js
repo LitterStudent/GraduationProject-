@@ -26,6 +26,11 @@ User.init({
         defaultValue: "https://pic1.zhimg.com/v2-c951a81312d4457f3cfec3ce2f4ea261_is.jpg?source=32738c0c",
         comment: '用户头像'
     },
+    background_url: {
+        type: DataTypes.STRING(256),
+        defaultValue: "https://pic1.zhimg.com/v2-c951a81312d4457f3cfec3ce2f4ea261_is.jpg?source=32738c0c",
+        comment: '用户头像'
+    },
     email: {
         type: DataTypes.STRING(50),
         allowNull: false,

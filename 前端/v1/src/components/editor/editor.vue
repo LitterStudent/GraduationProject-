@@ -1,15 +1,15 @@
 <template>
   <div class="editor">
-    <div style="border: 1px solid #ccc">
+    <div :style="containerStyle">
       <Toolbar
         style="border-bottom: 1px solid #ccc"
         :editor="editorRef"
         :defaultConfig="toolbarConfig"
         :mode="mode"
       />
-      <div class="box">
+      <div :style="boxstyle">
         <Editor
-          style="height: 90px; overflow-y: hidden"
+          :style="editorStyle"
           :defaultConfig="editorConfig"
           :mode="mode"
           @onCreated="handleCreated"
@@ -22,33 +22,46 @@
 <script>
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 
-import { onBeforeUnmount, shallowRef, onMounted } from 'vue'
+import { onBeforeUnmount, shallowRef, onMounted, computed } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 export default {
   components: { Editor, Toolbar },
-  props: ['placeholder'],
+  props: {
+    containerStyle: { type: String, default: 'border: 1px solid #ccc' },
+    placeholder: { type: String },
+    height: { type: String, default: '90px' },
+    boxstyle: { type: String, default: 'margin-left: 10px;width: 90%;' },
+    toobarexclude: {
+      type: Array,
+      default: () => {
+        return [
+          'blockquote',
+          'bgColor',
+          'clearStyle',
+          'todo',
+          'justifyLeft',
+          'justifyRight',
+          'justifyCenter',
+          'insertVideo',
+          'insertTable',
+          'codeBlock',
+          'undo',
+          'redo',
+          'fullScreen'
+        ]
+      }
+    }
+  },
   setup(props) {
     // 编辑器实例，必须用 shallowRef
     const editorRef = shallowRef()
-
+    const editorStyle = computed(() => {
+      return 'height: ' + props.height + '; overflow-y: hidden'
+    })
     // 模拟 ajax 异步获取内容
     onMounted(() => {})
     const toolbarConfig = {
-      excludeKeys: [
-        'blockquote',
-        'bgColor',
-        'clearStyle',
-        'todo',
-        'justifyLeft',
-        'justifyRight',
-        'justifyCenter',
-        'insertVideo',
-        'insertTable',
-        'codeBlock',
-        'undo',
-        'redo',
-        'fullScreen'
-      ]
+      excludeKeys: props.toobarexclude
     }
     const editorConfig = { MENU_CONF: {}, placeholder: props.placeholder }
     editorConfig.MENU_CONF['uploadImage'] = {
@@ -101,16 +114,12 @@ export default {
       mode: 'simple', // 或 'simple'
       toolbarConfig,
       editorConfig,
-      handleCreated
+      handleCreated,
+      editorStyle
       // onChange
     }
   }
 }
 </script>
 
-<style scoped>
-.box {
-  margin-left: 20px;
-  width: 90%;
-}
-</style>
+<style scoped></style>

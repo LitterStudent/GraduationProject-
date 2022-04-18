@@ -24,3 +24,16 @@ export function findQuestionRequest(id) {
     url: `/questions/${id}`
   })
 }
+
+export function createAnswerRequest(id, data) {
+  return hdRequest.post({
+    url: `/questions/${id}/answers`,
+    data
+  })
+}
+
+export function findAllAnswerRequest(id) {
+  return hdRequest.get({
+    url: `/questions/${id}/answers`
+    })
+}

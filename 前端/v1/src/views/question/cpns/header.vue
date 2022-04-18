@@ -11,15 +11,14 @@
               {{ questionInfo.question.question_name }}
             </h1>
             <div class="question-header-text">
-              <span id="spantext" v-html="questionInfo.question.description">
-                <!-- {{  }} -->
-              </span>
+              <span id="spantext" v-html="text"> </span>
               <button
                 v-if="!isShowAll"
-                class="question-header-button"
+                class="question-header-button1"
                 @click="handleShowAll"
               >
                 显示全部
+                <el-icon><arrow-down-bold /></el-icon>
               </button>
             </div>
           </div>
@@ -35,8 +34,13 @@
           </div>
         </div>
         <div class="question-hader-footer">
-          <el-button type="primary">关注问题</el-button>
-          <el-button type="primary" plain>
+          <el-button type="primary" color="#06f">关注问题</el-button>
+          <el-button
+            type="primary"
+            color="#06f"
+            plain
+            @click="isShowEditor = true"
+          >
             <el-icon style="margin-right: 5px"><edit-pen /></el-icon>写回答
           </el-button>
           <button
@@ -45,46 +49,92 @@
             @click="handleShowPart"
           >
             收起
+            <el-icon><arrow-up-bold /></el-icon>
           </button>
         </div>
       </template>
     </el-card>
   </div>
+  <div class="editor-box" v-if="isShowEditor">
+    <div class="editor-box2">
+      <editor
+        ref="editorRef"
+        containerStyle="none"
+        height="900px"
+        boxstyle="width:80%; padding:0  100px"
+        :toobarexclude="[]"
+      ></editor>
+      <div class="editor-box2-footer">
+        <el-button
+          @click="handlecommitAnswer"
+          style="margin-left: 620px; margin-top: 20px"
+          color="rgb(0, 92, 230)"
+          >发布回答</el-button
+        >
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { EditPen } from '@element-plus/icons-vue'
-import { ref, reactive } from '@vue/reactivity'
+import { EditPen, ArrowUpBold, ArrowDownBold } from '@element-plus/icons-vue'
+import { ref } from '@vue/reactivity'
+import { computed } from '@vue/runtime-core'
+import Editor from '@/components/editor/editor.vue'
+import { createAnswerRequest } from '@/service/user/user'
 export default {
   components: {
-    EditPen
+    EditPen,
+    ArrowUpBold,
+    ArrowDownBold,
+    Editor
   },
   props: ['questionInfo'],
   setup(props) {
-    console.log(props.questionInfo)
     const isShowAll = ref(false)
-    const formatStr =
-      '当地时间14日，俄罗斯国防部表示，俄黑海舰队“莫斯科”号导弹巡洋舰在被拖往目的地港口的过程中，船身失去稳定性，在狂风大浪中沉没。俄罗斯国防部此前证实，…'
-    const str =
-      '<p data-first-child="">据央视新闻消息，4月14日，江苏苏州市召开新冠肺炎疫情防控新闻发布会。苏州市委常委、市政府常务副市长顾海东通报：<br><br>张家港近期突发聚集性疫情，塘桥镇一家家具厂出现了员工及其家属之间的扩散传播，姑苏、相城、工业园区等地陆续在社会面筛查中发现阳性感染者，尤其是姑苏区火车站周边地区，外省市来苏州的暂留人群中出现了多例阳性感染者，隐匿传播风险较大。<br><br>鉴于上述情况，为有效阻断疫情蔓延，迅速切断传播链条，降低疫情传播风险，切实保障广大人民群众生命安全和身体健康，苏州市及时调整升级了一些管控措施，部分地区严格实施分类分区的差异化静态管理，鼓励有条件的企业和社会组织居家办公，除了保障市民生活和城市基本运行之外的所有聚集活动一律取消，并全力保障居民生活物资供应。这些举措的目的，就是要进一步让城市慢下来、静下来、停下来，尽快遏制疫情扩散蔓延。</p>'
+    const isShowEditor = ref(false)
+    const text = computed(() => {
+      const li = document.createElement('li')
+      li.innerHTML = props.questionInfo.question['description']
+      return li.innerText.slice(0, 70) + '...'
+    })
+
     const handleShowAll = () => {
       const span = document.querySelector('#spantext')
-      span.innerHTML = str
+      span.innerHTML = props.questionInfo.question['description']
+      console.log(span.childNodes)
+      span.childNodes.forEach((item) => {
+        if (item.tagName === 'P') {
+          item.setAttribute('style', 'padding: 10px 0;')
+        }
+      })
       isShowAll.value = true
     }
     const handleShowPart = () => {
       const span = document.querySelector('#spantext')
-      span.innerHTML = formatStr
+      span.innerHTML = text.value
       isShowAll.value = false
     }
+    const editorRef = ref()
+    const handlecommitAnswer = async () => {
+      const content = editorRef.value.editorRef.getHtml()
+      if (content === '<p><br></p>') {
+        alert('请输入回答')
+        return
+      }
+      const id = props.questionInfo.question.id
+      const res = await createAnswerRequest(id, { content })
+      console.log(res)
+    }
 
-    const questionInfo2 = reactive(props.questionInfo)
-    console.log(questionInfo2)
     return {
       handleShowAll,
       isShowAll,
       handleShowPart,
-      questionInfo2
+      text,
+      isShowEditor,
+      editorRef,
+      handlecommitAnswer
     }
   }
 }
@@ -123,7 +173,14 @@ export default {
 .question-header-text {
   cursor: pointer;
 }
+.question-header-button1 {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: #8590a6;
+}
 .question-header-button {
+  margin-left: 400px;
   cursor: pointer;
   border: none;
   border-radius: 0%;
@@ -162,5 +219,24 @@ export default {
   margin: 0 8px;
   color: #fff;
   background-color: #06f;
+}
+.editor-box {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+.editor-box2 {
+  background-color: rgb(251, 251, 251);
+  border: 1px solid #ebebeb;
+  width: 940px;
+  height: 1200px;
+}
+.editor-box2-footer {
+  border-top: 1px solid #ebebeb;
+  /* box-sizing: border-box; */
+  width: 750px;
+  height: 100px;
+  margin: 0 100px;
+  background-color: white;
 }
 </style>

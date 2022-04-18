@@ -93,20 +93,54 @@ class UsersCtl {
   }
   async updateById(ctx) {
     ctx.verifyParams({
-      name: { type: "string", required: false },
+      username: { type: "string", required: false },
       password: { type: "string", required: false },
-      avator_url: { type: "string", required: false },
+      avatar_url: { type: "string", required: false },
       gender: { type: "string", required: false },
       headline: { type: "string", required: false },
       location: { type: "string", itemType: "string", required: false },
-      employments: { type: "string", itemType: "object", required: false },
-      educations: { type: "string", itemType: "object", required: false },
     });
     const user = await User.findByPk(ctx.params.id);
     if (!user) {
       ctx.throw(404, "用户不存在");
     }
-    user.set(ctx.request.body);
+    const {
+      username,
+      gender,
+      headline,
+      location,
+      business,
+      avatar_url,
+      background_url,
+      password,
+    } = ctx.request.body;
+    if (username) {
+      user.username = username;
+    }
+    if (gender) {
+      user.gender = gender - 0;
+    }
+    if (headline) {
+      user.headline = headline;
+    }
+    if (location) {
+      user.location = location;
+    }
+    if (business) {
+      user.business = business;
+    }
+    if (avatar_url) {
+      user.avatar_url = avatar_url;
+    }
+    if (background_url) {
+      user.background_url = background_url;
+    }
+    if (password) {
+      const salt = bcrypt.genSaltSync(10);
+      // 生成加密密码
+      const psw = bcrypt.hashSync(password, salt);
+      user.password = psw;
+    }
     await user.save();
     ctx.body = user;
   }
