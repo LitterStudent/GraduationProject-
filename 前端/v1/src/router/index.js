@@ -29,19 +29,13 @@ const routes = [
   {
     path: '/question/:id',
     name: 'Question',
-    component: () => import('../views/question/question.vue'),
-    children: [
-      {
-        path: 'answer/:id2',
-        component: () => import('../views/question/questionOne.vue')
-      }
-    ]
+    component: () => import('../views/question/question.vue')
   },
-  // {
-  //   path: '/question/:id/answer/:id2',
-  //   name: 'AnswerOne',
-  //   component: () => import('../views/question/questionOne.vue')
-  // },
+  {
+    path: '/question/:id/answer/:id2',
+    name: 'AnswerOne',
+    component: () => import('../views/question/questionOne.vue')
+  },
   {
     path: '/people/:id',
     name: 'People',

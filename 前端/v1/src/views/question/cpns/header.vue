@@ -35,13 +35,18 @@
         </div>
         <div class="question-hader-footer">
           <el-button type="primary" color="#06f">关注问题</el-button>
-          <el-button
-            type="primary"
-            color="#06f"
-            plain
-            @click="isShowEditor = true"
-          >
-            <el-icon style="margin-right: 5px"><edit-pen /></el-icon>写回答
+          <el-button type="primary" color="#06f" plain>
+            <span v-if="isAnswer" @click="handleEditAnswer">
+              <el-icon style="margin-right: 5px"><edit-pen /></el-icon
+              >编辑我的回答
+            </span>
+            <span v-else-if="isWrite" @click="handleShowMyAnswer">
+              <el-icon style="margin-right: 5px"><edit-pen /></el-icon
+              >查看我的回答
+            </span>
+            <span v-else @click="isShowEditor = true">
+              <el-icon style="margin-right: 5px"><edit-pen /></el-icon>写回答
+            </span>
           </el-button>
           <button
             v-if="isShowAll"
@@ -62,6 +67,7 @@
         containerStyle="none"
         height="900px"
         boxstyle="width:80%; padding:0  100px"
+        :answerValue="answerValue"
         :toobarexclude="[]"
       ></editor>
       <div class="editor-box2-footer">
@@ -81,7 +87,13 @@ import { EditPen, ArrowUpBold, ArrowDownBold } from '@element-plus/icons-vue'
 import { ref } from '@vue/reactivity'
 import { computed } from '@vue/runtime-core'
 import Editor from '@/components/editor/editor.vue'
-import { createAnswerRequest } from '@/service/user/user'
+import {
+  createAnswerRequest,
+  updateAnswerRequest,
+  finUserAnswerRequest
+} from '@/service/user/user'
+import router from '@/router'
+import { useStore } from 'vuex'
 export default {
   components: {
     EditPen,
@@ -89,8 +101,9 @@ export default {
     ArrowDownBold,
     Editor
   },
-  props: ['questionInfo'],
+  props: ['questionInfo', 'isWrite', 'isAnswer', 'answerOne'],
   setup(props) {
+    const store = useStore()
     const isShowAll = ref(false)
     const isShowEditor = ref(false)
     const text = computed(() => {
@@ -122,9 +135,38 @@ export default {
         alert('请输入回答')
         return
       }
-      const id = props.questionInfo.question.id
-      const res = await createAnswerRequest(id, { content })
-      console.log(res)
+      if (!props.answerOne.content) {
+        // 新建
+        const id = props.questionInfo.question.id
+        const res = await createAnswerRequest(id, { content })
+        router.push(`/question/${id}/answer/${res.id}`)
+      } else {
+        // 更新
+        const id = props.questionInfo.question.id
+        // console.log(props.answerOne)
+        const res = await updateAnswerRequest(id, props.answerOne.id, {
+          content
+        })
+        console.log(res)
+        router.push(`/question/${id}`)
+      }
+    }
+
+    const answerValue = ref('<p>hello</p>')
+    const handleEditAnswer = async () => {
+      isShowEditor.value = true
+      answerValue.value = props.answerOne.content
+    }
+    const handleShowMyAnswer = async () => {
+      const questionId = props.questionInfo.question.id
+      const userId = store.state.login.userInfo.id
+      const answerRes = await finUserAnswerRequest(questionId, userId)
+      console.log(`/question/${questionId}/answer/${answerRes.id}`)
+      router.push(`/question/${questionId}/answer/${answerRes.id}`)
+      console.log('object')
+      location.replace(
+        `http://localhost:8080/#question/${questionId}/answer/${answerRes.id}`
+      )
     }
 
     return {
@@ -134,7 +176,10 @@ export default {
       text,
       isShowEditor,
       editorRef,
-      handlecommitAnswer
+      handlecommitAnswer,
+      handleEditAnswer,
+      handleShowMyAnswer,
+      answerValue
     }
   }
 }

@@ -32,8 +32,27 @@ export function createAnswerRequest(id, data) {
   })
 }
 
+export function updateAnswerRequest(id, id2, data) {
+  return hdRequest.patch({
+    url: `/questions/${id}/answers/${id2}`,
+    data
+  })
+}
+
 export function findAllAnswerRequest(id) {
   return hdRequest.get({
     url: `/questions/${id}/answers`
-    })
+  })
+}
+
+export function finOneAnswerRequest(id, id2) {
+  return hdRequest.get({
+    url: `/questions/${id}/answers/${id2}`
+  })
+}
+
+export function finUserAnswerRequest(id, id2) {
+  return hdRequest.get({
+    url: `/questions/${id}/answers/user/${id2}`
+  })
 }

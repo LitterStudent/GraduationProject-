@@ -1,16 +1,13 @@
 <template>
   <div class="quesiton">
     <question-header :questionInfo="questionInfo"></question-header>
-    <router-view></router-view>
     <div class="mian">
       <div class="answer-num">
-        <h4>499个回答</h4>
+        <h4>{{ answerList.length }}个回答</h4>
       </div>
-      <question-content></question-content>
-      <question-content></question-content>
-      <question-content></question-content>
-      <question-content></question-content>
-      <question-content></question-content>
+      <template v-for="item in answerList" :key="item.id">
+        <question-content :item="item"></question-content>
+      </template>
     </div>
   </div>
 </template>
@@ -19,8 +16,9 @@
 import QuestionHeader from './cpns/header.vue'
 import QuestionContent from './cpns/content.vue'
 import { useRoute } from 'vue-router'
-import { findQuestionRequest } from '@/service/user/user'
+import { findQuestionRequest, findAllAnswerRequest } from '@/service/user/user'
 import { onMounted, reactive } from 'vue'
+import { formatUtcString } from '@/utils/date-format'
 export default {
   components: {
     QuestionHeader,
@@ -37,10 +35,20 @@ export default {
       questionInfo.question = res.question
       questionInfo.topic = res.topic
       console.log(questionInfo)
-      answerList = await fin
+      const res2 = await findAllAnswerRequest(questionInfo.question.id)
+      console.log(res2)
+      res2.forEach((item) => {
+        answerList.push(item)
+      })
+      console.log(answerList)
+      if (res2.length > 0) {
+        answerList.forEach((item) => {
+          item.updated_at = formatUtcString(item.updated_at)
+        })
+      }
     })
 
-    return { questionInfo }
+    return { questionInfo, answerList }
   }
 }
 </script>

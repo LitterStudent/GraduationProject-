@@ -9,6 +9,7 @@
       />
       <div :style="boxstyle">
         <Editor
+          v-model="answerValueHtml"
           :style="editorStyle"
           :defaultConfig="editorConfig"
           :mode="mode"
@@ -22,7 +23,7 @@
 <script>
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 
-import { onBeforeUnmount, shallowRef, onMounted, computed } from 'vue'
+import { onBeforeUnmount, shallowRef, onMounted, computed, ref } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 export default {
   components: { Editor, Toolbar },
@@ -50,7 +51,8 @@ export default {
           'fullScreen'
         ]
       }
-    }
+    },
+    answerValue: { type: String, default: '<p>hello</p>' }
   },
   setup(props) {
     // 编辑器实例，必须用 shallowRef
@@ -109,13 +111,15 @@ export default {
     const handleCreated = (editor) => {
       editorRef.value = editor // 记录 editor 实例，重要！
     }
+    const answerValueHtml = ref(props.answerValue)
     return {
       editorRef,
       mode: 'simple', // 或 'simple'
       toolbarConfig,
       editorConfig,
       handleCreated,
-      editorStyle
+      editorStyle,
+      answerValueHtml
       // onChange
     }
   }

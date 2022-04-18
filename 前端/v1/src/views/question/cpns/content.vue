@@ -3,90 +3,27 @@
     <div class="authorInfo">
       <div class="infobox">
         <div class="imgbox">
-          <img
-            src="https://pic2.zhimg.com/3d052e71b_xs.jpg?source=1940ef5c"
-            class="img"
-          />
+          <el-avatar shape="square" :src="item.userInfo.avatar_url" />
         </div>
         <div class="info">
           <div class="name">
-            <strong>maomaobear </strong>
+            <strong>{{ item.userInfo.username }} </strong>
           </div>
           <div class="line">
-            <span>科技盐究员</span>
+            <span>{{ item.userInfo.headline }}</span>
           </div>
         </div>
       </div>
-      <div class="agree">1,476 人赞同了该回答</div>
+      <div class="agree">{{ item.favorite_num }}人赞同了该回答</div>
     </div>
-    <div class="richcontent">
-      <p>
-        <span
-          style="
-            color: rgb(0, 0, 0);
-            background-color: rgb(247, 248, 250);
-            font-size: 14px;
-            font-family: 'PingFang SC', -apple-system, Arial, 'Microsoft YaHei',
-              'Microsoft JhengHei', 'Helvetica Neue', sans-serif;
-          "
-          >作为一个上海市民，我不明白，什么人能拿到出沪的许可。</span
-        >
-      </p>
-      <p>
-        <span
-          style="
-            color: rgb(0, 0, 0);
-            background-color: rgb(247, 248, 250);
-            font-size: 14px;
-            font-family: 'PingFang SC', -apple-system, Arial, 'Microsoft YaHei',
-              'Microsoft JhengHei', 'Helvetica Neue', sans-serif;
-          "
-          >&nbsp;能一直带着病毒出上海。&nbsp;苏州人能不能坚决点，把出上海所有的乘用车都封掉？</span
-        >
-      </p>
-      <p>
-        <span
-          style="
-            color: rgb(0, 0, 0);
-            background-color: rgb(247, 248, 250);
-            font-size: 14px;
-            font-family: 'PingFang SC', -apple-system, Arial, 'Microsoft YaHei',
-              'Microsoft JhengHei', 'Helvetica Neue', sans-serif;
-          "
-          >路口都派上民兵，只要不是送货送物资的大卡车一律禁止进出。&nbsp;</span
-        >
-      </p>
-      <p>
-        <span
-          style="
-            color: rgb(0, 0, 0);
-            background-color: rgb(247, 248, 250);
-            font-size: 14px;
-            font-family: 'PingFang SC', -apple-system, Arial, 'Microsoft YaHei',
-              'Microsoft JhengHei', 'Helvetica Neue', sans-serif;
-          "
-          >高铁站上海人全部劝返，不能劝返的全部送去酒店14天自费隔离（一天收1000块最少）。&nbsp;</span
-        >
-      </p>
-      <p>
-        <span
-          style="
-            color: rgb(0, 0, 0);
-            background-color: rgb(247, 248, 250);
-            font-size: 14px;
-            font-family: 'PingFang SC', -apple-system, Arial, 'Microsoft YaHei',
-              'Microsoft JhengHei', 'Helvetica Neue', sans-serif;
-          "
-          >这才对得起我们这些老老实实在家蹲着的上海人。这个黑锅我们普通上海人不背</span
-        >
-      </p>
-    </div>
-    <div class="updateDate">编辑于 2022-04-15 08:22</div>
+    <h2 v-if="ischeck" class="check">内容审核中，审核通过后会自动发布</h2>
+    <div class="richcontent" id="richcontent" v-html="itemAddStyle"></div>
+    <div class="updateDate">编辑于 {{ item.updated_at }}</div>
     <div class="contnet-footer">
       <span>
         <button class="action_button">
           <el-icon><caret-top /></el-icon>
-          赞同111111
+          赞同{{ item.favorite_num }}
         </button>
       </span>
       <span class="comment">
@@ -94,7 +31,7 @@
         <!-- <button v-if="!item.comment_num" class="comment_button">
           添加评论
         </button> -->
-        <button class="comment_button">22222 条评论</button>
+        <button class="comment_button">{{ item.comment_num }} 条评论</button>
       </span>
     </div>
   </div>
@@ -102,10 +39,28 @@
 
 <script>
 import { ChatRound, CaretTop } from '@element-plus/icons-vue'
+import { computed } from 'vue'
 export default {
+  props: ['item', 'ischeck'],
   components: {
     ChatRound,
     CaretTop
+  },
+  setup(props) {
+    const itemAddStyle = computed(() => {
+      const richcontent = document.createElement('div')
+      richcontent.innerHTML = props.item.content
+      console.log(richcontent.childNodes)
+      richcontent.childNodes.forEach((item) => {
+        if (item.tagName === 'P') {
+          item.setAttribute('style', 'padding: 10px 0;')
+        }
+      })
+      return richcontent.innerHTML
+    })
+    return {
+      itemAddStyle
+    }
   }
 }
 </script>
@@ -187,5 +142,12 @@ export default {
   background-color: rgba(0, 0, 0, 0);
   color: rgb(133, 144, 166);
   font-size: 14px;
+}
+.check {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  background-color: #f6f6f6;
 }
 </style>
