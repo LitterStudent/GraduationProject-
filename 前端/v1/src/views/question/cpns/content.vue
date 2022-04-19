@@ -20,8 +20,13 @@
     <div class="richcontent" id="richcontent" v-html="itemAddStyle"></div>
     <div class="updateDate">编辑于 {{ item.updated_at }}</div>
     <div class="contnet-footer">
-      <span>
-        <button class="action_button">
+      <span class="favorite" @click="handleDianZan">
+        <button
+          :class="{
+            action_button: !item.isDianZan,
+            action_button2: item.isDianZan
+          }"
+        >
           <el-icon><caret-top /></el-icon>
           赞同{{ item.favorite_num }}
         </button>
@@ -31,26 +36,64 @@
         <!-- <button v-if="!item.comment_num" class="comment_button">
           添加评论
         </button> -->
-        <button class="comment_button">{{ item.comment_num }} 条评论</button>
+        <button class="comment_button" @click="handleShowComment">
+          {{ item.comment_num }} 条评论
+        </button>
+      </span>
+      <span v-if="isAnswer">
+        <el-dropdown>
+          <span class="isAnswer">
+            <el-icon>
+              <el-icon><more /></el-icon>
+            </el-icon>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="dialogVisible = true"
+                >删除</el-dropdown-item
+              >
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </span>
     </div>
   </div>
+  <el-dialog v-model="dialogVisible" title="Tips" width="30%">
+    <span>确定永久删除该回答吗</span>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleClose">确定</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <comment-dialog
+    v-if="commentVisable"
+    :answerid="item.id"
+    :commentVisable="commentVisable"
+    @closeComent="commentVisable = false"
+  ></comment-dialog>
 </template>
 
 <script>
-import { ChatRound, CaretTop } from '@element-plus/icons-vue'
-import { computed } from 'vue'
+import { ChatRound, CaretTop, More } from '@element-plus/icons-vue'
+import { computed, ref } from 'vue'
+import { deleteUserAnswerRequest } from '@/service/user/user'
+import router from '@/router'
+import CommentDialog from './commentDialog.vue'
+// import { ElMessageBox } from 'element-plus'
 export default {
-  props: ['item', 'ischeck'],
+  props: ['item', 'ischeck', 'isAnswer'],
   components: {
     ChatRound,
-    CaretTop
+    CaretTop,
+    More,
+    CommentDialog
   },
-  setup(props) {
+  setup(props, { emit }) {
     const itemAddStyle = computed(() => {
       const richcontent = document.createElement('div')
       richcontent.innerHTML = props.item.content
-      console.log(richcontent.childNodes)
       richcontent.childNodes.forEach((item) => {
         if (item.tagName === 'P') {
           item.setAttribute('style', 'padding: 10px 0;')
@@ -58,8 +101,32 @@ export default {
       })
       return richcontent.innerHTML
     })
+    const dialogVisible = ref(false)
+    const handleClose = async () => {
+      const quesiton_id = props.item.question_id
+      const answer_id = props.item.id
+      await deleteUserAnswerRequest(quesiton_id, answer_id)
+      dialogVisible.value = false
+      router.push(`/question/${quesiton_id}`)
+    }
+
+    // const isDianZan = ref(props.item.isDianZan)
+    const handleDianZan = () => {
+      emit('DianZan', props.item)
+    }
+    const commentVisable = ref(false)
+    const handleShowComment = () => {
+      console.log(commentVisable.value)
+      commentVisable.value = true
+    }
     return {
-      itemAddStyle
+      itemAddStyle,
+      dialogVisible,
+      handleClose,
+      // isDianZan,
+      handleDianZan,
+      commentVisable,
+      handleShowComment
     }
   }
 }
@@ -129,6 +196,17 @@ export default {
   font-weight: 400;
   cursor: pointer;
 }
+.action_button2 {
+  line-height: 30px;
+  padding: 0 17px;
+  border-color: transparent;
+  background: #06f;
+  color: white;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+}
 .comment {
   cursor: pointer;
   margin-left: 30px;
@@ -149,5 +227,16 @@ export default {
   font-weight: 600;
   border-radius: 6px;
   background-color: #f6f6f6;
+}
+.favorite {
+  /* vertical-align: middle; */
+}
+.isAnswer {
+  display: inline-block;
+  margin-top: 5px;
+  height: 20px;
+  line-height: 20px;
+  margin-left: 20px;
+  color: #8590a6;
 }
 </style>

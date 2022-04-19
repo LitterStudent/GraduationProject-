@@ -10,7 +10,7 @@ class AnswerssCtl {
     const user_id = ctx.auth.id;
     const question_id = ctx.params.questionId;
     const answer = await Answer.findOne({ where: { user_id, question_id } });
-    if (answer) {
+    if (answer && answer.status != 0) {
       ctx.throw(403, "该用户已经回答过该问题");
     } else {
       const answerItem = new Answer();
@@ -64,7 +64,7 @@ class AnswerssCtl {
   }
   async checkAnswerExist(ctx, next) {
     const answer = await Answer.findByPk(ctx.params.id);
-    if (!answer || answer.status != 1) {
+    if (!answer || answer.status == 0) {
       ctx.throw(404, "回答不存在");
     }
     // 只有在删改查答案时才检查该逻辑，赞和踩的时候不检查
@@ -90,8 +90,25 @@ class AnswerssCtl {
     const answer = ctx.state.answer;
     const user = await User.scope("bh").findByPk(answer.user_id);
     const answercopy = answer["dataValues"];
-    answercopy["userinfo"] = user["dataValues"];
+    answercopy["userInfo"] = user["dataValues"];
     ctx.body = answercopy;
+  }
+  async findByUserId(ctx) {
+    // 返回用户的未删除的文章
+    const user = ctx.state.user;
+    const questionId = ctx.params.questionId;
+    const answer = await Answer.findOne({
+      where: {
+        user_id: user.id,
+        question_id: questionId,
+        status: {
+          [Op.in]: [1, 2],
+        },
+      },
+    });
+    const answerCopy = answer["dataValues"];
+    answerCopy["userInfo"] = user;
+    ctx.body = answerCopy;
   }
   async updateById(ctx) {
     ctx.verifyParams({

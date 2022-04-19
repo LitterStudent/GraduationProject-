@@ -101,15 +101,26 @@ class QuestionsCtl {
     const followQuestion = await FollowQuestion.findOne({
       where: { user_id, question_id },
     });
+
     if (!followQuestion) {
+      // 新增
       const followQuestionItem = new FollowQuestion();
       followQuestionItem.question_id = question_id;
       followQuestionItem.user_id = user_id;
       followQuestionItem.save();
+      // 问题的关注数+1
+      const question = await Question.findByPk(question_id);
+      question.follow_number++;
+      await question.save();
       ctx.body = followQuestionItem;
     } else if (followQuestion.status == 0) {
+      // 修改为1
       followQuestion.status = 1;
       followQuestion.save();
+      // 问题的关注数+1
+      const question = await Question.findByPk(question_id);
+      question.follow_number++;
+      await question.save();
       ctx.body = followQuestion;
     } else {
       ctx.body = "";
@@ -124,13 +135,17 @@ class QuestionsCtl {
     if (followQuestion.status == 1) {
       followQuestion.status = 0;
       await followQuestion.save();
+      // 问题的关注数-1
+      const question = await Question.findByPk(question_id);
+      question.follow_number--;
+      await question.save();
     }
     ctx.status = 204;
   }
   async listFollowingQuestions(ctx) {
     const user_id = ctx.params.id;
     const followQuestionList = await FollowQuestion.findAll({
-      where: { user_id },
+      where: { user_id, status: 1 },
     });
     const questionIds = followQuestionList.map((item) => item.question_id);
     const questionList = await Question.findAll({

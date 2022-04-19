@@ -56,3 +56,63 @@ export function finUserAnswerRequest(id, id2) {
     url: `/questions/${id}/answers/user/${id2}`
   })
 }
+
+export function deleteUserAnswerRequest(id, id2) {
+  return hdRequest.delete({
+    url: `/questions/${id}/answers/${id2}`
+  })
+}
+
+export function getUserFollowQuestionList(userid) {
+  return hdRequest.get({
+    url: `/users/${userid}/followingquestion`
+  })
+}
+
+export function followQuestion(questionid) {
+  return hdRequest.put({
+    url: `/users/followingquestion/${questionid}`
+  })
+}
+
+export function unfollowQuestion(questionid) {
+  return hdRequest.delete({
+    url: `/users/followingquestion/${questionid}`
+  })
+}
+
+export function likeAnswer(answerId) {
+  return hdRequest.put({
+    url: `/users/likinganswer/${answerId}`
+  })
+}
+
+export function unlikeAnswer(answerId) {
+  return hdRequest.delete({
+    url: `/users/likinganswer/${answerId}`
+  })
+}
+
+export function userlikeAnswerList(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/likinganswer`
+  })
+}
+
+export function createUserComentList(answerId, data) {
+  return hdRequest.post({
+    url: `/comment/answer/${answerId}`,
+    data
+  })
+}
+
+export function getComentOneList(answerId) {
+  return hdRequest.get({
+    url: `/comment/answer/${answerId}`
+  })
+}
+export function getComentTwoList(answerId) {
+  return hdRequest.get({
+    url: `/comment/answer/${answerId}`
+  })
+}

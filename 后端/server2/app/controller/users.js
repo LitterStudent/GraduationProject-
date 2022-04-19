@@ -207,6 +207,7 @@ class UsersCtl {
     if (!user) {
       ctx.throw(404, "用户不存在");
     }
+    ctx.state.user = user;
     await next();
   }
   // 添加关注
@@ -349,15 +350,21 @@ class UsersCtl {
     const likeAnswerItem = await LikeAnswer.findOne({
       where: { user_id, answer_id },
     });
+    const answer = await Answer.findByPk(answer_id);
     if (!likeAnswerItem) {
       const likeanswer = new LikeAnswer();
       likeanswer.user_id = user_id;
       likeanswer.answer_id = answer_id;
       await likeanswer.save();
+      answer.favorite_num++;
+      await answer.save();
     } else if (likeAnswerItem.status == 0) {
       likeAnswerItem.status = 1;
       await likeAnswerItem.save();
+      answer.favorite_num++;
+      await answer.save();
     }
+
     ctx.status = 204;
   }
   // 列出点赞
@@ -401,9 +408,12 @@ class UsersCtl {
     const likeAnswerItem = await LikeAnswer.findOne({
       where: { user_id, answer_id },
     });
+    const answer = await Answer.findByPk(answer_id);
     if (likeAnswerItem && likeAnswerItem.status != 0) {
       likeAnswerItem.status = 0;
       await likeAnswerItem.save();
+      answer.favorite_num--;
+      await answer.save();
     }
     ctx.status = 204;
   }

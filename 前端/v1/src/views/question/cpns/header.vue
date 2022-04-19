@@ -25,7 +25,9 @@
           <div class="question-header-side">
             <div class="question-header-follow">
               <div class="question-header-follower">关注者</div>
-              <strong class="question-header-follow-num">1555</strong>
+              <strong class="question-header-follow-num">{{
+                questionInfo.question.follow_number
+              }}</strong>
             </div>
             <div class="question-header-browse">
               <div class="question-header-follower">被浏览</div>
@@ -34,17 +36,36 @@
           </div>
         </div>
         <div class="question-hader-footer">
-          <el-button type="primary" color="#06f">关注问题</el-button>
-          <el-button type="primary" color="#06f" plain>
-            <span v-if="isAnswer" @click="handleEditAnswer">
+          <el-button
+            type="primary"
+            color="#06f"
+            v-if="!isFollow"
+            @click="followQuestionfun"
+          >
+            关注问题
+          </el-button>
+          <el-button
+            type="primary"
+            color="rgb(118, 131, 155)"
+            v-if="isFollow"
+            @click="unfollowQuestionfun"
+          >
+            已经关注
+          </el-button>
+          <el-button type="primary" color="#06f" plain style="padding: 0">
+            <span class="icon-button" v-if="isAnswer" @click="handleEditAnswer">
               <el-icon style="margin-right: 5px"><edit-pen /></el-icon
               >编辑我的回答
             </span>
-            <span v-else-if="isWrite" @click="handleShowMyAnswer">
+            <span
+              class="icon-button"
+              v-else-if="isWrite"
+              @click="handleShowMyAnswer"
+            >
               <el-icon style="margin-right: 5px"><edit-pen /></el-icon
               >查看我的回答
             </span>
-            <span v-else @click="isShowEditor = true">
+            <span class="icon-button" v-else @click="isShowEditor = true">
               <el-icon style="margin-right: 5px"><edit-pen /></el-icon>写回答
             </span>
           </el-button>
@@ -85,12 +106,15 @@
 <script>
 import { EditPen, ArrowUpBold, ArrowDownBold } from '@element-plus/icons-vue'
 import { ref } from '@vue/reactivity'
-import { computed } from '@vue/runtime-core'
+import { computed, onMounted } from '@vue/runtime-core'
 import Editor from '@/components/editor/editor.vue'
 import {
   createAnswerRequest,
   updateAnswerRequest,
-  finUserAnswerRequest
+  finUserAnswerRequest,
+  getUserFollowQuestionList,
+  followQuestion,
+  unfollowQuestion
 } from '@/service/user/user'
 import router from '@/router'
 import { useStore } from 'vuex'
@@ -101,9 +125,11 @@ export default {
     ArrowDownBold,
     Editor
   },
-  props: ['questionInfo', 'isWrite', 'isAnswer', 'answerOne'],
-  setup(props) {
+  created() {},
+  props: ['questionInfo', 'isWrite', 'isAnswer', 'answerOne', 'questionId'],
+  setup(props, { emit }) {
     const store = useStore()
+    const userId = store.state.login.userInfo.id
     const isShowAll = ref(false)
     const isShowEditor = ref(false)
     const text = computed(() => {
@@ -115,7 +141,6 @@ export default {
     const handleShowAll = () => {
       const span = document.querySelector('#spantext')
       span.innerHTML = props.questionInfo.question['description']
-      console.log(span.childNodes)
       span.childNodes.forEach((item) => {
         if (item.tagName === 'P') {
           item.setAttribute('style', 'padding: 10px 0;')
@@ -140,14 +165,15 @@ export default {
         const id = props.questionInfo.question.id
         const res = await createAnswerRequest(id, { content })
         router.push(`/question/${id}/answer/${res.id}`)
+        isShowEditor.value = false
       } else {
         // 更新
         const id = props.questionInfo.question.id
-        // console.log(props.answerOne)
         const res = await updateAnswerRequest(id, props.answerOne.id, {
           content
         })
         console.log(res)
+        isShowEditor.value = false
         router.push(`/question/${id}`)
       }
     }
@@ -159,16 +185,36 @@ export default {
     }
     const handleShowMyAnswer = async () => {
       const questionId = props.questionInfo.question.id
-      const userId = store.state.login.userInfo.id
       const answerRes = await finUserAnswerRequest(questionId, userId)
-      console.log(`/question/${questionId}/answer/${answerRes.id}`)
       router.push(`/question/${questionId}/answer/${answerRes.id}`)
-      console.log('object')
-      location.replace(
-        `http://localhost:8080/#question/${questionId}/answer/${answerRes.id}`
-      )
     }
 
+    const isFollow = ref(false)
+    onMounted(async () => {
+      // 查询是否已经关注问题
+      const userFollowQuestionList = await getUserFollowQuestionList(userId)
+      if (userFollowQuestionList.length > 0) {
+        userFollowQuestionList.forEach((item) => {
+          if (item.id == props.questionId && item.status == 1) {
+            isFollow.value = true
+          }
+        })
+      }
+
+      // 查询该问题的关注人数
+      // const
+    })
+    const follow_num = ref(props.questionInfo.question)
+    const followQuestionfun = async () => {
+      emit('follow_numberIncre')
+      isFollow.value = true
+      await followQuestion(props.questionInfo.question.id)
+    }
+    const unfollowQuestionfun = async () => {
+      emit('follow_numberDecre')
+      isFollow.value = false
+      await unfollowQuestion(props.questionInfo.question.id)
+    }
     return {
       handleShowAll,
       isShowAll,
@@ -179,7 +225,11 @@ export default {
       handlecommitAnswer,
       handleEditAnswer,
       handleShowMyAnswer,
-      answerValue
+      answerValue,
+      isFollow,
+      followQuestionfun,
+      unfollowQuestionfun,
+      follow_num
     }
   }
 }
@@ -283,5 +333,11 @@ export default {
   height: 100px;
   margin: 0 100px;
   background-color: white;
+}
+.icon-button {
+  padding-top: 12px;
+  display: inline-block;
+  width: 110px;
+  height: 30px;
 }
 </style>

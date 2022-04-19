@@ -66,6 +66,54 @@ class CommentReplyCtl {
         }
         ctx.body = commentReplyList
     }
+    async findOneAnswerAllReply(ctx) {
+        const answer_id = ctx.params.id
+        let { per_page = 10, page = 1, keyword } = ctx.query
+        page = Math.max(page * 1, 1) - 1
+        per_page = Math.max(per_page * 1, 1)
+        const filter = { status: 1, answer_id }
+        // 一级评论列表
+        const commentReplyList = await CommentReply.findAll({
+             where: filter,
+            //  limit: per_page,
+            //  offset: page * per_page,
+             order: [
+                 ['created_at', 'DESC']
+             ]
+            })
+        const commentReplyListCopy = commentReplyList.map(item => {
+            return item['dataValues']
+        })
+        const userIds = commentReplyList.map(item => item.user_id)
+        const userList = await User.scope('bh').findAll({
+            where: {
+               id: {
+                [Op.in]: userIds
+               }
+            }
+        })
+        const userMap = {}
+        userList.forEach(item => {
+            userMap[item.id] = item
+        })
+        const replyUserIds = commentReplyList.map(item => item.reply_user_id)
+        const replyUserList = await User.scope('bh').findAll({
+            where: {
+               id: {
+                [Op.in]: replyUserIds
+               }
+            }
+        })
+        const replyUserMap = {}
+        replyUserList.forEach(item => {
+            replyUserMap[item.id] = item
+        })
+        for (const item of commentReplyListCopy) {
+            item['user'] = userMap[item.user_id]
+            item['reply_user'] = replyUserMap[item.reply_user_id]
+        }
+        ctx.body = commentReplyList
+    }
     async checkReplyCommenter(ctx, next) {
         const user_id = ctx.auth.id
         const commentReply = ctx.state.commentReply

@@ -5,11 +5,16 @@
       :isWrite="isWrite"
       :isAnswer="isAnswer"
       :answerOne="answerOne"
+      :questionId="questionId"
+      @follow_numberDecre="handlefollow_numberDecre"
+      @follow_numberIncre="handlefollow_numberIncre"
     ></question-header>
     <div class="main2">
       <question-content
         :item="answerOne"
         :ischeck="answerOne.status === 2"
+        :isAnswer="isAnswer"
+        @DianZan="hanleDianZan"
       ></question-content>
     </div>
     <div class="mian">
@@ -17,7 +22,10 @@
         <h4>{{ answerList.length }}个回答</h4>
       </div>
       <template v-for="item in answerList" :key="item.id">
-        <question-content :item="item"></question-content>
+        <question-content
+          :item="item"
+          @DianZan="hanleDianZan"
+        ></question-content>
       </template>
     </div>
   </div>
@@ -31,7 +39,10 @@ import {
   findQuestionRequest,
   findAllAnswerRequest,
   finOneAnswerRequest,
-  finUserAnswerRequest
+  finUserAnswerRequest,
+  likeAnswer,
+  unlikeAnswer,
+  userlikeAnswerList
 } from '@/service/user/user'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { formatUtcString } from '@/utils/date-format'
@@ -48,11 +59,11 @@ export default {
     const userId = store.state.login.userInfo.id
     const questionId = route.params.id
     let answerId = route.params.id2
-    // console.log(answerId)
     const questionInfo = reactive({ question: {}, topic: {} })
     const answerList = reactive([])
     let answerOne = reactive({
-      userInfo: {}
+      userInfo: {},
+      content: ''
     })
     const isWrite = ref(false)
     const isAnswer = ref(false)
@@ -74,6 +85,8 @@ export default {
       const answer = await finOneAnswerRequest(questionId, answerId)
       if (answer) {
         answerOne.id = answer.id
+        answerOne.status = answer.status
+        answerOne.question_id = answer.question_id
         answerOne.content = answer.content
         answerOne.userInfo = answer.userInfo
         answerOne.comment_num = answer.comment_num
@@ -89,79 +102,100 @@ export default {
         }
       }
 
-      // 如果回答未被审核
-      if (
-        !answer &&
-        answerRes &&
-        answerRes.id == answerId &&
-        answerRes.user_id === userId
-      ) {
-        console.log(answerRes)
-        answerOne.status = 2
-        answerOne.id = answerRes.id
-        answerOne.content = answerRes.content
-        answerOne.userInfo = answerRes.userInfo
-        answerOne.comment_num = answerRes.comment_num
-        answerOne.favorite_num = answerRes.favorite_num
-        answerOne.updated_at = formatUtcString(answerRes.updated_at)
-      }
+      // // 如果回答未被审核
+      // if (
+      //   !answer &&
+      //   answerRes &&
+      //   answerRes.id == answerId &&
+      //   answerRes.user_id === userId
+      // ) {
+      //   answerOne.status = 2
+      //   answerOne.id = answerRes.id
+      //   answerOne.content = answerRes.content
+      //   answerOne.userInfo = answerRes.userInfo
+      //   answerOne.comment_num = answerRes.comment_num
+      //   answerOne.favorite_num = answerRes.favorite_num
+      //   answerOne.updated_at = formatUtcString(answerRes.updated_at)
+      // }
     })
     onMounted(async () => {
+      const userLikeAnswerList = await userlikeAnswerList(userId)
       const questionRes = await findQuestionRequest(questionId)
       questionInfo.question = questionRes.question
       questionInfo.topic = questionRes.topic
-      console.log(questionInfo)
       const answerListRes = await findAllAnswerRequest(questionInfo.question.id)
-      console.log(answerListRes)
       answerListRes.forEach((item) => {
         if (item.id != answerId) {
           answerList.push(item)
         }
       })
-      // console.log(answerList)
       if (answerList.length > 0) {
         answerList.forEach((item) => {
+          if (userLikeAnswerList.find((answer) => item.id == answer.id)) {
+            item.isDianZan = true
+          }
           item.updated_at = formatUtcString(item.updated_at)
         })
       }
       const answer = await finOneAnswerRequest(questionId, answerId)
+      // answer的状态为1或者2
       // console.log(answer)
       if (answer) {
+        if (userLikeAnswerList.find((item) => item.id == answer.id)) {
+          answerOne.isDianZan = true
+        }
         answerOne.id = answer.id
+        answerOne.status = answer.status
+        answerOne.question_id = answer.question_id
         answerOne.content = answer.content
         answerOne.userInfo = answer.userInfo
         answerOne.comment_num = answer.comment_num
         answerOne.favorite_num = answer.favorite_num
         answerOne.updated_at = formatUtcString(answer.updated_at)
       }
-
+      // 查找目前登录用户在该问题下的回答
       const answerRes = await finUserAnswerRequest(questionId, userId)
-      if (answerRes) {
-        isWrite.value = true
-        if (answerRes.id == answerId) {
-          isAnswer.value = true
+      if (answerRes && answerRes.status != 0) {
+        isWrite.value = true //查看我的答案
+        if (answerRes.id == answerId && answerRes.status != 0) {
+          isAnswer.value = true //编辑我的答案
         }
-      }
-
-      // 如果回答未被审核
-      if (
-        !answer &&
-        answerRes &&
-        answerRes.id == answerId &&
-        answerRes.user_id === userId
-      ) {
-        console.log(answerRes)
-        answerOne.status = 2
-        answerOne.id = answerRes.id
-        answerOne.content = answerRes.content
-        answerOne.userInfo = answerRes.userInfo
-        answerOne.comment_num = answerRes.comment_num
-        answerOne.favorite_num = answerRes.favorite_num
-        answerOne.updated_at = formatUtcString(answerRes.updated_at)
       }
     })
 
-    return { questionInfo, answerList, answerOne, isWrite, isAnswer }
+    const handlefollow_numberDecre = () => {
+      questionInfo.question.follow_number--
+    }
+    const handlefollow_numberIncre = () => {
+      questionInfo.question.follow_number++
+    }
+    const hanleDianZan = async (answerItem) => {
+      if (
+        answerItem.isDianZan === false ||
+        answerItem.isDianZan === undefined
+      ) {
+        // 点赞
+        answerItem.isDianZan = true
+        answerItem.favorite_num++
+        await likeAnswer(answerItem.id)
+      } else {
+        // 取消点赞
+        answerItem.isDianZan = false
+        answerItem.favorite_num--
+        await unlikeAnswer(answerItem.id)
+      }
+    }
+    return {
+      questionInfo,
+      answerList,
+      answerOne,
+      isWrite,
+      isAnswer,
+      questionId,
+      handlefollow_numberDecre,
+      handlefollow_numberIncre,
+      hanleDianZan
+    }
   }
 }
 </script>

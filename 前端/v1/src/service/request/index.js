@@ -72,6 +72,9 @@ class HDRequest {
   delete(config) {
     return this.reqest({ ...config, method: 'DELETE' })
   }
+  put(config) {
+    return this.reqest({ ...config, method: 'PUT' })
+  }
 }
 
 export default HDRequest
