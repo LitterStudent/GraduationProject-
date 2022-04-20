@@ -1,46 +1,77 @@
 <template>
   <el-dialog v-model="dialogFormVisible" title="Shipping address">
-    <template #title> <div class="comment-header">n条评论</div> </template>
+    <template #title>
+      <div class="comment-header">{{ commentOneList.length }}条评论</div>
+    </template>
     <div class="comment-box">
-      <div class="comment-item">
-        <div class="comment-item-header">
-          <el-avatar
-            shape="square"
-            size="small"
-            src="https://pic2.zhimg.com/v2-dc867b3349fda0128e0c712f5afdd4ef_xl.jpg?source=32738c0c"
-          />
-          <span class="comment-item-name">白鹭的鹭</span>
+      <transition-group name="commentOneList">
+        <div class="comment-item" v-for="item in commentOneList" :key="item.id">
+          <div class="comment-item-header">
+            <el-avatar
+              shape="square"
+              size="small"
+              :src="item.user.avatar_url"
+            />
+            <span class="comment-item-name">{{ item.user.username }}</span>
+            <span class="comment-item-date">{{ item.updated_at }}</span>
+          </div>
+          <div class="comment-item-content">
+            {{ item.content }}
+            <span
+              class="comment-item-content-replyicon"
+              v-if="item.user.id != user_id"
+              @click="handleReply(item)"
+            >
+              <el-icon><share /></el-icon>回复
+            </span>
+            <span
+              class="comment-item-content-replyicon"
+              v-else
+              @click="handleDelte(item)"
+            >
+              <el-icon><delete /></el-icon>删除评论
+            </span>
+          </div>
+          <transition-group name="commentOneList">
+            <div
+              class="comment-item-replyComment"
+              v-for="item2 in item.commentReply"
+              :key="item2.key"
+            >
+              <div class="comment-item-header">
+                <el-avatar
+                  shape="square"
+                  size="small"
+                  :src="item2.user.avatar_url"
+                />
+                <span class="comment-item-name">{{ item2.user.username }}</span>
+                <span class="comment-item-reply">回复</span>
+                <span class="comment-item-reply_user">{{
+                  item2.reply_user.username
+                }}</span>
+                <span class="comment-item-date">{{ item2.updated_at }}</span>
+              </div>
+              <div class="comment-item-content">
+                {{ item2.content }}
+                <span
+                  class="comment-item-content-replyicon"
+                  @click="handleReply2(item2)"
+                  v-if="item2.user.id != user_id"
+                >
+                  <el-icon><share /></el-icon>回复
+                </span>
+                <span
+                  class="comment-item-content-replyicon"
+                  v-else
+                  @click="handleDelte2(item2)"
+                >
+                  <el-icon><delete /></el-icon>删除评论
+                </span>
+              </div>
+            </div>
+          </transition-group>
         </div>
-        <div class="comment-item-content">
-          [尴尬]不消费这个观点，只有小孩子才能同意。人人不消费，商铺食店都没了，你也要没。你是想回到拿着鱼叉打猎的时代？你适应不了时代，是你一个人的事，在这里发动变革呢？[尴尬][尴尬]
-        </div>
-      </div>
-      <div class="comment-item">
-        <div class="comment-item-header">
-          <el-avatar
-            shape="square"
-            size="small"
-            src="https://pic2.zhimg.com/v2-dc867b3349fda0128e0c712f5afdd4ef_xl.jpg?source=32738c0c"
-          />
-          <span class="comment-item-name">白鹭的鹭</span>
-        </div>
-        <div class="comment-item-content">
-          [尴尬]不消费这个观点，只有小孩子才能同意。人人不消费，商铺食店都没了，你也要没。你是想回到拿着鱼叉打猎的时代？你适应不了时代，是你一个人的事，在这里发动变革呢？[尴尬][尴尬]
-        </div>
-      </div>
-      <div class="comment-item">
-        <div class="comment-item-header">
-          <el-avatar
-            shape="square"
-            size="small"
-            src="https://pic2.zhimg.com/v2-dc867b3349fda0128e0c712f5afdd4ef_xl.jpg?source=32738c0c"
-          />
-          <span class="comment-item-name">白鹭的鹭</span>
-        </div>
-        <div class="comment-item-content">
-          [尴尬]不消费这个观点，只有小孩子才能同意。人人不消费，商铺食店都没了，你也要没。你是想回到拿着鱼叉打猎的时代？你适应不了时代，是你一个人的事，在这里发动变革呢？[尴尬][尴尬]
-        </div>
-      </div>
+      </transition-group>
     </div>
     <template #footer>
       <div class="comment-footer">
@@ -61,12 +92,27 @@
 <script>
 import { reactive, ref } from '@vue/reactivity'
 import { computed } from '@vue/runtime-core'
-import { createUserComentList, getComentOneList } from '@/service/user/user'
+import {
+  createUserCommentone,
+  createUserCommenttwo,
+  getComentOneList,
+  getComentTwoList,
+  deleteUserCommentone
+} from '@/service/user/user'
 import { ElMessage } from 'element-plus'
+import { formatUtcString } from '@/utils/date-format'
+import { Share, Delete } from '@element-plus/icons-vue'
+import { useStore } from 'vuex'
 export default {
   props: ['commentVisable', 'answerid'],
+  components: {
+    Share,
+    Delete
+  },
   setup(props, { emit }) {
     // console.log(props.commentVisable)
+    const store = useStore()
+    const user_id = store.state.login.userInfo.id
     const dialogFormVisible = computed({
       get() {
         return props.commentVisable
@@ -76,34 +122,82 @@ export default {
       }
     })
     const inputRef = ref()
-    const replyComment = ''
     const answer_id = props.answerid
     console.log(answer_id)
     // 获取一级评论
-    const commentOne = reactive([])
+    const commentOneList = reactive([])
     getComentOneList(answer_id).then((res) => {
       res.forEach((item) => {
-        commentOne.push(item)
+        commentOneList.push(item)
       })
-      commentOne.
+      getComentTwoList(answer_id).then((res) => {
+        console.log(res)
+        commentOneList.forEach((item) => {
+          item.updated_at = formatUtcString(item.updated_at, 'YYYY-MM-DD')
+          res.forEach((item2) => {
+            item2.updated_at = formatUtcString(item2.updated_at, 'YYYY-MM-DD')
+            if (item.id == item2.comment_id) {
+              if (!item['commentReply']) {
+                item['commentReply'] = [item2]
+              } else {
+                item['commentReply'].push(item2)
+              }
+            }
+          })
+        })
+        console.log(commentOneList)
+      })
     })
     // 获取二级评论
+    const replyInfo = { reply_userid: '', reply_username: '', comment_id: '' }
+    const handleReply = (item) => {
+      // console.log(item)
+      inputRef.value.placeholder = `回复 ${item.user.username}`
+      replyInfo.reply_userid = item.user.id
+      replyInfo.comment_id = item.id
+      replyInfo.reply_username = item.user.username
+      console.log(replyInfo)
+      inputRef.value.focus()
+    }
 
-
-    // const handle = () => {
-    //   inputRef.value.placeholder = '回复叮当的'
-    //   inputRef.value.focus()
-    // }
+    const handleReply2 = (item) => {
+      console.log(item)
+      inputRef.value.placeholder = `回复 ${item.user.username}`
+      replyInfo.reply_userid = item.user.id
+      replyInfo.comment_id = item.comment_id
+      replyInfo.reply_username = item.user.username
+      console.log(replyInfo)
+      inputRef.value.focus()
+    }
+    const handleDelte = async (item) => {
+      const index = commentOneList.findIndex((comment) => comment.id == item.id)
+      commentOneList.splice(index, 1)
+      const res = await deleteUserCommentone(item.id)
+      console.log(res)
+    }
+    const handleDelte2 = async (item) => {
+      console.log(item, commentOneList)
+      const index = commentOneList.findIndex(
+        (comment) => comment.id == item.comment_id
+      )
+      const index2 = commentOneList[index]['commentReply'].findIndex(
+        (commentReply) => commentReply.id == item.id
+      )
+      commentOneList[index]['commentReply'].splice(index2, 1)
+      // const res = await deleteUserCommentone(item.id)
+      // console.log(res)
+    }
     const handleCommit = async () => {
       const inputValue = inputRef.value.value
       console.log(inputValue)
       console.log(answer_id)
-      if (!replyComment) {
+      if (!replyInfo.reply_userid) {
         // 如果不是二级评论
-        await createUserComentList(answer_id, {
+        const res = await createUserCommentone(answer_id, {
           content: inputValue
         })
-        console.log(inputRef.value)
+        res.updated_at = formatUtcString(res.updated_at, 'YYYY-MM-DD')
+        commentOneList.unshift(res)
         ElMessage({
           showClose: true,
           message: '评论发布成功',
@@ -112,19 +206,54 @@ export default {
         inputRef.value.value = ''
       } else {
         // 二级评论
-        console.log(replyComment)
+        const { comment_id, reply_userid, reply_username } = replyInfo
+        const res = await createUserCommenttwo(comment_id, {
+          content: inputValue,
+          reply_user_id: reply_userid + ''
+        })
+        console.log(res)
+        const commentOne = commentOneList.find((item) => item.id == comment_id)
+        if (commentOne['commentReply']) {
+          commentOne['commentReply'].push(res)
+        } else {
+          commentOne['commentReply'] = [res]
+        }
+        ElMessage({
+          showClose: true,
+          message: '评论发布成功',
+          type: 'success'
+        })
+        inputRef.value.value = ''
+        inputRef.value.placeholder = ''
+        replyInfo.reply_userid = ''
+        console.log(reply_username)
       }
     }
     return {
       dialogFormVisible,
       inputRef,
-      handleCommit
+      handleCommit,
+      commentOneList,
+      handleReply,
+      handleReply2,
+      handleDelte,
+      handleDelte2,
+      user_id
     }
   }
 }
 </script>
 
 <style scoped>
+.commentOneList-enter-active,
+.commentOneList-leave-active {
+  transition: all 1s ease;
+}
+.commentOneList-enter-from,
+.commentOneList-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
 .comment-box {
   /* width: 200px; */
   height: 500px;
@@ -141,7 +270,17 @@ export default {
 }
 .comment-item {
   /* display: flex; */
+  padding-top: 20px;
   border-bottom: 1px solid #f6f6f6;
+}
+.comment-item-reply {
+  margin-left: 5px;
+  margin-right: 10px;
+  color: rgb(155, 164, 182);
+}
+.comment-item-replyComment {
+  border-top: 1px solid #f6f6f6;
+  margin-left: 40px;
 }
 .img-box {
   width: 15px;
@@ -155,7 +294,13 @@ export default {
   align-items: center;
 }
 .comment-item-name {
-  margin: 0 10px;
+  /* justify-content: flex-end; */
+}
+.comment-item-date {
+  flex: 1;
+  text-align: right;
+  margin-right: 10px;
+  color: rgb(133, 144, 166);
 }
 .comment-item-content {
   margin-top: 5px;
@@ -184,5 +329,16 @@ export default {
   border: none;
   width: 15%;
   margin-left: 10px;
+}
+
+.comment-item-content-replyicon {
+  margin-left: 10px;
+  opacity: 0;
+  cursor: pointer;
+  color: rgb(118, 131, 155);
+  transition: opacity 0.2s;
+}
+.comment-item-content-replyicon:hover {
+  opacity: 1;
 }
 </style>

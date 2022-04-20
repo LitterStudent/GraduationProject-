@@ -10,6 +10,8 @@
 
 <script>
 import RichContent from '../cpns/rich_content.vue'
+// import { useRoute } from 'vue-router'
+
 export default {
   components: { RichContent },
   setup() {

@@ -2,6 +2,7 @@ const Comment = require("../model/comment");
 const CommentReply = require("../model/commentReply");
 const User = require("../model/user");
 const { Op } = require("sequelize");
+const Answer = require("../model/answer");
 
 class CommentCtl {
   async createComment(ctx) {
@@ -9,6 +10,7 @@ class CommentCtl {
       content: { type: "string", required: true },
     });
     const comment = new Comment();
+    // 判断是文章还是回答的评论
     if (ctx.state.article) {
       comment.type = 0;
       const article = ctx.state.article;
@@ -27,6 +29,9 @@ class CommentCtl {
     comment.answer_id = answer_id;
     comment.content = content;
     await comment.save();
+    const user = await User.scope("bh").findByPk(user_id);
+    const commentCopy = comment["dataValues"];
+    commentCopy["user"] = user;
     ctx.body = comment;
   }
   async deleteComment(ctx) {
@@ -34,6 +39,9 @@ class CommentCtl {
     if (comment.status != 0) {
       comment.status = 0;
       await comment.save();
+      const answer = await Answer.findByPk(comment.answer_id);
+      answer.comment_num--;
+      await answer.save();
     }
     ctx.status = 204;
   }
@@ -66,7 +74,10 @@ class CommentCtl {
     const reply = new CommentReply();
     reply.set({ user_id, comment_id, answer_id, content, reply_user_id });
     await reply.save();
-    ctx.status = 204;
+    const user = await User.scope("bh").findByPk(user_id);
+    const commentReplyCopy = reply["dataValues"];
+    commentReplyCopy["user"] = user;
+    ctx.body = commentReplyCopy;
   }
   // 回答一级评论列表
   async findAll(ctx) {

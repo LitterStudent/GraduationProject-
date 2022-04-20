@@ -13,6 +13,7 @@ const FollowTopic = require("../model/followTopic");
 const Topic = require("../model/topic");
 const LikeAnswer = require("../model/likeAnswer");
 const Comment = require("../model/comment");
+const Article = require("../model/article");
 class UsersCtl {
   async checkOwner(ctx, next) {
     if (ctx.params.id != ctx.auth.id) {
@@ -80,14 +81,14 @@ class UsersCtl {
         [Op.like]: `%${username}%`,
       };
     }
-    const user = await User.scope(scop).findAndCountAll({
+    const user = await User.scope(scop).findOne({
       where: filter,
     });
     if (!user) {
       ctx.throw(404, "用户不存在");
     }
     const data = {
-      data: user.rows,
+      user,
     };
     ctx.body = data;
   }
@@ -240,7 +241,10 @@ class UsersCtl {
       const followed_users = await User.scope("bh").findAll({
         where: { id: { [Op.in]: followedIds } },
       });
-      ctx.body = followed_users;
+      const followed_usersCopy = followed_users.map(
+        (item) => item["dataValues"]
+      );
+      ctx.body = followed_usersCopy;
     } else {
       ctx.body = [];
     }
@@ -342,7 +346,32 @@ class UsersCtl {
     });
     ctx.body = questions;
   }
-
+  async listUserAllAnswer(ctx) {
+    const user_id = ctx.params.id;
+    const answerList = await Answer.findAll({
+      where: {
+        user_id: user_id,
+        status: 1,
+      },
+    });
+    const answerListCopy = answerList.map((item) => item["dataValues"]);
+    const questionIds = answerList.map((item) => item.question_id);
+    const questionList = await Question.findAll({
+      where: {
+        id: {
+          [Op.in]: questionIds,
+        },
+      },
+    });
+    const questionMap = {};
+    questionList.forEach((item) => {
+      questionMap[item.id] = item;
+    });
+    answerListCopy.forEach((item) => {
+      item["question"] = questionMap[item.question_id];
+    });
+    ctx.body = answerListCopy;
+  }
   // 点赞
   async likeAnswer(ctx) {
     const user_id = ctx.auth.id;
@@ -400,6 +429,21 @@ class UsersCtl {
       ctx.throw(404, "用户不存在");
     }
     ctx.body = answerList;
+  }
+  // 列出某个用户获取的点赞数
+  async getUserLikingNum(ctx) {
+    const user_id = ctx.params.id;
+    const answerList = await Answer.findAll({ where: { user_id } });
+    const answerIds = answerList.map((item) => item.id);
+    const likeUserAnswerList = await LikeAnswer.findAll({
+      where: {
+        answer_id: {
+          [Op.in]: answerIds,
+        },
+        status: 1,
+      },
+    });
+    ctx.body = { num: likeUserAnswerList.length };
   }
   // 取消点赞
   async unLikingAnswer(ctx) {

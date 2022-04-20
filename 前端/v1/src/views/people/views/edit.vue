@@ -190,6 +190,7 @@ export default {
   setup() {
     const store = useStore()
     const userInfo = reactive({ ...store.state.login.userInfo })
+    console.log(userInfo.gender)
     userInfo.gender = userInfo.gender == 0 ? '男' : '女'
     const isShowName = ref(true)
     const isShowGender = ref(true)

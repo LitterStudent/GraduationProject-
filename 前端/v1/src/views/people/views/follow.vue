@@ -2,80 +2,25 @@
   <div class="follow">
     <!-- <div class="title">我的关注</div> -->
     <aside-header :menus="menus" :defaultActive="defaultActive"></aside-header>
-    <div class="follow-item">
+    <div
+      class="follow-item"
+      v-for="item in followList"
+      :key="item.id"
+      @click="handleClick(item)"
+    >
       <div class="item-image">
         <img
-          src="https://pic2.zhimg.com/v2-4820351241edd8f23ac32645cd53afed_im.jpg?source=32738c0c"
+          :src="item.avatar_url"
           style="width: 100%; height: 100%; border-radius: 5px"
         />
       </div>
       <div class="item-head">
-        <h2 class="item-head-title">洹水之滨</h2>
-        <div class="item-head-line">狼胥山前秋风紧，黄沙漠漠起塞声。</div>
+        <h2 class="item-head-title">{{ item.username }}</h2>
+        <div class="item-head-line">{{ item.headline }}</div>
         <div class="item-head-meta">
-          <span>994 回答</span>
-          <span style="margin: 0 10px">396 文章</span>
-          <span>2,419 关注者</span>
-        </div>
-      </div>
-      <div>
-        <button class="item-extra">已关注</button>
-      </div>
-    </div>
-    <div class="follow-item">
-      <div class="item-image">
-        <img
-          src="https://pic2.zhimg.com/v2-4820351241edd8f23ac32645cd53afed_im.jpg?source=32738c0c"
-          style="width: 100%; height: 100%; border-radius: 5px"
-        />
-      </div>
-      <div class="item-head">
-        <h2 class="item-head-title">洹水之滨</h2>
-        <div class="item-head-line">狼胥山前秋风紧，黄沙漠漠起塞声。</div>
-        <div class="item-head-meta">
-          <span>994 回答</span>
-          <span style="margin: 0 10px">396 文章</span>
-          <span>2,419 关注者</span>
-        </div>
-      </div>
-      <div>
-        <button class="item-extra">已关注</button>
-      </div>
-    </div>
-    <div class="follow-item">
-      <div class="item-image">
-        <img
-          src="https://pic2.zhimg.com/v2-4820351241edd8f23ac32645cd53afed_im.jpg?source=32738c0c"
-          style="width: 100%; height: 100%; border-radius: 5px"
-        />
-      </div>
-      <div class="item-head">
-        <h2 class="item-head-title">洹水之滨</h2>
-        <div class="item-head-line">狼胥山前秋风紧，黄沙漠漠起塞声。</div>
-        <div class="item-head-meta">
-          <span>994 回答</span>
-          <span style="margin: 0 10px">396 文章</span>
-          <span>2,419 关注者</span>
-        </div>
-      </div>
-      <div>
-        <button class="item-extra">已关注</button>
-      </div>
-    </div>
-    <div class="follow-item">
-      <div class="item-image">
-        <img
-          src="https://pic2.zhimg.com/v2-4820351241edd8f23ac32645cd53afed_im.jpg?source=32738c0c"
-          style="width: 100%; height: 100%; border-radius: 5px"
-        />
-      </div>
-      <div class="item-head">
-        <h2 class="item-head-title">洹水之滨</h2>
-        <div class="item-head-line">狼胥山前秋风紧，黄沙漠漠起塞声。</div>
-        <div class="item-head-meta">
-          <span>994 回答</span>
-          <span style="margin: 0 10px">396 文章</span>
-          <span>2,419 关注者</span>
+          <span>{{ item.answerNum }} 回答</span>
+          <span style="margin: 0 10px">{{ item.articleNum }} 文章</span>
+          <span>{{ item.followerNum }} 关注者</span>
         </div>
       </div>
       <div>
@@ -86,14 +31,23 @@
 </template>
 <script>
 import AsideHeader from '../cpns/aside_header2.vue'
-import { useStore } from 'vuex'
+// import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
+import {
+  getUserFollowList,
+  getUserAllAnswer,
+  getUserFollowerList,
+  getUserAllArticle
+} from '@/service/user/user'
+import { reactive } from 'vue'
 export default {
   components: {
     AsideHeader
   },
   setup() {
-    const store = useStore()
-    const userId = store.state.login.userInfo.id
+    // const store = useStore()
+    const route = useRoute()
+    const userId = route.params.id
     const menus = [
       { index: 1, value: '我关注的人', url: `/people/${userId}/follow` },
       { index: 2, value: '关注我的人', url: `/people/${userId}/follower` },
@@ -109,10 +63,32 @@ export default {
       },
       { index: 5, value: '我关注的话题', url: `/people/${userId}/followtopic` }
     ]
-    const defaultActive = 1
+    const defaultActive = 6
+    const followList = reactive([])
+    getUserFollowList(userId).then((res) => {
+      // console.log(res)
+      res.forEach((item) => {
+        followList.push(item)
+      })
+      followList.forEach(async (item) => {
+        const followerList = await getUserFollowerList(item.id)
+        const answerList = await getUserAllAnswer(item.id)
+        const articleList = await getUserAllArticle(item.id)
+        item.followerNum = followerList.length
+        item.answerNum = answerList.length
+        item.articleNum = articleList.length
+        console.log(item)
+      })
+    })
+    const handleClick = (item) => {
+      console.log(item)
+      window.open('people')
+    }
     return {
       menus,
-      defaultActive
+      defaultActive,
+      followList,
+      handleClick
     }
   }
 }

@@ -99,9 +99,25 @@ export function userlikeAnswerList(userId) {
   })
 }
 
-export function createUserComentList(answerId, data) {
+// 创建一级评论
+export function createUserCommentone(answerId, data) {
   return hdRequest.post({
     url: `/comment/answer/${answerId}`,
+    data
+  })
+}
+
+// 删除一级评论
+export function deleteUserCommentone(commentId, data) {
+  return hdRequest.delete({
+    url: `/comment/answer/${commentId}`,
+    data
+  })
+}
+// 创建二级评论
+export function createUserCommenttwo(commentId, data) {
+  return hdRequest.post({
+    url: `/comment/${commentId}/replyComment`,
     data
   })
 }
@@ -113,6 +129,63 @@ export function getComentOneList(answerId) {
 }
 export function getComentTwoList(answerId) {
   return hdRequest.get({
-    url: `/comment/answer/${answerId}`
+    url: `/comment/answer/${answerId}/replycomment`
+  })
+}
+
+export function getUserInfo(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}`
+  })
+}
+//获取某个用户的粉丝列表
+export function getUserFollowerList(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/followers`
+  })
+}
+// 获取某个用户的关注列表
+export function getUserFollowList(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/following`
+  })
+}
+
+export function followUser(userId) {
+  return hdRequest.put({
+    url: `/users/following/${userId}`
+  })
+}
+
+export function unfollowUser(userId) {
+  return hdRequest.delete({
+    url: `/users/unfollowing/${userId}`
+  })
+}
+
+// 获取用户的点赞数
+export function belikedNum(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/belikednum`
+  })
+}
+
+// 获取用户的所有回答
+export function getUserAllAnswer(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/allAnswer`
+  })
+}
+// 获取用户的所有文章
+export function getUserAllArticle(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/allArticle`
+  })
+}
+
+// 获取某个用户的粉丝列表
+export function getUserAllFollower(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/followers`
   })
 }

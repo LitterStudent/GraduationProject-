@@ -46,14 +46,17 @@
 </template>
 <script>
 import AsideHeader from '../cpns/aside_header2.vue'
-import { useStore } from 'vuex'
+// import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
+
 export default {
   components: {
     AsideHeader
   },
   setup() {
-    const store = useStore()
-    const userId = store.state.login.userInfo.id
+    const route = useRoute()
+    console.log(route)
+    const userId = route.params.id
     const menus = [
       { index: 1, value: '我关注的人', url: `/people/${userId}/follow` },
       { index: 2, value: '关注我的人', url: `/people/${userId}/follower` },
