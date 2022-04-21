@@ -175,4 +175,7 @@ body {
 .change-topic-input {
   width: 150px;
 }
+p {
+  padding: 20px 0;
+}
 </style>

@@ -3,6 +3,8 @@ const { Op } = require("sequelize");
 const Article = require("../model/article");
 const User = require("../model/user");
 const Topic = require("../model/topic");
+const ColumnArticle = require("../model/column_article");
+const Column = require("../model/column");
 
 class AnswerssCtl {
   async create(ctx) {
@@ -25,6 +27,12 @@ class AnswerssCtl {
     }
     article.set(articleInit);
     await article.save();
+    if (column_id) {
+      const column_article = new ColumnArticle();
+      column_article.column_id = column_id;
+      column_article.article_id = article.id;
+      await column_article.save();
+    }
     ctx.body = article;
   }
   async checkWriter(ctx, next) {
@@ -90,6 +98,15 @@ class AnswerssCtl {
     const res = article.dataValues;
     res.user = user.dataValues;
     res.topic = topic.dataValues;
+    const column_article = await ColumnArticle.findOne({
+      where: {
+        article_id: article.id,
+      },
+    });
+    if (column_article) {
+      const column = await Column.findByPk(column_article.column_id);
+      res.column = column;
+    }
     ctx.body = res;
   }
   async updateById(ctx) {

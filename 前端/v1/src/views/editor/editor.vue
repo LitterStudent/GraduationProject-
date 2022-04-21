@@ -5,6 +5,7 @@
         :editor="editorRef"
         :defaultConfig="toolbarConfig"
         :mode="mode"
+        style="margin-left: 200px"
       />
       <div class="title-box">
         <input
@@ -99,7 +100,11 @@ import {
 } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { Plus } from '@element-plus/icons-vue'
-import { getAllTopicRequest, getUserAllColumn } from '@/service/user/user'
+import {
+  getAllTopicRequest,
+  getUserAllColumn,
+  createArticle
+} from '@/service/user/user'
 import { useStore } from 'vuex'
 export default {
   components: { Editor, Toolbar, Plus },
@@ -207,14 +212,23 @@ export default {
       })
     })
     const artitleTitle = ref('')
-    const handleClick = () => {
+    const handleClick = async () => {
       const title = artitleTitle.value
       const content = editorRef.value.getHtml()
       const cover_url = imageUrl.value
       const to = topicList.find((item) => item.value == topic_name.value)
-      const topic_id = to.id
-      const column_id = chooseColumn.value
-      console.log(title, content, cover_url, topic_id, column_id)
+      const topic_id = to.id + ''
+      const column_id = chooseColumn.value + ''
+      const res = await createArticle({
+        title,
+        content,
+        topic_id,
+        cover_url,
+        column_id
+      })
+      // router.pus()
+      console.log(res)
+      // console.log(title, content, cover_url, topic_id, column_id)
     }
     return {
       editorRef,

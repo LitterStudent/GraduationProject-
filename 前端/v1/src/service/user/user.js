@@ -217,6 +217,21 @@ export function createColumn(data) {
   })
 }
 
+// 用户创建文章
+export function createArticle(data) {
+  return hdRequest.post({
+    url: `/article/`,
+    data
+  })
+}
+
+// 获取用户文章
+export function getUserArticle(articleId) {
+  return hdRequest.get({
+    url: `/article/${articleId}`
+  })
+}
+
 // 用户关注的话题
 export function getUserFollowTopic(userId) {
   return hdRequest.get({

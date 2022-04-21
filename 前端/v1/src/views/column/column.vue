@@ -2,7 +2,7 @@
   <div class="column">
     <h2 class="title">随 心 写 作， 自 由 表 达</h2>
     <div class="button-box">
-      <button class="start-button">开始写文章</button>
+      <button class="start-button" @click="handleStartWrite">开始写文章</button>
     </div>
     <div class="open-column">
       <span @click="handleAppluColumn">申请开通专栏></span>
@@ -210,11 +210,15 @@ export default {
       console.log(res)
       //   router.push()
     }
+    const handleStartWrite = () => {
+      window.open('/#/editor')
+    }
     return {
       centerDialogVisible,
       handleAppluColumn,
       handleCommit,
-      columnItem
+      columnItem,
+      handleStartWrite
     }
   }
 }

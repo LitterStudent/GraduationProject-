@@ -43,6 +43,9 @@
     <el-button @click="handClickQuestion" color="rgb(0, 102, 255)" round
       >提问</el-button
     >
+    <el-button color="rgb(0, 102, 255)" @click="handClickColumn" round
+      >专栏</el-button
+    >
     <div class="info">
       <el-dropdown>
         <span class="el-dropdown-link">
@@ -148,6 +151,9 @@ export default {
       console.log(props)
       emit('dialogVisible')
     }
+    const handClickColumn = () => {
+      window.open('/#/column')
+    }
     return {
       state,
       handleSelect,
@@ -157,7 +163,8 @@ export default {
       handlelogout,
       handlePeople,
       avatar_url,
-      handClickQuestion
+      handClickQuestion,
+      handClickColumn
     }
   }
 }
