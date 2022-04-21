@@ -2,54 +2,77 @@
   <div class="follow">
     <!-- <div class="title">我的关注</div> -->
     <aside-header :menus="menus" :defaultActive="defaultActive"></aside-header>
-    <div class="topic-item">
-      <div class="img">
-        <img
-          src="https://pic2.zhimg.com/v2-a13c66a27e327443841fdc6bd4860eb4_im.jpg?source=57bbeac9"
+    <template v-if="topicList.length > 0">
+      <div class="topic-item" v-for="item in topicList" :key="item.id">
+        <div class="img">
+          <!-- <img
+          :src="item.avatar_url"
           style="width: 100%; height: 100%; border-radius: 5px"
-        />
+        /> -->
+          <el-avatar
+            :src="item.avatar_url"
+            style="width: 100%; height: 100%; border-radius: 5px"
+          ></el-avatar>
+        </div>
+        <div class="topic-info">
+          <div class="info-title">{{ item.topic_name }}</div>
+          <span style="font-size: 14px; color: #175199; margin-top: 5px"
+            >{{ item.question_num }} 个问题</span
+          >
+        </div>
       </div>
-      <div class="topic-info">
-        <div class="info-title">动漫</div>
-        <span style="font-size: 14px; color: #175199; margin-top: 5px"
-          >900 个问题</span
-        >
-      </div>
-    </div>
+    </template>
+    <template v-else>
+      <div class="none-box">还没有关注任何话题</div>
+    </template>
   </div>
 </template>
 <script>
 import AsideHeader from '../cpns/aside_header2.vue'
-// import { useStore } from 'vuex'
+import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
-
+import { getUserFollowTopic } from '@/service/user/user'
+import { reactive } from 'vue'
 export default {
   components: {
     AsideHeader
   },
   setup() {
     const route = useRoute()
-    console.log(route)
+    const store = useStore()
     const userId = route.params.id
+    const loginUserId = store.state.login.userInfo.id
+    const me = loginUserId == userId ? '我' : '他'
     const menus = [
-      { index: 1, value: '我关注的人', url: `/people/${userId}/follow` },
-      { index: 2, value: '关注我的人', url: `/people/${userId}/follower` },
+      { index: 1, value: `${me}关注的人`, url: `/people/${userId}/follow` },
+      { index: 2, value: `关注${me}的人`, url: `/people/${userId}/follower` },
       {
         index: 3,
-        value: '我关注的问题',
+        value: `${me}关注的问题`,
         url: `/people/${userId}/followquestion`
       },
       {
         index: 4,
-        value: '我关注的专栏',
+        value: `${me}关注的专栏`,
         url: `/people/${userId}/followcolumn`
       },
-      { index: 5, value: '我关注的话题', url: `/people/${userId}/followtopic` }
+      {
+        index: 5,
+        value: `${me}关注的话题`,
+        url: `/people/${userId}/followtopic`
+      }
     ]
     const defaultActive = 5
+    const topicList = reactive([])
+    getUserFollowTopic(userId).then((res) => {
+      res.forEach((item) => {
+        topicList.push(item)
+      })
+    })
     return {
       menus,
-      defaultActive
+      defaultActive,
+      topicList
     }
   }
 }
@@ -82,5 +105,14 @@ export default {
 }
 .info-title {
   cursor: pointer;
+}
+.none-box {
+  height: 300px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(133, 144, 166);
+  font-size: 16px;
 }
 </style>

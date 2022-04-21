@@ -27,6 +27,16 @@ const routes = [
     ]
   },
   {
+    path: '/column',
+    name: 'Column',
+    component: () => import('@/views/column/column.vue')
+  },
+  {
+    path: '/column/:id',
+    name: 'ColumItem',
+    component: () => import('@/views/columnItem/columnItem.vue')
+  },
+  {
     path: '/question/:id',
     name: 'Question',
     component: () => import('../views/question/question.vue')

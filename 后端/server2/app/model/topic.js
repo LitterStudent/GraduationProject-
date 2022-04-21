@@ -36,6 +36,16 @@ Topic.init({
         defaultValue: 1,
         comment: '话题状态:0-禁用,1-正常'
     },
+    question_num: {
+        type: DataTypes.INTEGER(64),
+        defaultValue: 0,
+        comment: '话题的问题数'
+    },
+    article_num: {
+        type: DataTypes.INTEGER(64),
+        defaultValue: 0,
+        comment: '话题的文章数'
+    },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false,

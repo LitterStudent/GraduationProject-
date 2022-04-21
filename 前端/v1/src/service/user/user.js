@@ -13,6 +13,12 @@ export function getAllTopicRequest() {
   })
 }
 
+// 查找用户所有的提问
+export function getUserAllQuestion(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/questions`
+  })
+}
 export function addQuestionRequest(question) {
   return hdRequest.post({
     url: '/questions',
@@ -187,5 +193,33 @@ export function getUserAllArticle(userId) {
 export function getUserAllFollower(userId) {
   return hdRequest.get({
     url: `/users/${userId}/followers`
+  })
+}
+
+// 用户关注的专栏
+export function getUserFollowColumn(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/followingcolumn`
+  })
+}
+
+// 用户创建的专栏
+export function getUserAllColumn(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/findallcolumn`
+  })
+}
+// 用户创建专栏
+export function createColumn(data) {
+  return hdRequest.post({
+    url: `/column`,
+    data
+  })
+}
+
+// 用户关注的话题
+export function getUserFollowTopic(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/followingTopic`
   })
 }

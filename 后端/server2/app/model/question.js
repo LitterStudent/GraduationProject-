@@ -53,8 +53,8 @@ Question.init({
     status: {
         type: DataTypes.TINYINT,
         allowNull: true,
-        defaultValue: 2,
-        comment: '问题状态:0-禁用,1-正常,2待审核'
+        defaultValue: 1,
+        comment: '问题状态:0-禁用,1-正常'
     },
     created_at: {
         type: DataTypes.DATE,

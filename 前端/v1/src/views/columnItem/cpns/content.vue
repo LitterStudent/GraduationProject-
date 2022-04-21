@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <h2 class="title">{{ item.title }}</h2>
-    <user-avatar :user="user"></user-avatar>
     <div class="rich_content">
       <div class="cover" v-if="item.cover_url">
         <img class="pic" :src="item.cover_url" />
@@ -34,22 +33,18 @@
 
 <script>
 import { CaretTop, ChatRound } from '@element-plus/icons-vue'
-import UserAvatar from './user_avatar.vue'
 export default {
   components: {
     CaretTop,
-    ChatRound,
-    UserAvatar
+    ChatRound
   },
-  props: ['item', 'user'],
+  props: ['item'],
   setup() {}
 }
 </script>
 
 <style scoped>
 .container {
-  padding: 10px 20px 10px 20px;
-  border-bottom: 1px solid rgb(240, 242, 247);
 }
 .title {
   cursor: pointer;

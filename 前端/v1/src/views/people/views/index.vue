@@ -1,6 +1,6 @@
 <template>
   <div class="index">
-    <div class="title">我的动态</div>
+    <div class="title">{{ me }}的动态</div>
     <div class="action-inco">赞同了回答</div>
     <rich-content v-bind:item="answerList[1]" :user="user"></rich-content>
     <div class="action-inco">赞同了回答</div>
@@ -10,11 +10,18 @@
 
 <script>
 import RichContent from '../cpns/rich_content.vue'
-// import { useRoute } from 'vue-router'
-
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+import { ref } from 'vue'
 export default {
   components: { RichContent },
   setup() {
+    const store = useStore()
+    const route = useRoute()
+    const pageUserId = route.params.id
+    const LoginUserId = store.state.login.userInfo.id
+    const me = pageUserId == LoginUserId ? ref('我') : ref('他')
+
     const answerList = [
       {
         title: '为什么美国新冠确诊几千万，国家还没崩掉？',
@@ -75,7 +82,8 @@ export default {
     }
     return {
       answerList,
-      user
+      user,
+      me
     }
   }
 }
@@ -97,5 +105,14 @@ export default {
   margin-left: 20px;
   color: #8590a6;
   font-size: 14px;
+}
+.none-box {
+  height: 300px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(133, 144, 166);
+  font-size: 16px;
 }
 </style>

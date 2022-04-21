@@ -37,7 +37,13 @@ const {
   checkQuestionExist,
   listFollowingQuestions,
 } = require("../controller/questions");
-
+const {
+  checkColumnExist,
+  followColumn,
+  unfollowColumn,
+  getUserFollowingColumn,
+  findByUserId,
+} = require("../controller/column");
 const { getUserAllArticle } = require("../controller/article");
 // const jsonwebtoken = require('jsonwebtoken')
 
@@ -148,7 +154,25 @@ router.delete(
 // // 取消点赞某个回答
 // router.delete('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, undisLikingAnswer)
 
-// 评论answer
-
+// 用户所有的文章
 router.get("/:id/allarticle", getUserAllArticle);
+
+// 关注专栏
+router.put(
+  "/followingcolum/:column_id",
+  new Auth(AUTH_USER).m,
+  checkColumnExist,
+  followColumn
+);
+// 取消关注专栏
+router.delete(
+  "/unfollowingcolum/:column_id",
+  new Auth(AUTH_USER).m,
+  checkColumnExist,
+  unfollowColumn
+);
+// 用户关注的所有专栏
+router.get("/:id/followingcolumn", getUserFollowingColumn);
+// 用户创建的所有专栏
+router.get("/:id/findallcolumn", findByUserId);
 module.exports = router;

@@ -2,36 +2,45 @@
   <div class="follow">
     <!-- <div class="title">我的关注</div> -->
     <aside-header :menus="menus" :defaultActive="defaultActive"></aside-header>
-    <div
-      class="follow-item"
-      v-for="item in followList"
-      :key="item.id"
-      @click="handleClick(item)"
-    >
-      <div class="item-image">
-        <img
+    <template v-if="followList.length > 0">
+      <div
+        class="follow-item"
+        v-for="item in followList"
+        :key="item.id"
+        @click="handleClick(item)"
+      >
+        <div class="item-image">
+          <!-- <img
           :src="item.avatar_url"
           style="width: 100%; height: 100%; border-radius: 5px"
-        />
-      </div>
-      <div class="item-head">
-        <h2 class="item-head-title">{{ item.username }}</h2>
-        <div class="item-head-line">{{ item.headline }}</div>
-        <div class="item-head-meta">
-          <span>{{ item.answerNum }} 回答</span>
-          <span style="margin: 0 10px">{{ item.articleNum }} 文章</span>
-          <span>{{ item.followerNum }} 关注者</span>
+        /> -->
+          <el-avatar
+            :src="item.avatar_url"
+            style="width: 100%; height: 100%; border-radius: 5px"
+          />
+        </div>
+        <div class="item-head">
+          <h2 class="item-head-title">{{ item.username }}</h2>
+          <div class="item-head-line">{{ item.headline }}</div>
+          <div class="item-head-meta">
+            <span>{{ item.answerNum }} 回答</span>
+            <span style="margin: 0 10px">{{ item.articleNum }} 文章</span>
+            <span>{{ item.followerNum }} 关注者</span>
+          </div>
+        </div>
+        <div>
+          <button class="item-extra">已关注</button>
         </div>
       </div>
-      <div>
-        <button class="item-extra">已关注</button>
-      </div>
-    </div>
+    </template>
+    <template v-else>
+      <div class="none-box">还没有关注任何人</div>
+    </template>
   </div>
 </template>
 <script>
 import AsideHeader from '../cpns/aside_header2.vue'
-// import { useStore } from 'vuex'
+import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import {
   getUserFollowList,
@@ -45,23 +54,30 @@ export default {
     AsideHeader
   },
   setup() {
-    // const store = useStore()
+    const store = useStore()
     const route = useRoute()
     const userId = route.params.id
+    const loginUserId = store.state.login.userInfo.id
+    console.log(loginUserId)
+    const me = loginUserId == userId ? '我' : '他'
     const menus = [
-      { index: 1, value: '我关注的人', url: `/people/${userId}/follow` },
-      { index: 2, value: '关注我的人', url: `/people/${userId}/follower` },
+      { index: 1, value: `${me}关注的人`, url: `/people/${userId}/follow` },
+      { index: 2, value: `关注${me}的人`, url: `/people/${userId}/follower` },
       {
         index: 3,
-        value: '我关注的问题',
+        value: `${me}关注的问题`,
         url: `/people/${userId}/followquestion`
       },
       {
         index: 4,
-        value: '我关注的专栏',
+        value: `${me}关注的专栏`,
         url: `/people/${userId}/followcolumn`
       },
-      { index: 5, value: '我关注的话题', url: `/people/${userId}/followtopic` }
+      {
+        index: 5,
+        value: `${me}关注的话题`,
+        url: `/people/${userId}/followtopic`
+      }
     ]
     const defaultActive = 6
     const followList = reactive([])
@@ -82,7 +98,8 @@ export default {
     })
     const handleClick = (item) => {
       console.log(item)
-      window.open('people')
+      console.log(route)
+      window.open(`/#/people/${item.id}/index`)
     }
     return {
       menus,
@@ -144,5 +161,14 @@ export default {
   width: 96px;
   color: #fff;
   background-color: #8590a6;
+}
+.none-box {
+  height: 300px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(133, 144, 166);
+  font-size: 16px;
 }
 </style>

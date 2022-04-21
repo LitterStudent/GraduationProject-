@@ -94,7 +94,7 @@ class AnswerssCtl {
     ctx.body = answercopy;
   }
   async findByUserId(ctx) {
-    // 返回用户的未删除的文章
+    // 返回用户的未删除的某个回答
     const user = ctx.state.user;
     const questionId = ctx.params.questionId;
     const answer = await Answer.findOne({

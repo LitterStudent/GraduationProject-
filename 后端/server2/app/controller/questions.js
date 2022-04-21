@@ -46,6 +46,9 @@ class QuestionsCtl {
       question.description = description;
     }
     await question.save();
+    const topic = await Topic.findByPk(topic_id);
+    topic.question_num++;
+    await topic.save();
     ctx.body = question;
   }
   async updateById(ctx) {
@@ -85,6 +88,9 @@ class QuestionsCtl {
     if (question.status == 1) {
       question.status = 0;
       await question.save();
+      const topic = await Topic.findByPk(question.topic_id);
+      topic.question_num--;
+      await topic.save();
     }
     ctx.status = 204;
   }

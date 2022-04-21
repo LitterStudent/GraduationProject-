@@ -162,7 +162,10 @@ export default {
       userInfo.id = res.id
       userInfo.location = res.location
       userInfo.username = res.username
-      store.commit('login/changeUserInfo', userInfo)
+      if (realUserId == userId) {
+        // 更新uesrInfo
+        store.commit('login/changeUserInfo', userInfo)
+      }
     })
     // 用户获取的点赞数
     belikedNum(realUserId).then((res) => {

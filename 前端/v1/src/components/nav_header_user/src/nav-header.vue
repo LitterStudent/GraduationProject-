@@ -92,9 +92,9 @@ export default {
       router.push('/login')
     }
     const store = useStore()
+    console.log(store.state)
     const userId = store.state.login.userInfo.id
     const avatar_url = store.state.login.userInfo.avatar_url
-    console.log(avatar_url)
     const handlePeople = () => {
       const path = `/people/${userId}/index`
       router.push(path)

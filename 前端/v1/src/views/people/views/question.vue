@@ -1,43 +1,59 @@
 <template>
   <div class="question">
-    <div class="title">我的提问</div>
-    <div class="question-item">
-      <h2 class="question-title">
-        如何看待广东省珠三角和其他地区之间的发展不平衡，难道以后真的只能穷的地方越穷，富的地方越富？
-      </h2>
-      <div class="question-info">
-        <span>2021-05-03 22:54</span>
-        <span class="question-info-m">2个回答</span>
-        <span class="question-info-m">3个关注</span>
+    <div class="title">{{ me }}的提问</div>
+    <template v-if="questionList.length > 0">
+      <div
+        class="question-item"
+        v-for="item in questionList"
+        :key="item.id"
+        @click="handleClick(item.id)"
+      >
+        <h2 class="question-title">
+          {{ item.question_name }}
+        </h2>
+        <div class="question-info">
+          <span>{{ item.updated_at }}</span>
+          <span class="question-info-m">{{ item.answer_number }}个回答</span>
+          <span class="question-info-m">{{ item.follow_num }}个关注</span>
+        </div>
       </div>
-    </div>
-    <div class="question-item">
-      <h2 class="question-title">
-        如何看待广东省珠三角和其他地区之间的发展不平衡，难道以后真的只能穷的地方越穷，富的地方越富？
-      </h2>
-      <div class="question-info">
-        <span>2021-05-03 22:54</span>
-        <span class="question-info-m">2个回答</span>
-        <span class="question-info-m">3个关注</span>
-      </div>
-    </div>
-    <div class="question-item">
-      <h2 class="question-title">
-        如何看待广东省珠三角和其他地区之间的发展不平衡，难道以后真的只能穷的地方越穷，富的地方越富？
-      </h2>
-      <div class="question-info">
-        <span>2021-05-03 22:54</span>
-        <span class="question-info-m">2个回答</span>
-        <span class="question-info-m">3个关注</span>
-      </div>
-    </div>
+    </template>
+    <template v-else>
+      <div class="none-box">还没有任何提问</div>
+    </template>
   </div>
 </template>
 
 <script>
-// import { useRoute } from 'vue-router'
-
-export default {}
+import { reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+import { getUserAllQuestion } from '@/service/user/user'
+import { formatUtcString } from '@/utils/date-format'
+export default {
+  setup() {
+    const store = useStore()
+    const route = useRoute()
+    const pageUserId = route.params.id
+    const LoginUserId = store.state.login.userInfo.id
+    const me = pageUserId == LoginUserId ? ref('我') : ref('他')
+    const questionList = reactive([])
+    getUserAllQuestion(pageUserId).then((res) => {
+      res.forEach((item) => {
+        item.updated_at = formatUtcString(item.updated_at, 'YYYY-MM-DD ')
+        questionList.push(item)
+      })
+    })
+    const handleClick = (id) => {
+      window.open(`/#/question/${id}`)
+    }
+    return {
+      me,
+      questionList,
+      handleClick
+    }
+  }
+}
 </script>
 <style scoped>
 .title {
@@ -65,5 +81,14 @@ export default {}
 }
 .question-info-m {
   margin-left: 10px;
+}
+.none-box {
+  height: 300px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(133, 144, 166);
+  font-size: 16px;
 }
 </style>

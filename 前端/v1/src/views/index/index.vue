@@ -107,7 +107,6 @@
           <li>100</li>
         </ul>
       </el-aside>
-      <el-aside class="aside">Aside</el-aside>
     </el-container>
   </div>
 </template>
@@ -119,6 +118,9 @@ export default {
   name: 'Home',
   components: {
     AsideNavHeader
+  },
+  setup() {
+    console.log(111)
   }
 }
 </script>
@@ -134,7 +136,7 @@ export default {
   --el-main-padding: 0;
 }
 .main {
-  width: 700px;
+  width: 900px;
   background-color: white;
   margin-right: 10px;
   box-shadow: rgba(18, 18, 18, 0.1) 0px 1px 3px 0px;

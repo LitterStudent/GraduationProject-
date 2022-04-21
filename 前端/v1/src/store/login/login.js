@@ -29,8 +29,9 @@ const loginModule = {
       // 2. 获取用户信息
       const userInfoResult = await userInfoRequest(id)
       const userInfo = userInfoResult
-      commit('changeUserInfo', userInfo)
-      localCache.setCache('userInfo', userInfo)
+      console.log(userInfo)
+      commit('changeUserInfo', userInfo.user)
+      localCache.setCache('userInfo', userInfo.user)
       console.log(router)
       // 4.跳转首页
       router.push('/')
@@ -42,23 +43,24 @@ const loginModule = {
       }
       const userInfo = localCache.getCache('userInfo')
       if (userInfo) {
-        commit('changeUserInfo', userInfo.data[0])
-      }
-    },
-    setuplogin({ commit }) {
-      const token = localCache.getCache('token')
-      if (token) {
-        commit('changeToken', token)
-      }
-      const userInfo = localCache.getCache('userInfo')
-      if (token) {
+        console.log(userInfo)
         commit('changeUserInfo', userInfo)
       }
-      const userMenus = localCache.getCache('userMenus')
-      if (token) {
-        commit('changeUserMenus', userMenus)
-      }
     },
+    // setuplogin({ commit }) {
+    //   const token = localCache.getCache('token')
+    //   if (token) {
+    //     commit('changeToken', token)
+    //   }
+    //   const userInfo = localCache.getCache('userInfo')
+    //   if (token) {
+    //     commit('changeUserInfo', userInfo)
+    //   }
+    //   const userMenus = localCache.getCache('userMenus')
+    //   if (token) {
+    //     commit('changeUserMenus', userMenus)
+    //   }
+    // },
     async changeUserInfo({ commit }, payload) {
       commit('changeUserInfo', payload)
       localCache.setCache('userInfo', { data: [payload] })
