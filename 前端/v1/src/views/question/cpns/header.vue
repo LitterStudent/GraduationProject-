@@ -31,7 +31,9 @@
             </div>
             <div class="question-header-browse">
               <div class="question-header-follower">被浏览</div>
-              <strong class="question-header-follow-num">4,159,852</strong>
+              <strong class="question-header-follow-num"
+                >{{ questionInfo.question.pageviews }}
+              </strong>
             </div>
           </div>
         </div>
@@ -69,6 +71,11 @@
               <el-icon style="margin-right: 5px"><edit-pen /></el-icon>写回答
             </span>
           </el-button>
+          <el-button
+            style="padding: 17px 15px"
+            @click="dialogFormVisible = true"
+            >邀请用户回答</el-button
+          >
           <button
             v-if="isShowAll"
             class="question-header-button"
@@ -101,11 +108,43 @@
       </div>
     </div>
   </div>
+  <el-dialog width="600px" v-model="dialogFormVisible" title="邀请其他用户回答">
+    <template #title> </template>
+    <div class="container">
+      <div
+        class="user-item"
+        v-for="item in userList"
+        :key="item.id"
+        @click="handleClick(item)"
+      >
+        <div class="item-image">
+          <el-avatar
+            :src="item.avatar_url"
+            style="width: 100%; height: 100%; border-radius: 5px"
+          />
+        </div>
+        <div class="item-head">
+          <h2 class="item-head-title">{{ item.username }}</h2>
+          <div class="item-head-line">{{ item.headline }}</div>
+        </div>
+        <div>
+          <button
+            class="item-invite"
+            v-if="!item.isInvite"
+            @click="inviteUser(item)"
+          >
+            邀请用户
+          </button>
+          <button class="item-invited" v-else>已邀请</button>
+        </div>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script>
 import { EditPen, ArrowUpBold, ArrowDownBold } from '@element-plus/icons-vue'
-import { ref } from '@vue/reactivity'
+import { reactive, ref } from '@vue/reactivity'
 import { computed, onMounted } from '@vue/runtime-core'
 import Editor from '@/components/editor/editor.vue'
 import {
@@ -114,7 +153,9 @@ import {
   finUserAnswerRequest,
   getUserFollowQuestionList,
   followQuestion,
-  unfollowQuestion
+  unfollowQuestion,
+  getUserInviteOtherList,
+  InviteUserAnswer
 } from '@/service/user/user'
 import router from '@/router'
 import { useStore } from 'vuex'
@@ -215,6 +256,21 @@ export default {
       isFollow.value = false
       await unfollowQuestion(props.questionInfo.question.id)
     }
+
+    const dialogFormVisible = ref(false)
+    const userList = reactive([])
+    getUserInviteOtherList(props.questionId).then((res) => {
+      res.forEach((item) => {
+        // console.log(item)
+        userList.push(item)
+      })
+      console.log(userList)
+    })
+    const inviteUser = async (item) => {
+      item.isInvite = true
+      const res = await InviteUserAnswer(props.questionId, item.id)
+      console.log(res)
+    }
     return {
       handleShowAll,
       isShowAll,
@@ -229,7 +285,10 @@ export default {
       isFollow,
       followQuestionfun,
       unfollowQuestionfun,
-      follow_num
+      follow_num,
+      dialogFormVisible,
+      userList,
+      inviteUser
     }
   }
 }
@@ -339,5 +398,55 @@ export default {
   display: inline-block;
   width: 110px;
   height: 30px;
+}
+.container {
+  width: 100%;
+  height: 600px;
+  overflow: auto;
+}
+.user-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 70px;
+  border-bottom: 1px solid rgb(246, 246, 246);
+}
+.item-image {
+  width: 50px;
+  height: 50px;
+}
+.item-invite {
+  display: inline-block;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  background: none;
+  border: 1px solid;
+  border-radius: 3px;
+  color: #06f;
+  border-color: #06f;
+}
+.item-invited {
+  display: inline-block;
+  padding: 0 23px;
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  background: none;
+  border: 1px solid;
+  border-radius: 3px;
+  color: rgb(194, 200, 211);
+  border-color: rgb(194, 200, 211);
+}
+.item-head {
+  margin-left: 10px;
+  width: 70%;
+}
+.item-head-title {
+  color: black;
+  margin-bottom: 4px;
 }
 </style>

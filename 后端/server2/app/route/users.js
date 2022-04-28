@@ -21,15 +21,16 @@ const {
   likeAnswer,
   unLikingAnswer,
   getUserLikingNum,
-  listdisLinkingAnswer,
-  dislikeAnswer,
-  undisLikingAnswer,
+  listLikingArticle,
+  likeArticle,
+  unLikingArticle,
   commentAnswer,
   commentAnswerReply,
   listUserAllAnswer,
 } = require("../controller/users");
 const { checkTopicExist } = require("../controller/topics");
 const { checkAnswerExist } = require("../controller/answer");
+const { checkArticleExist } = require("../controller/article")
 const {
   followQuestion,
   unfollowQuestion,
@@ -127,8 +128,8 @@ router.delete(
 // 查询某个用户关注的话题
 router.get("/:id/followingquestion", listFollowingQuestions);
 // 查询某个用户的所有回答
-router.get("/:id/allAnswer", listUserAllAnswer);
-// 查询某个用户点赞列表
+router.get("/:id/allAnswer",new Auth(AUTH_USER).m, listUserAllAnswer);
+// 查询某个用户回答点赞列表
 router.get("/:id/likinganswer", listLikingAnswer);
 // 查询某个用户获得的点赞数
 router.get("/:id/belikednum", getUserLikingNum);
@@ -147,12 +148,22 @@ router.delete(
   unLikingAnswer
 );
 
-// // 查询某个用户点赞列表
-// router.get('/:id/dislikinganswer', listdisLinkingAnswer)
-// // 点赞某个回答
-// router.put('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, dislikeAnswer, unLikingAnswer)
-// // 取消点赞某个回答
-// router.delete('/dislikinganswer/:id', new Auth(AUTH_USER).m, checkAnswerExist, undisLikingAnswer)
+// 查询某个用户文章点赞列表
+router.get("/:id/likingarticle", listLikingArticle);
+// 点赞某个文章
+router.put(
+  "/likingarticle/:id",
+  new Auth(AUTH_USER).m,
+  checkArticleExist,
+  likeArticle
+);
+// 取消点赞某个文章
+router.delete(
+  "/likingarticle/:id",
+  new Auth(AUTH_USER).m,
+  checkArticleExist,
+  unLikingArticle
+);
 
 // 用户所有的文章
 router.get("/:id/allarticle", getUserAllArticle);

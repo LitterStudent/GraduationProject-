@@ -9,7 +9,7 @@
           <div class="name">
             <strong>{{ item.userInfo.username }} </strong>
           </div>
-          <div class="line">
+          <div style="margin-left: 10px">
             <span>{{ item.userInfo.headline }}</span>
           </div>
         </div>

@@ -1,17 +1,17 @@
 <template>
   <div class="user_avatar">
-    <div class="user_avatar_info">{{ item.user_name }}回答了该问题-1小时前</div>
+    <div class="user_avatar_info">{{ item.user_name }}</div>
     <div class="user_avatar_pic">
       <div class="pic-box">
         <img
-          src="https://pic2.zhimg.com/v2-a4d688045f174c62a60115bd4048c823_s.jpg?source=3af55fa1"
+          :src="item.writer_avatar_url"
           alt=""
           style="width: 100%; height: 100%"
         />
       </div>
-      <span class="pic-name">小小妮 </span>
+      <span class="pic-name">{{ item.writer_name }} </span>
       <span>,</span>
-      <span class="pic-line">满足现状不求上进的小妮儿一枚。</span>
+      <span class="pic-line">{{ item.writer_headline }}</span>
     </div>
   </div>
 </template>

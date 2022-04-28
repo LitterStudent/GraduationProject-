@@ -77,7 +77,8 @@ export default {
       }
 
       const answerRes = await finUserAnswerRequest(questionId, userId)
-      if (answerRes.status != 0) {
+      console.log(answerRes)
+      if (answerRes.status == 1 || answerRes.status == 0) {
         isWrite.value = true
         console.log(answerRes)
         answerOne.status = answerRes.status

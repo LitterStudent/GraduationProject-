@@ -4,6 +4,8 @@
   "description": "",
   "main": "./app/index.js",
   "dependencies": {
+    "@alicloud/dysmsapi20170525": "^2.0.9",
+    "ali-oss": "^6.17.1",
     "basic-auth": "^2.0.1",
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",

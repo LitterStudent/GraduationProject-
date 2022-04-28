@@ -6,12 +6,13 @@
         <img class="pic" :src="item.cover_url" />
       </div>
       <div class="content">
-        <div>
-          <span>
-            {{ item.user_name + ': ' + item.content }}
-          </span>
-          <button class="content_button">阅读全文</button>
-        </div>
+        <span class="text" v-if="!item.writer_name">
+          {{ item.user_name + ': ' + item.content }}
+        </span>
+        <span class="text" v-else>
+          {{ item.content }}
+        </span>
+        <button class="content_button">阅读全文</button>
       </div>
       <div class="action">
         <span>
@@ -66,7 +67,8 @@ export default {
   color: rgb(18, 18, 18);
   line-height: 25.05px;
   margin-top: 9px;
-  overflow: hidden;
+}
+.text {
 }
 .cover {
   position: relative;

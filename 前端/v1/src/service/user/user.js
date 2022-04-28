@@ -238,3 +238,17 @@ export function getUserFollowTopic(userId) {
     url: `/users/${userId}/followingTopic`
   })
 }
+
+// 获取用户的邀请其他用户回答列表
+export function getUserInviteOtherList(questionId) {
+  return hdRequest.get({
+    url: `/questions/${questionId}/invite/userlist`
+  })
+}
+
+// 邀请用户回答问题
+export function InviteUserAnswer(questionId, userId) {
+  return hdRequest.patch({
+    url: `/questions/${questionId}/invite/${userId}`
+  })
+}

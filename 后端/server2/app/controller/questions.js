@@ -1,7 +1,11 @@
 const Question = require("../model/question");
 const { Op } = require("sequelize");
 const Topic = require("../model/topic");
+const Follow = require("../model/follow");
 const FollowQuestion = require("../model/followQuestion");
+const Invite = require("../model/invite");
+const User = require("../model/user");
+const Inform = require("../model/inform");
 class QuestionsCtl {
   async findAll(ctx) {
     let { per_page = 10, page = 1, keyword } = ctx.query;
@@ -163,6 +167,93 @@ class QuestionsCtl {
     });
     ctx.body = questionList;
   }
+  // 邀请用户回答问题
+  async inviteUserAnswer(ctx) {
+    const user_id = ctx.auth.id;
+    const invited_user_id = ctx.params.userid - 0;
+    const question = ctx.state.question;
+    const inviteOne = await Invite.findOne({
+      where: {
+        user_id: user_id,
+        invited_user_id: invited_user_id,
+        question_id: question.id,
+      },
+    });
+    if (!inviteOne) {
+      // 创建邀请项
+      const invite = new Invite();
+      invite.user_id = user_id;
+      invite.invited_user_id = invited_user_id;
+      invite.question_id = question.id;
+      await invite.save();
+      // 创建通知项
+      const inform = new Inform();
+      inform.type = 6;
+      inform.user_id = user_id;
+      inform.inform_user_id = invited_user_id;
+      inform.question_id = question.id;
+      await inform.save();
+      ctx.status = 200;
+    } else {
+      ctx.throw(403, "已经邀请过了");
+    }
+  }
+  // 获取邀请用户列表回答某个问题，有些用户可能已经邀请
+  async getUsersInvite(ctx) {
+    const question_id = ctx.params.id;
+    const user_id = ctx.auth.id;
+    const follow_user_list = await Follow.findAll({
+      where: {
+        user_id: user_id,
+      },
+    });
+    const followed_user_list = await Follow.findAll({
+      where: {
+        followed_id: user_id,
+      },
+    });
+    const userIdsList = new Set();
+    follow_user_list.forEach((item) => {
+      userIdsList.add(item.followed_id);
+    });
+    followed_user_list.forEach((item) => {
+      userIdsList.add(item.user_id);
+    });
+    const inviteList = await Invite.findAll({
+      where: {
+        user_id: user_id,
+        invited_user_id: {
+          [Op.in]: Array.from(userIdsList),
+        },
+        question_id,
+      },
+    });
+    const inviteMap = {};
+    inviteList.forEach((item) => {
+      inviteMap[item.invited_user_id] = 1;
+    });
+    const userList = await User.scope("bh").findAll({
+      where: {
+        id: {
+          [Op.in]: Array.from(userIdsList),
+        },
+      },
+    });
+    const userListCopy = userList.map((item) => item["dataValues"]);
+    userListCopy.forEach((item) => {
+      if (inviteMap[item.id] == 1) {
+        // 该用户已经被邀请
+        item.isInvite = true;
+      } else {
+        item.isInvite = false;
+      }
+    });
+    ctx.body = userListCopy;
+  }
+  // 获取我的被邀请信息
+  async getOthersInviteMe(ctx) {}
+  // 已读邀请
+  async readInvite(ctx) {}
 }
 
 module.exports = new QuestionsCtl();

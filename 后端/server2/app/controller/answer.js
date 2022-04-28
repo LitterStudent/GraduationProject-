@@ -89,26 +89,50 @@ class AnswerssCtl {
   async findById(ctx) {
     const answer = ctx.state.answer;
     const user = await User.scope("bh").findByPk(answer.user_id);
-    const answercopy = answer["dataValues"];
-    answercopy["userInfo"] = user["dataValues"];
-    ctx.body = answercopy;
+    // 如果答案待审核
+    if (answer.status == 2) {
+      const writer = await User.scope("bh").findByPk(ctx.auth.id);
+      if (writer.id != user.id) {
+        // 如果登录用户不是该答案作者
+        ctx.throw(403, "禁止获取未审核的答案");
+        return;
+      } else {
+        const answercopy = answer["dataValues"];
+        answercopy["userInfo"] = user["dataValues"];
+        ctx.body = answercopy;
+      }
+    } else {
+      const answercopy = answer["dataValues"];
+      answercopy["userInfo"] = user["dataValues"];
+      ctx.body = answercopy;
+    }
   }
   async findByUserId(ctx) {
     // 返回用户的未删除的某个回答
     const user = ctx.state.user;
     const questionId = ctx.params.questionId;
+    const login_user_id = ctx.auth.id;
+    const writer_user_id = user.id;
+    const statusArr = [1];
+    if (writer_user_id == login_user_id) {
+      statusArr.push(2);
+    }
     const answer = await Answer.findOne({
       where: {
         user_id: user.id,
         question_id: questionId,
         status: {
-          [Op.in]: [1, 2],
+          [Op.in]: statusArr,
         },
       },
     });
-    const answerCopy = answer["dataValues"];
-    answerCopy["userInfo"] = user;
-    ctx.body = answerCopy;
+    if (answer) {
+      const answerCopy = answer["dataValues"];
+      answerCopy["userInfo"] = user;
+      ctx.body = answerCopy;
+    } else {
+      ctx.body = "";
+    }
   }
   async updateById(ctx) {
     ctx.verifyParams({

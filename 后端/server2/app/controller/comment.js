@@ -3,6 +3,8 @@ const CommentReply = require("../model/commentReply");
 const User = require("../model/user");
 const { Op } = require("sequelize");
 const Answer = require("../model/answer");
+const Inform = require("../model/inform");
+const Article = require("../model/article");
 
 class CommentCtl {
   async createComment(ctx) {
@@ -10,25 +12,46 @@ class CommentCtl {
       content: { type: "string", required: true },
     });
     const comment = new Comment();
+    const user_id = ctx.auth.id;
+    const answer_or_article_id = ctx.params.id;
+    const content = ctx.request.body.content;
+    const inform = new Inform();
     // 判断是文章还是回答的评论
     if (ctx.state.article) {
       comment.type = 0;
       const article = ctx.state.article;
       article.comment_num = article.comment_num + 1;
       await article.save();
+      comment.user_id = user_id;
+      comment.article_id = answer_or_article_id;
+      comment.content = content;
+      await comment.save();
+      // 当不是作者评论时才创建通知
+      if (user_id != article.user_id) {
+        inform.type = 4;
+        inform.user_id = user_id;
+        inform.inform_user_id = article.user_id;
+        inform.article_id = article.id;
+        await inform.save();
+      }
     } else if (ctx.state.answer) {
       comment.type = 1;
       const answer = ctx.state.answer;
       answer.comment_num = answer.comment_num + 1;
       await answer.save();
+      comment.user_id = user_id;
+      comment.answer_id = answer_or_article_id;
+      comment.content = content;
+      await comment.save();
+      // 当不是作者评论时才创建通知
+      if (user_id != answer.user_id) {
+        inform.type = 3;
+        inform.user_id = user_id;
+        inform.inform_user_id = answer.user_id;
+        inform.answer_id = answer.id;
+        await inform.save();
+      }
     }
-    const user_id = ctx.auth.id;
-    const answer_id = ctx.params.id;
-    const content = ctx.request.body.content;
-    comment.user_id = user_id;
-    comment.answer_id = answer_id;
-    comment.content = content;
-    await comment.save();
     const user = await User.scope("bh").findByPk(user_id);
     const commentCopy = comment["dataValues"];
     commentCopy["user"] = user;
@@ -39,9 +62,37 @@ class CommentCtl {
     if (comment.status != 0) {
       comment.status = 0;
       await comment.save();
-      const answer = await Answer.findByPk(comment.answer_id);
-      answer.comment_num--;
-      await answer.save();
+      if (comment.answer_id) {
+        const answer = await Answer.findByPk(comment.answer_id);
+        answer.comment_num--;
+        await answer.save();
+        // 删除通知
+        const inform = await Inform.findOne({
+          where: {
+            type: 3,
+            user_id: comment.user_id,
+            inform_user_id: answer.user_id,
+            answer_id: answer.id,
+          },
+        });
+        inform.status = 2;
+        await inform.save();
+      } else if (comment.article_id) {
+        const article = await Article.findByPk(comment.article_id);
+        article.comment_num--;
+        await article.save();
+        // 删除通知项
+        const inform = await Inform.findOne({
+          where: {
+            type: 4,
+            user_id: comment.user_id,
+            inform_user_id: article.user_id,
+            article_id: article.id,
+          },
+        });
+        inform.status = 2;
+        await inform.save();
+      }
     }
     ctx.status = 204;
   }

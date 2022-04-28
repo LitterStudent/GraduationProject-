@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container-box">
     <div class="article">
       <div class="cover-box">
         <img style="width: 100%" :src="article.cover_url" alt="" />
@@ -48,9 +48,9 @@
             {{ item.comment_num }} 条评论
           </button>
         </span>
-        <span v-if="isAnswer">
+        <span v-if="isWriter">
           <el-dropdown>
-            <span class="isAnswer">
+            <span class="isWriter">
               <el-icon>
                 <el-icon><more /></el-icon>
               </el-icon>
@@ -58,7 +58,10 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="dialogVisible = true"
-                  >删除</el-dropdown-item
+                  >删除文章</el-dropdown-item
+                >
+                <el-dropdown-item @click="dialogVisible = true"
+                  >修改文章</el-dropdown-item
                 >
               </el-dropdown-menu>
             </template>
@@ -81,7 +84,7 @@
 </template>
 
 <script>
-import { ChatRound, CaretTop } from '@element-plus/icons-vue'
+import { ChatRound, CaretTop, More } from '@element-plus/icons-vue'
 import { reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -90,7 +93,8 @@ import { formatUtcString } from '@/utils/date-format'
 export default {
   components: {
     ChatRound,
-    CaretTop
+    CaretTop,
+    More
   },
   setup() {
     const route = useRoute()
@@ -140,7 +144,8 @@ export default {
       item,
       articleContent,
       article,
-      handleToWriter
+      handleToWriter,
+      isWriter
     }
   }
 }
@@ -148,12 +153,11 @@ export default {
 
 <style scoped>
 .container {
-  background-color: white;
   /* margin-top: 50px; */
   position: relative;
   width: 100%;
   /* height: 100%; */
-  background-color: red;
+  background-color: white;
 }
 .article {
   position: absolute;
@@ -253,5 +257,15 @@ export default {
 }
 .clear-box {
   height: 150px;
+}
+
+.isWriter {
+  cursor: pointer;
+  display: inline-block;
+  margin-top: 10px;
+  height: 20px;
+  line-height: 20px;
+  margin-left: 20px;
+  color: #8590a6;
 }
 </style>

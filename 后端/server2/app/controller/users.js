@@ -6,14 +6,16 @@ const { secret } = require("../config/config");
 const Answer = require("../model/answer");
 const Auth = require("../utils/auth");
 const bcrypt = require("bcryptjs");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const AUTH_USER = 8;
 const AUTH_ADMIN = 16;
 const FollowTopic = require("../model/followTopic");
 const Topic = require("../model/topic");
 const LikeAnswer = require("../model/likeAnswer");
+const LikeArticle = require("../model/likeArticle");
 const Comment = require("../model/comment");
 const Article = require("../model/article");
+const Inform = require("../model/inform");
 class UsersCtl {
   async checkOwner(ctx, next) {
     if (ctx.params.id != ctx.auth.id) {
@@ -93,14 +95,13 @@ class UsersCtl {
     ctx.body = data;
   }
   async updateById(ctx) {
-    ctx.verifyParams({
-      username: { type: "string", required: false },
-      password: { type: "string", required: false },
-      avatar_url: { type: "string", required: false },
-      gender: { type: "string", required: false },
-      headline: { type: "string", required: false },
-      location: { type: "string", itemType: "string", required: false },
-    });
+    // ctx.verifyParams({
+    //   username: { type: "string", required: false },
+    //   password: { type: "string", required: false },
+    //   avatar_url: { type: "string", required: false },
+    //   gender: { type: "string", required: false },
+    //   location: { type: "string", required: false },
+    // });
     const user = await User.findByPk(ctx.params.id);
     if (!user) {
       ctx.throw(404, "用户不存在");
@@ -169,6 +170,13 @@ class UsersCtl {
     if (repeateUser) {
       ctx.throw(409, "该邮箱已经注册");
     }
+    // const Client = require("./controller/ailiyun");
+
+    // try {
+    //   Client.main(1);
+    // } catch (error) {
+    //   console.log(err);
+    // }
     const user = new User();
     user.username = name;
     user.email = email;
@@ -225,6 +233,12 @@ class UsersCtl {
       followItem.user_id = user_id;
       followItem.followed_id = followed_id;
       await followItem.save();
+
+      const inform = new Inform();
+      inform.type = 5;
+      inform.user_id = user_id;
+      inform.inform_user_id = followed_id;
+      await inform.save();
     } else if (follow.status === 0) {
       follow.status = 1;
       await follow.save();
@@ -347,11 +361,16 @@ class UsersCtl {
     ctx.body = questions;
   }
   async listUserAllAnswer(ctx) {
+    const login_user_id = ctx.auth.id;
     const user_id = ctx.params.id;
+    const statusArr = [1];
+    if (login_user_id == user_id) {
+      statusArr.push(2);
+    }
     const answerList = await Answer.findAll({
       where: {
         user_id: user_id,
-        status: 1,
+        status: statusArr,
       },
     });
     const answerListCopy = answerList.map((item) => item["dataValues"]);
@@ -372,7 +391,7 @@ class UsersCtl {
     });
     ctx.body = answerListCopy;
   }
-  // 点赞
+  // 点赞回答
   async likeAnswer(ctx) {
     const user_id = ctx.auth.id;
     const answer_id = ctx.params.id - 0;
@@ -387,16 +406,65 @@ class UsersCtl {
       await likeanswer.save();
       answer.favorite_num++;
       await answer.save();
+      // 如果回答者不是点赞者，创建通知
+      if (answer.user_id != user_id) {
+        const inform = new Inform();
+        inform.type = 0;
+        inform.user_id = user_id;
+        inform.inform_user_id = answer.user_id;
+        inform.answer_id = answer.id;
+        await inform.save();
+      }
     } else if (likeAnswerItem.status == 0) {
       likeAnswerItem.status = 1;
       await likeAnswerItem.save();
       answer.favorite_num++;
       await answer.save();
+      if (answer.user_id != user_id) {
+        const inform = await Inform.findOne({
+          where: {
+            type: 0,
+            user_id: user_id,
+            inform_user_id: answer.user_id,
+            answer_id: answer.id,
+          },
+        });
+        inform.status = 0;
+        await inform.save();
+      }
     }
 
     ctx.status = 204;
   }
-  // 列出点赞
+  // 取消点赞回答
+  async unLikingAnswer(ctx) {
+    const user_id = ctx.auth.id;
+    const answer_id = ctx.params.id - 0;
+    const likeAnswerItem = await LikeAnswer.findOne({
+      where: { user_id, answer_id },
+    });
+    const answer = await Answer.findByPk(answer_id);
+    if (likeAnswerItem && likeAnswerItem.status != 0) {
+      likeAnswerItem.status = 0;
+      await likeAnswerItem.save();
+      answer.favorite_num--;
+      await answer.save();
+      if (answer.user_id != user_id) {
+        const inform = await Inform.findOne({
+          where: {
+            user_id: user_id,
+            answer_id: answer_id,
+            inform_user_id: answer.user_id,
+            type: 0,
+          },
+        });
+        inform.status = 2;
+        await inform.save();
+      }
+    }
+    ctx.status = 204;
+  }
+  // 列出某个用户的回答的点赞列表
   async listLikingAnswer(ctx) {
     const user_id = ctx.params.id;
     const likeAnswerList = await LikeAnswer.findAll({
@@ -445,62 +513,115 @@ class UsersCtl {
     });
     ctx.body = { num: likeUserAnswerList.length };
   }
-  // 取消点赞
-  async unLikingAnswer(ctx) {
-    const user_id = ctx.auth.id;
-    const answer_id = ctx.params.id - 0;
-    const likeAnswerItem = await LikeAnswer.findOne({
-      where: { user_id, answer_id },
-    });
-    const answer = await Answer.findByPk(answer_id);
-    if (likeAnswerItem && likeAnswerItem.status != 0) {
-      likeAnswerItem.status = 0;
-      await likeAnswerItem.save();
-      answer.favorite_num--;
-      await answer.save();
-    }
-    ctx.status = 204;
-  }
 
-  // 踩
-  async dislikeAnswer(ctx, next) {
-    const me = await User.findById(ctx.state.user._id).select(
-      "+dislinkingAnswers"
-    );
-    if (
-      !me.dislinkingAnswers.map((id) => id.toString()).includes(ctx.params.id)
-    ) {
-      me.dislinkingAnswers.push(ctx.params.id);
-      me.save();
-      // await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: 1 }})
+  // 点赞文章
+  async likeArticle(ctx) {
+    const user_id = ctx.auth.id;
+    const article_id = ctx.params.id - 0;
+    const likeArticleItem = await LikeArticle.findOne({
+      where: { user_id, article_id },
+    });
+    const article = await Article.findByPk(article_id);
+    if (!likeArticleItem) {
+      const likeartile = new LikeArticle();
+      likeartile.user_id = user_id;
+      likeartile.article_id = article_id;
+      await likeartile.save();
+      article.favorite_num++;
+      await article.save();
+      // 如果点赞者不是文章创建者就创建通知
+      if (article.user_id != user_id) {
+        // 创建通知
+        const inform = new Inform();
+        inform.type = 1;
+        inform.user_id = user_id;
+        inform.inform_user_id = article.user_id;
+        inform.article_id = article.id;
+        await inform.save();
+      }
+    } else if (likeArticleItem.status == 0) {
+      likeArticleItem.status = 1;
+      await likeArticleItem.save();
+      article.favorite_num++;
+      await article.save();
+      // 如果点赞者不是文章创建者就创建通知
+      if (article.user_id != user_id) {
+        const inform = await Inform.findOne({
+          where: {
+            type: 1,
+            user_id: user_id,
+            inform_user_id: article.user_id,
+            article_id: article.id,
+          },
+        });
+        inform.status = 0;
+        await inform.save();
+      }
+    }
+
+    ctx.status = 204;
+  }
+  // 取消点赞文章
+  async unLikingArticle(ctx) {
+    const user_id = ctx.auth.id;
+    const article_id = ctx.params.id - 0;
+    const likeArticleItem = await LikeArticle.findOne({
+      where: { user_id, article_id },
+    });
+    const article = await Article.findByPk(article_id);
+    if (likeArticleItem && likeArticleItem.status != 0) {
+      likeArticleItem.status = 0;
+      await likeArticleItem.save();
+      article.favorite_num--;
+      await article.save();
+      // 如果取消点赞者不是文章创建者就取消通知
+      if (article.user_id != user_id) {
+        const inform = await Inform.findOne({
+          where: {
+            user_id: user_id,
+            article_id: article_id,
+            inform_user_id: article.user_id,
+            type: 1,
+          },
+        });
+        inform.status = 2;
+        await inform.save();
+      }
     }
     ctx.status = 204;
-    await next();
   }
-  // 列出踩
-  async listdisLinkingAnswer(ctx) {
-    const user = await User.findById(ctx.params.id)
-      .select("+dislinkingAnswers")
-      .populate("dislinkingAnswers");
-    if (!user) {
+  // 列出某个用户的文章的点赞列表
+  async listLikingArticle(ctx) {
+    const user_id = ctx.params.id;
+    const likeArticleList = await LikeArticle.findAll({
+      where: {
+        user_id,
+        status: 1,
+      },
+    });
+    const articleIds = likeArticleList.map((item) => item.article_id);
+    const articleList = await Article.findAll({
+      where: {
+        id: {
+          [Op.in]: articleIds,
+        },
+      },
+      attributes: {
+        exclude: [
+          "created_at",
+          "pageviews",
+          "favorite_num",
+          "admin_id",
+          "status",
+          "updated_at",
+          "deleted_at",
+        ],
+      },
+    });
+    if (!articleList) {
       ctx.throw(404, "用户不存在");
     }
-    ctx.body = user.dislinkingAnswers;
-  }
-  // 取消踩
-  async undisLikingAnswer(ctx) {
-    const me = await User.findById(ctx.state.user._id).select(
-      "+dislinkingAnswers"
-    );
-    const index = me.dislinkingAnswers
-      .map((id) => id.toString())
-      .indexOf(ctx.params.id);
-    if (index > -1) {
-      me.dislinkingAnswers.splice(index, 1);
-      me.save();
-      // await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: - 1 }})
-    }
-    ctx.status = 204;
+    ctx.body = articleList;
   }
 }
 

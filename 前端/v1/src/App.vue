@@ -115,6 +115,7 @@ export default {
         topic_id
       })
       const { id } = res
+      dialogFormVisible.value = false
       router.push(`/question/${id}`)
     }
     return {

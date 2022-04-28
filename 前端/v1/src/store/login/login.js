@@ -63,7 +63,7 @@ const loginModule = {
     // },
     async changeUserInfo({ commit }, payload) {
       commit('changeUserInfo', payload)
-      localCache.setCache('userInfo', { data: [payload] })
+      localCache.setCache('userInfo', payload)
       await changeUserInfoRequest(payload)
     }
   }

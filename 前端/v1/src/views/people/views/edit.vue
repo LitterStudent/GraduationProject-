@@ -148,7 +148,7 @@
                 </span>
               </div>
               <el-form v-else label-position="left">
-                <el-form-item label="居住地" label-width="120px">
+                <el-form-item label="所处行业" label-width="120px">
                   <input
                     type="text"
                     class="form-item-input"
@@ -190,8 +190,17 @@ export default {
   setup() {
     const store = useStore()
     const userInfo = reactive({ ...store.state.login.userInfo })
-    console.log(userInfo.gender)
+    console.log(userInfo)
     userInfo.gender = userInfo.gender == 0 ? '男' : '女'
+    if (!userInfo.location) {
+      userInfo.location = 'dd'
+    }
+    if (!userInfo.business) {
+      userInfo.business = ''
+    }
+    if (!userInfo.headline) {
+      userInfo.headline = ''
+    }
     const isShowName = ref(true)
     const isShowGender = ref(true)
     const isShowHeadline = ref(true)
@@ -254,20 +263,22 @@ export default {
       }
       const user = { ...userInfo }
       user.gender = user.gender == '男' ? '0' : '1'
+      console.log(user)
       store.dispatch('login/changeUserInfo', user)
       isShow.value = true
     }
     const handleAvatar = (res) => {
       const newAvatarurl = res.data.url
-      userInfo.avatar_url = newAvatarurl
+      userInfo.avatar_url = newAvatarurl[0]
       const user = { ...userInfo }
       user.gender = user.gender == '男' ? '0' : '1'
+      console.log(user)
       store.dispatch('login/changeUserInfo', user)
     }
     const handleBackground = (res) => {
       const newBackgroundUrl = res.data.url
       console.log(newBackgroundUrl)
-      userInfo.background_url = newBackgroundUrl
+      userInfo.background_url = newBackgroundUrl[0]
       const user = { ...userInfo }
       user.gender = user.gender == '男' ? '0' : '1'
       store.dispatch('login/changeUserInfo', user)
