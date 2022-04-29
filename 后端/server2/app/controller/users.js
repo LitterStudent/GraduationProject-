@@ -233,7 +233,6 @@ class UsersCtl {
       followItem.user_id = user_id;
       followItem.followed_id = followed_id;
       await followItem.save();
-
       const inform = new Inform();
       inform.type = 5;
       inform.user_id = user_id;
@@ -357,6 +356,7 @@ class UsersCtl {
           "status",
         ],
       },
+      order: [["created_at", "DESC"]],
     });
     ctx.body = questions;
   }
@@ -372,6 +372,7 @@ class UsersCtl {
         user_id: user_id,
         status: statusArr,
       },
+      order: [["created_at", "DESC"]],
     });
     const answerListCopy = answerList.map((item) => item["dataValues"]);
     const questionIds = answerList.map((item) => item.question_id);
@@ -622,6 +623,146 @@ class UsersCtl {
       ctx.throw(404, "用户不存在");
     }
     ctx.body = articleList;
+  }
+  // 获取用户的通知
+  async getUserinForm(ctx) {
+    const user_id = ctx.auth.id;
+    const informList = await Inform.findAll({
+      where: {
+        inform_user_id: user_id,
+        status: {
+          // 未读 | 已读
+          [Op.in]: [0, 1],
+        },
+      },
+    });
+    const userIds = new Set();
+    const answerIds = new Set();
+    const articleIds = new Set();
+    const questionIds = new Set();
+
+    const userMap = {};
+    const answerMap = {};
+    const articleMap = {};
+    const questionMap = {};
+    informList.forEach((item) => {
+      if (item.user_id) {
+        userIds.add(item.user_id);
+      }
+      if (item.answer_id) {
+        answerIds.add(item.answer_id);
+      }
+      if (item.article_id) {
+        articleIds.add(item.article_id);
+      }
+      if (item.question_id) {
+        questionIds.add(item.question_id);
+      }
+    });
+    const userList = await User.scope("bh").findAll({
+      where: {
+        id: {
+          [Op.in]: Array.from(userIds),
+        },
+      },
+    });
+    const answerList = await Answer.findAll({
+      where: {
+        id: {
+          [Op.in]: Array.from(answerIds),
+        },
+      },
+      attributes: {
+        exclude: [
+          "content",
+          "updated_at",
+          "status",
+          "created_at",
+          "created_admin",
+          "deleted_at",
+        ],
+      },
+    });
+    answerList.forEach((item) => {
+      questionIds.add(item.question_id);
+    });
+    const articleList = await Article.findAll({
+      where: {
+        id: {
+          [Op.in]: Array.from(articleIds),
+        },
+      },
+      attributes: {
+        exclude: [
+          "content",
+          "updated_at",
+          "status",
+          "created_at",
+          "created_admin",
+          "deleted_at",
+        ],
+      },
+    });
+    const questionList = await Question.findAll({
+      where: {
+        id: {
+          [Op.in]: Array.from(questionIds),
+        },
+      },
+      attributes: {
+        exclude: [
+          "description",
+          "updated_at",
+          "status",
+          "created_at",
+          "created_admin",
+          "deleted_at",
+        ],
+      },
+    });
+    userList.forEach((item) => {
+      userMap[item.id] = item["dataValues"];
+    });
+    answerList.forEach((item) => {
+      answerMap[item.id] = item["dataValues"];
+    });
+    articleList.forEach((item) => {
+      articleMap[item.id] = item["dataValues"];
+    });
+    questionList.forEach((item) => {
+      questionMap[item.id] = item["dataValues"];
+    });
+    const res = [];
+    informList.forEach((item) => {
+      const data = item["dataValues"];
+      if (item.type == 0) {
+        data["user"] = userMap[data.user_id];
+        data["answer"] = answerMap[data.answer_id];
+        data["question"] = questionMap[answerMap[data.answer_id].question_id];
+        res.unshift(data);
+      } else if (item.type == 1) {
+        data["user"] = userMap[data.user_id];
+        data["article"] = articleMap[data.article_id];
+        res.unshift(data);
+      } else if (item.type == 3) {
+        data["user"] = userMap[data.user_id];
+        data["answer"] = answerMap[data.answer_id];
+        data["question"] = questionMap[answerMap[data.answer_id].question_id];
+        res.unshift(data);
+      } else if (item.type == 4) {
+        data["user"] = userMap[data.user_id];
+        data["article"] = articleMap[data.article_id];
+        res.unshift(data);
+      } else if (item.type == 5) {
+        data["user"] = userMap[data.user_id];
+        res.unshift(data);
+      } else if (item.type == 6) {
+        data["user"] = userMap[data.user_id];
+        data["question"] = questionMap[data.question_id];
+        res.unshift(data);
+      }
+    });
+    ctx.body = res;
   }
 }
 

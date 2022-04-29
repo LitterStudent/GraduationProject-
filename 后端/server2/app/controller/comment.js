@@ -75,8 +75,10 @@ class CommentCtl {
             answer_id: answer.id,
           },
         });
-        inform.status = 2;
-        await inform.save();
+        if (inform) {
+          inform.status = 2;
+          await inform.save();
+        }
       } else if (comment.article_id) {
         const article = await Article.findByPk(comment.article_id);
         article.comment_num--;
@@ -90,8 +92,10 @@ class CommentCtl {
             article_id: article.id,
           },
         });
-        inform.status = 2;
-        await inform.save();
+        if (inform) {
+          inform.status = 2;
+          await inform.save();
+        }
       }
     }
     ctx.status = 204;
@@ -166,11 +170,11 @@ class CommentCtl {
   }
   // 文章一级评论列表
   async findAll2(ctx) {
-    const answer_id = ctx.params.id;
+    const article_id = ctx.params.id;
     let { per_page = 10, page = 1 } = ctx.query;
     page = Math.max(page * 1, 1) - 1;
     per_page = Math.max(per_page * 1, 1);
-    const filter = { status: 1, answer_id, type: 0 };
+    const filter = { status: 1, article_id, type: 0 };
     // 一级评论列表
     const commentList = await Comment.findAll({
       where: filter,

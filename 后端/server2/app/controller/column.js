@@ -74,6 +74,8 @@ class ColumnCtl {
         [Op.like]: `%${keyword}%`,
       };
     }
+    const column = await Column.findByPk(column_id);
+    const user = await User.scope("bh").findByPk(column.user_id);
     const ColumnArticleList = await ColumnArticle.findAll({
       where: filter,
       limit: per_page,
@@ -88,11 +90,14 @@ class ColumnCtl {
         },
       },
     });
-    ctx.body = articleList;
+    ctx.body = { articleList, user, column };
   }
   async findByUserId(ctx) {
     const user_id = ctx.params.id;
-    const columnList = await Column.findAll({ where: { user_id, status: 1 } });
+    const columnList = await Column.findAll({
+      where: { user_id, status: 1 },
+      order: [["created_at", "DESC"]],
+    });
     ctx.body = columnList;
   }
   async updateById(ctx) {

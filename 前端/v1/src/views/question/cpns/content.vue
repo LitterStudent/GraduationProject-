@@ -20,15 +20,21 @@
     <div class="richcontent" id="richcontent" v-html="itemAddStyle"></div>
     <div class="updateDate">编辑于 {{ item.updated_at }}</div>
     <div class="contnet-footer">
-      <span class="favorite" @click="handleDianZan">
+      <span class="favorite">
         <button
+          v-if="!isLock"
           :class="{
             action_button: !item.isDianZan,
             action_button2: item.isDianZan
           }"
+          @click="handleDianZan"
         >
           <el-icon><caret-top /></el-icon>
           赞同{{ item.favorite_num }}
+        </button>
+        <button v-else class="action_button">
+          <el-icon><loading /></el-icon>
+          点赞中
         </button>
       </span>
       <span class="comment">
@@ -76,7 +82,7 @@
 </template>
 
 <script>
-import { ChatRound, CaretTop, More } from '@element-plus/icons-vue'
+import { ChatRound, CaretTop, More, Loading } from '@element-plus/icons-vue'
 import { computed, ref } from 'vue'
 import { deleteUserAnswerRequest } from '@/service/user/user'
 import router from '@/router'
@@ -88,7 +94,8 @@ export default {
     ChatRound,
     CaretTop,
     More,
-    CommentDialog
+    CommentDialog,
+    Loading
   },
   setup(props, { emit }) {
     const itemAddStyle = computed(() => {
@@ -111,8 +118,15 @@ export default {
     }
 
     // const isDianZan = ref(props.item.isDianZan)
+    const isLock = ref(false)
     const handleDianZan = () => {
-      emit('DianZan', props.item)
+      if (!isLock.value) {
+        isLock.value = true
+        emit('DianZan', props.item)
+        setTimeout(() => {
+          isLock.value = false
+        }, 100)
+      }
     }
     const commentVisable = ref(false)
     const handleShowComment = () => {
@@ -123,7 +137,7 @@ export default {
       itemAddStyle,
       dialogVisible,
       handleClose,
-      // isDianZan,
+      isLock,
       handleDianZan,
       commentVisable,
       handleShowComment

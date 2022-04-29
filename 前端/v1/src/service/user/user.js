@@ -106,18 +106,17 @@ export function userlikeAnswerList(userId) {
 }
 
 // 创建一级评论
-export function createUserCommentone(answerId, data) {
+export function createUserCommentone(answerId, data, type) {
   return hdRequest.post({
-    url: `/comment/answer/${answerId}`,
+    url: `/comment/${type}/${answerId}`,
     data
   })
 }
 
 // 删除一级评论
-export function deleteUserCommentone(commentId, data) {
+export function deleteUserCommentone(commentId, type) {
   return hdRequest.delete({
-    url: `/comment/answer/${commentId}`,
-    data
+    url: `/comment/${type}/${commentId}`
   })
 }
 // 创建二级评论
@@ -128,14 +127,16 @@ export function createUserCommenttwo(commentId, data) {
   })
 }
 
-export function getComentOneList(answerId) {
+// 获取一级评论
+export function getComentOneList(answerId, commentType) {
   return hdRequest.get({
-    url: `/comment/answer/${answerId}`
+    url: `/comment/${commentType}/${answerId}`
   })
 }
-export function getComentTwoList(answerId) {
+// 获取二级评论
+export function getComentTwoList(answerId, commentType) {
   return hdRequest.get({
-    url: `/comment/answer/${answerId}/replycomment`
+    url: `/comment/${commentType}/${answerId}/replycomment`
   })
 }
 
@@ -189,6 +190,13 @@ export function getUserAllArticle(userId) {
   })
 }
 
+// 获取用户的所有点赞文章列表
+export function getUserAllArticlelike(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/likingarticle`
+  })
+}
+
 // 获取某个用户的粉丝列表
 export function getUserAllFollower(userId) {
   return hdRequest.get({
@@ -217,11 +225,45 @@ export function createColumn(data) {
   })
 }
 
+// 查询某个专栏下的所有文章
+export function getColumnAllArticle(columnId) {
+  return hdRequest.get({
+    url: `/column/${columnId}/article`
+  })
+}
 // 用户创建文章
 export function createArticle(data) {
   return hdRequest.post({
     url: `/article/`,
     data
+  })
+}
+
+// 用户更新文章
+export function updateArticle(article_id, data) {
+  return hdRequest.patch({
+    url: `/article/${article_id}`,
+    data
+  })
+}
+
+// 用户点赞文章
+export function likeArticle(article_id) {
+  return hdRequest.put({
+    url: `/users/likingarticle/${article_id}`
+  })
+}
+
+// 用户取消点赞文章
+export function unlikeArticle(article_id) {
+  return hdRequest.delete({
+    url: `/users/likingarticle/${article_id}`
+  })
+}
+// 用户删除文章
+export function deleteArticle(article_id) {
+  return hdRequest.delete({
+    url: `/article/${article_id}`
   })
 }
 
@@ -250,5 +292,12 @@ export function getUserInviteOtherList(questionId) {
 export function InviteUserAnswer(questionId, userId) {
   return hdRequest.patch({
     url: `/questions/${questionId}/invite/${userId}`
+  })
+}
+
+// 获取用户最近通知
+export function getUserInform(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/inform`
   })
 }

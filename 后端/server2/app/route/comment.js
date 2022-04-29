@@ -17,6 +17,7 @@ const {
   deleteReplyComment,
   checkReplyCommentExist,
   findOneAnswerAllReply,
+  findOneArticleAllReply
 } = require("../controller/commentReply");
 const { Auth } = require("../utils/auth");
 const AUTH_USER = 8;
@@ -53,13 +54,15 @@ router.delete(
   checkCommenter,
   deleteComment
 );
-// 查看某个文章的所有评论
-router.get("/article/:id", checkAnswerExist, findAll2);
+// 查看某个文章的所有一级评论
+router.get("/article/:id", checkArticleExist, findAll2);
 
 // 查看某个评论的所有二级评论
 router.get("/:id/replycomment", checkCommentExist, findAllReply);
 // 查看某个答案的所有二级评论
 router.get("/answer/:id/replycomment", checkAnswerExist, findOneAnswerAllReply);
+// 查看某篇文章的所有二级评论
+router.get("/article/:id/replycomment", checkArticleExist, findOneArticleAllReply);
 // 创建二级评论
 router.post(
   "/:id/replycomment",

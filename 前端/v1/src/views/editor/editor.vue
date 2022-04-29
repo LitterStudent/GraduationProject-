@@ -21,6 +21,7 @@
           style="padding: 20px; height: 700px; overflow-y: hidden"
           :defaultConfig="editorConfig"
           :mode="mode"
+          v-model="htmlValue"
           @onCreated="handleCreated"
         />
       </div>
@@ -100,17 +101,23 @@ import {
 } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { Plus } from '@element-plus/icons-vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   getAllTopicRequest,
   getUserAllColumn,
-  createArticle
+  createArticle,
+  getUserArticle,
+  updateArticle
 } from '@/service/user/user'
 import { useStore } from 'vuex'
 export default {
   components: { Editor, Toolbar, Plus },
   props: ['placeholder'],
   setup(props) {
+    const router = useRouter()
     const store = useStore()
+    const route = useRoute()
+    const article_id = route.params.id
     const userId = store.state.login.userInfo.id
     // 编辑器实例，必须用 shallowRef
     const editorRef = shallowRef()
@@ -192,6 +199,22 @@ export default {
       topicList = res.map((item) => {
         return { id: item.id, value: item.topic_name }
       })
+      // 如果是编辑文章
+      if (article_id) {
+        getUserArticle(article_id).then((res) => {
+          console.log(res)
+          artitleTitle.value = res.title
+          htmlValue.value = res.content
+          imageUrl.value = res.cover_url
+          const topic_id = res.topic_id
+          console.log(topicList)
+          const topicName = topicList.find((item) => item.id == topic_id)
+          topic_name.value = topicName.value
+          if (res.column_id) {
+            chooseColumn.value = res.column_id
+          }
+        })
+      }
     })
     const querySearch = async (queryString, cb) => {
       let res = topicList
@@ -219,17 +242,32 @@ export default {
       const to = topicList.find((item) => item.value == topic_name.value)
       const topic_id = to.id + ''
       const column_id = chooseColumn.value + ''
-      const res = await createArticle({
-        title,
-        content,
-        topic_id,
-        cover_url,
-        column_id
-      })
-      // router.pus()
-      console.log(res)
-      // console.log(title, content, cover_url, topic_id, column_id)
+      if (!article_id) {
+        // 新建文章
+        const res = await createArticle({
+          title,
+          content,
+          topic_id,
+          cover_url,
+          column_id
+        })
+        router.push(`/article/${res.id}`)
+      } else {
+        // 更新文章
+        const res = await updateArticle(article_id, {
+          title,
+          content,
+          topic_id,
+          cover_url,
+          column_id
+        })
+        console.log(res)
+        router.push(`/article/${article_id}`)
+      }
     }
+
+    const htmlValue = ref('')
+
     return {
       editorRef,
       mode: 'simple', // 或 'simple'
@@ -246,7 +284,8 @@ export default {
       columnList,
       chooseColumn,
       artitleTitle,
-      handleClick
+      handleClick,
+      htmlValue
     }
   }
 }

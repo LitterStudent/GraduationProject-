@@ -12,7 +12,6 @@ class AnswerssCtl {
       content: { type: "string", required: true },
       topic_id: { type: "string", required: true },
       title: { type: "string", required: true },
-      column_id: { type: "string", required: false },
       cover_url: { type: "string", required: false },
     });
     const { content, title, cover_url, topic_id, column_id } = ctx.request.body;
@@ -70,7 +69,7 @@ class AnswerssCtl {
       id = ctx.params.article_id;
     }
     const article = await Article.findByPk(id);
-    if (!article || article.status != 1) {
+    if (!article || article.status == 0) {
       ctx.throw(404, "文章不存在");
     }
     // 只有在删改查答案时才检查该逻辑，赞和踩的时候不检查
@@ -85,6 +84,10 @@ class AnswerssCtl {
     const article = await Article.findByPk(id);
     if (!article) {
       ctx.throw(404, "文章不存在");
+    }
+    const user_id = ctx.auth.id;
+    if (article.status == 2 && article.user_id !== user_id) {
+      ctx.throw(403, "该文章待审核，除了作者不能查看");
     }
     const user = await User.scope("bh").findByPk(article.user_id);
     const topic = await Topic.scope("bh").findOne({
@@ -114,13 +117,19 @@ class AnswerssCtl {
       content: { type: "string", required: true },
       topic_id: { type: "string", required: true },
       title: { type: "string", required: true },
-      column_id: { type: "string", required: false },
       cover_url: { type: "string", required: false },
     });
     const { content, title, cover_url, topic_id, column_id } = ctx.request.body;
     const user_id = ctx.auth.id;
     const article = ctx.state.article;
-    const articleInit = { content, title, topic_id, user_id, topic_id };
+    const articleInit = {
+      content,
+      title,
+      topic_id,
+      user_id,
+      topic_id,
+      status: 2,
+    };
     if (cover_url) {
       articleInit.cover_url = cover_url;
     }
@@ -139,10 +148,17 @@ class AnswerssCtl {
   }
   async getUserAllArticle(ctx) {
     const user_id = ctx.params.id;
+    const login_user_id = ctx.auth.id;
+    const status = [1];
+    if (login_user_id == user_id) {
+      status.push(2);
+    }
     const articleList = await Article.findAll({
       where: {
         user_id,
+        status,
       },
+      order: [["created_at", "DESC"]],
     });
     ctx.body = articleList;
   }

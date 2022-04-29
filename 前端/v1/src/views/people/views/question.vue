@@ -12,7 +12,7 @@
           {{ item.question_name }}
         </h2>
         <div class="question-info">
-          <span>{{ item.updated_at }}</span>
+          <span>{{ item.created_at }}</span>
           <span class="question-info-m">{{ item.answer_number }}个回答</span>
           <span class="question-info-m">{{ item.follow_num }}个关注</span>
         </div>

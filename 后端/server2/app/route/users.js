@@ -27,10 +27,11 @@ const {
   commentAnswer,
   commentAnswerReply,
   listUserAllAnswer,
+  getUserinForm,
 } = require("../controller/users");
 const { checkTopicExist } = require("../controller/topics");
 const { checkAnswerExist } = require("../controller/answer");
-const { checkArticleExist } = require("../controller/article")
+const { checkArticleExist } = require("../controller/article");
 const {
   followQuestion,
   unfollowQuestion,
@@ -128,7 +129,7 @@ router.delete(
 // 查询某个用户关注的话题
 router.get("/:id/followingquestion", listFollowingQuestions);
 // 查询某个用户的所有回答
-router.get("/:id/allAnswer",new Auth(AUTH_USER).m, listUserAllAnswer);
+router.get("/:id/allAnswer", new Auth(AUTH_USER).m, listUserAllAnswer);
 // 查询某个用户回答点赞列表
 router.get("/:id/likinganswer", listLikingAnswer);
 // 查询某个用户获得的点赞数
@@ -166,7 +167,7 @@ router.delete(
 );
 
 // 用户所有的文章
-router.get("/:id/allarticle", getUserAllArticle);
+router.get("/:id/allarticle", new Auth(AUTH_USER).m, getUserAllArticle);
 
 // 关注专栏
 router.put(
@@ -186,4 +187,7 @@ router.delete(
 router.get("/:id/followingcolumn", getUserFollowingColumn);
 // 用户创建的所有专栏
 router.get("/:id/findallcolumn", findByUserId);
+
+// 查询用户的最近通知
+router.get("/:id/inform", new Auth(AUTH_USER).m, getUserinForm);
 module.exports = router;

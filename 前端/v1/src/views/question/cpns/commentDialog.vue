@@ -104,7 +104,7 @@ import { formatUtcString } from '@/utils/date-format'
 import { Share, Delete } from '@element-plus/icons-vue'
 import { useStore } from 'vuex'
 export default {
-  props: ['commentVisable', 'answerid'],
+  props: ['commentVisable', 'answerid', 'articleid'],
   components: {
     Share,
     Delete
@@ -123,15 +123,23 @@ export default {
     })
     const inputRef = ref()
     const answer_id = props.answerid
-    console.log(answer_id)
-    // 获取一级评论
+    const article_id = props.articleid
+    let common_id = ''
     const commentOneList = reactive([])
-    getComentOneList(answer_id).then((res) => {
+    let commentType = ''
+    if (answer_id) {
+      commentType = 'answer'
+      common_id = answer_id
+    } else if (article_id) {
+      commentType = 'article'
+      common_id = article_id
+    }
+    getComentOneList(common_id, commentType).then((res) => {
       res.forEach((item) => {
         commentOneList.push(item)
       })
-      getComentTwoList(answer_id).then((res) => {
-        console.log(res)
+      console.log(res)
+      getComentTwoList(common_id, commentType).then((res) => {
         commentOneList.forEach((item) => {
           item.updated_at = formatUtcString(item.updated_at, 'YYYY-MM-DD')
           res.forEach((item2) => {
@@ -145,10 +153,8 @@ export default {
             }
           })
         })
-        console.log(commentOneList)
       })
     })
-    // 获取二级评论
     const replyInfo = { reply_userid: '', reply_username: '', comment_id: '' }
     const handleReply = (item) => {
       // console.log(item)
@@ -172,7 +178,7 @@ export default {
     const handleDelte = async (item) => {
       const index = commentOneList.findIndex((comment) => comment.id == item.id)
       commentOneList.splice(index, 1)
-      const res = await deleteUserCommentone(item.id)
+      const res = await deleteUserCommentone(item.id, commentType)
       console.log(res)
     }
     const handleDelte2 = async (item) => {
@@ -193,9 +199,13 @@ export default {
       console.log(answer_id)
       if (!replyInfo.reply_userid) {
         // 如果不是二级评论
-        const res = await createUserCommentone(answer_id, {
-          content: inputValue
-        })
+        const res = await createUserCommentone(
+          common_id,
+          {
+            content: inputValue
+          },
+          commentType
+        )
         res.updated_at = formatUtcString(res.updated_at, 'YYYY-MM-DD')
         commentOneList.unshift(res)
         ElMessage({

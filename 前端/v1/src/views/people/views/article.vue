@@ -7,6 +7,7 @@
         :key="item.id"
         :item="item"
         :user="user"
+        @click="handleClick(item.id)"
       ></rich-content>
     </div>
     <template v-else>
@@ -101,10 +102,14 @@ export default {
       user.name = res.user.username
       user.line = res.user.headline
     })
+    const handleClick = (id) => {
+      window.open(`/#/article/${id}`)
+    }
     return {
       articleList,
       user,
-      me
+      me,
+      handleClick
     }
   }
 }

@@ -2,14 +2,12 @@
   <div class="answer">
     <div class="title">{{ me }}的回答</div>
     <template v-if="answerList.length > 0">
-      <rich-content
-        v-for="item in answerList"
-        :key="item.id"
-        :item="item"
-        :user="user"
-        @click="handleClick(item)"
-      ></rich-content
-    ></template>
+      <template v-for="item in answerList" :key="item.id">
+        <div class="question-title">{{ item.question.question_name }}</div>
+        <rich-content :item="item" :user="user" @click="handleClick(item)">
+        </rich-content>
+      </template>
+    </template>
     <template v-else> <div class="none-box">还没有任何回答</div></template>
   </div>
 </template>
@@ -92,6 +90,7 @@ export default {
       res.forEach((item) => {
         answerList.push(item)
       })
+      console.log(answerList)
     })
     getUserInfo(pageUserId).then((res) => {
       user.avatar_url = res.user.avatar_url
@@ -130,5 +129,11 @@ export default {
   align-items: center;
   color: rgb(133, 144, 166);
   font-size: 16px;
+}
+.question-title {
+  padding-left: 20px;
+  padding-top: 10px;
+  font-size: 18px;
+  font-weight: 600;
 }
 </style>

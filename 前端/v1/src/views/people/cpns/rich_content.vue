@@ -127,3 +127,8 @@ export default {
   font-size: 14px;
 }
 </style>
+<style>
+p {
+  padding: 0;
+}
+</style>

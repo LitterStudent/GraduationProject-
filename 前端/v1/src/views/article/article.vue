@@ -21,7 +21,11 @@
       <div style="font-size: 14px; color: rgb(130, 141, 162); margin-top: 10px">
         {{ article.favorite_num }} 人赞同了该文章
       </div>
-      <div class="article-content" v-html="articleContent"></div>
+      <h2 class="check" v-if="article.status == 2">
+        内容审核中，审核通过后会自动发布
+      </h2>
+
+      <div class="article-content" v-html="article.content"></div>
 
       <div class="article-date">
         <span>发布于 {{ article.updated_at }}</span>
@@ -30,13 +34,18 @@
       <div class="contnet-footer">
         <span class="favorite" @click="handleDianZan">
           <button
+            v-if="!isLock"
             :class="{
               action_button: !item.isDianZan,
               action_button2: item.isDianZan
             }"
           >
             <el-icon><caret-top /></el-icon>
-            赞同{{ item.favorite_num }}
+            赞同{{ article.favorite_num }}
+          </button>
+          <button v-else class="action_button">
+            <el-icon><loading /></el-icon>
+            加载中
           </button>
         </span>
         <span class="comment">
@@ -44,8 +53,8 @@
           <!-- <button v-if="!item.comment_num" class="comment_button">
           添加评论
         </button> -->
-          <button class="comment_button" @click="handleShowComment">
-            {{ item.comment_num }} 条评论
+          <button class="comment_button" @click="commentdialogVisible = true">
+            {{ article.comment_num }} 条评论
           </button>
         </span>
         <span v-if="isWriter">
@@ -60,7 +69,7 @@
                 <el-dropdown-item @click="dialogVisible = true"
                   >删除文章</el-dropdown-item
                 >
-                <el-dropdown-item @click="dialogVisible = true"
+                <el-dropdown-item @click="handleEdit(item)"
                   >修改文章</el-dropdown-item
                 >
               </el-dropdown-menu>
@@ -68,7 +77,7 @@
           </el-dropdown>
         </span>
       </div>
-      <div class="column">
+      <div class="column" v-if="article.column">
         <h4 style="margin: 30px 0 20px 0">文章被以下专栏收录</h4>
         <div class="column-item">
           <h4 style="color: rgb(68, 68, 68)">{{ article.column.title }}</h4>
@@ -79,25 +88,49 @@
       </div>
       <div class="clear-box"></div>
     </div>
-    111
+    <el-dialog v-model="dialogVisible" title="提示" width="30%">
+      <span>确认删除该篇文章？</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleDelete">确认</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
+  <comment-dialog
+    v-if="commentdialogVisible"
+    :articleid="article.id"
+    :commentVisable="commentdialogVisible"
+    @closeComent="commentdialogVisible = false"
+  ></comment-dialog>
 </template>
 
 <script>
-import { ChatRound, CaretTop, More } from '@element-plus/icons-vue'
+import { ChatRound, CaretTop, More, Loading } from '@element-plus/icons-vue'
 import { reactive, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { getUserArticle } from '@/service/user/user'
 import { formatUtcString } from '@/utils/date-format'
+import CommentDialog from '../question/cpns/commentDialog.vue'
+import {
+  deleteArticle,
+  getUserAllArticlelike,
+  likeArticle,
+  unlikeArticle
+} from '@/service/user/user'
 export default {
   components: {
     ChatRound,
     CaretTop,
-    More
+    More,
+    Loading,
+    CommentDialog
   },
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const store = useStore()
     const article_id = route.params.id
     const LoginUserId = store.state.login.userInfo.id
@@ -112,12 +145,15 @@ export default {
       updated_at: '',
       user: {},
       topic: {},
-      column: {}
+      column: {},
+      status: '',
+      id: ''
     })
     getUserArticle(article_id).then((res) => {
       if (res.user_id == LoginUserId) {
         isWriter.value = true
       }
+      article.id = article_id
       article.title = res.title
       article.cover_url = res.cover_url
       article.content = res.content
@@ -127,25 +163,61 @@ export default {
       article.user = res.user
       article.topic = res.topic
       article.column = res.column
+      article.status = res.status
       article.updated_at = formatUtcString(res.updated_at)
       console.log(article)
     })
-    const articleContent =
-      '<h2 style="text-indent: 0px; text-align: start; line-height: 1.5;">一、Macro的搜索</h2><p style="text-indent: 0px; text-align: start;">ImageJ官网提供了几百个Macro的例子（如果打不开网页，需要VPN）：</p><p style="text-indent: 0px; text-align: start;"><br></p><p style="text-indent: 0px; text-align: start;"><strong>搜索Macro有两种方法：</strong></p><p style="text-indent: 0px; text-align: start;"><strong>1、直接在官网的搜索栏，本质是谷歌搜索（需要VPN）：</strong></p><p style="text-indent: 0px; text-align: start;"><br></p><p style="text-indent: 0px; text-align: start;">例如，如果需要RGB图片处理相关的Macro，在搜索栏里搜索RGB，就会得到相应结果：</p><p style="text-indent: 0px; text-align: start;"><br></p><p style="text-indent: 0px; text-align: start;"><strong>2、在Macro官网上搜索关键字，本质是浏览器搜索（不需要VPN）：</strong></p><p style="text-indent: 0px; text-align: start;">更多Macro和脚本的学习资源可以在这个网址找到：</p><p>Developer&nbsp;Resources​</p><p>imagej.nih.gov/ij/developer/index.html</p><hr/><h2 style="text-indent: 0px; text-align: start; line-height: 1.5;">二、Macro的使用和安装</h2><p style="text-indent: 0px; text-align: start;"><strong>1、Macro的使用</strong></p><p style="text-indent: 0px; text-align: start;">官网提供的文件大都是txt格式的，是为了兼容ImageJ1，打开任意一个Macro（以Animated&nbsp;Gaussian&nbsp;Blur为例）：</p><p style="text-indent: 0px; text-align: start;">在ImageJ中建立一个新的Macro（Plugins&nbsp;-&gt;&nbsp;New&nbsp;-&gt;&nbsp;Macro）：</p><p style="text-indent: 0px; text-align: start;">将所有txt中的代码复制到新的Macro中，然后点击Run就可以运行了：</p><p style="text-indent: 0px; text-align: start;">File&nbsp;-&gt;&nbsp;Save可以将这个Macro保存为.ijm文件。</p><p style="text-indent: 0px; text-align: start;"><br></p><p style="text-indent: 0px; text-align: start;"><strong>2、Macro的安装</strong></p><p style="text-indent: 0px; text-align: start;">如果平时要频繁使用到某个Macro，则可以将Macro直接安装到ImageJ中。</p><p style="text-indent: 0px; text-align: start;"><strong>（1）短暂安装（Plugins&nbsp;-&gt;&nbsp;Macro&nbsp;-&gt;&nbsp;Install）</strong></p><p style="text-indent: 0px; text-align: start;">短暂安装，即关闭ImageJ再打开后，安装的Macro会消失，不能保留。</p><p style="text-indent: 0px; text-align: start;">直接选择需要安装的.ijm文件，即可短暂安装：</p><p style="text-indent: 0px; text-align: start;"><br></p><p style="text-indent: 0px; text-align: start;"><strong>（2）长期安装（Plugins&nbsp;-&gt;&nbsp;Macros&nbsp;-&gt;&nbsp;Startup&nbsp;Macros）</strong></p><p style="text-indent: 0px; text-align: start;"><strong>如果要想每次打开ImageJ，就能在Plugins&nbsp;-&gt;&nbsp;Macros找到这个Macro，需要其它手段。</strong></p><p style="text-indent: 0px; text-align: start;"><strong>打开StartupMacros.fiji.ijm文件，把该Macro的代码添加到文件的末尾：</strong></p><p style="text-indent: 0px; text-align: start;"><strong>注意：一定要有macro&nbsp;"title"&nbsp;{&nbsp;...//Your&nbsp;code&nbsp;}，这样的结构。</strong></p><p style="text-indent: 0px; text-align: start;"><br></p><p style="text-indent: 0px; text-align: start;"><strong>这样每次打开ImageJ，就能有Animated&nbsp;Gaussian&nbsp;Blur这个Macro了：</strong></p><hr/><p style="text-indent: 0px; text-align: start;">如果对于ImageJ使用有什么问题可以私信我，或者给我发邮件：zhaoyc9@163.com<br>更多教程可以关注我的专栏：</p><p style="text-indent: 0px; text-align: start;">希望对大家有帮助~</p>'
     const item = reactive({
-      isDianZan: true,
-      favorite_num: 0,
-      comment_num: 0
+      isDianZan: false
     })
+    getUserAllArticlelike(LoginUserId).then((res) => {
+      if (res.findIndex((item) => item.id == article_id) != -1) {
+        item.isDianZan = true
+      }
+    })
+
     const handleToWriter = (item) => {
       window.open(`/#/people/${item.id}/index`)
     }
+    const handleEdit = () => {
+      window.open(`/#/editor/${article_id}`)
+    }
+    const handleDelete = async () => {
+      await deleteArticle(article_id)
+      router.push(`/people/${LoginUserId}/index`)
+    }
+    const dialogVisible = ref(false)
+
+    const isLock = ref(false)
+    const handleDianZan = async () => {
+      if (!isLock.value) {
+        isLock.value = true
+        item.isDianZan = !item.isDianZan
+        if (item.isDianZan) {
+          // 点赞文章
+          await likeArticle(article_id)
+          article.favorite_num++
+          isLock.value = false
+        } else {
+          // 取消点赞
+          await unlikeArticle(article_id)
+          article.favorite_num--
+          isLock.value = false
+        }
+      }
+    }
+    const commentdialogVisible = ref(false)
     return {
       item,
-      articleContent,
       article,
       handleToWriter,
-      isWriter
+      isWriter,
+      isLock,
+      handleEdit,
+      handleDelete,
+      dialogVisible,
+      handleDianZan,
+      commentdialogVisible
     }
   }
 }
@@ -230,7 +302,7 @@ export default {
   font-size: 16px;
   font-weight: 600;
   border-radius: 6px;
-  background-color: #f6f6f6;
+  background-color: #8590a6;
 }
 .favorite {
   /* vertical-align: middle; */

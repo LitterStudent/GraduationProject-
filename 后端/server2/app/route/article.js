@@ -10,7 +10,7 @@ router.get('/', findAll)
 router.post('/', new Auth(AUTH_USER).m, create)
 // // 查询某篇文章
 // // 判断文章是否1正常
-router.get('/:id', findById)
+router.get('/:id', new Auth(AUTH_USER).m, findById)
 // // 点赞和取消点赞
 // // 判断文章是否1正常或者2待审核（不为0禁用）
 router.patch('/:id', new Auth(AUTH_USER).m, checkArticleExist, checkWriter, updateById)

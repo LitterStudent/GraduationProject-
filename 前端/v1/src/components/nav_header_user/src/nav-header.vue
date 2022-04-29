@@ -51,11 +51,7 @@
     >
 
     <div class="info">
-      <div class="inform">
-        <el-badge value="22">
-          <el-icon><bell-filled /></el-icon>
-        </el-badge>
-      </div>
+      <inform></inform>
       <el-dropdown>
         <span class="el-dropdown-link">
           <el-avatar shape="square" :src="avatar_url" />
@@ -82,22 +78,18 @@
 </template>
 
 <script>
-import {
-  Search,
-  UserFilled,
-  SwitchButton,
-  BellFilled
-} from '@element-plus/icons-vue'
+import { Search, UserFilled, SwitchButton } from '@element-plus/icons-vue'
 import { onMounted, ref } from 'vue'
 import localCache from '@/utils/cache'
 import router from '@/router'
 import { useStore } from 'vuex'
+import Inform from './cpns/inform.vue'
 export default {
   components: {
     Search,
     UserFilled,
     SwitchButton,
-    BellFilled
+    Inform
   },
   emits: ['dialogVisible'],
   setup(props, { emit }) {
@@ -110,7 +102,6 @@ export default {
       router.push('/login')
     }
     const store = useStore()
-    console.log(store.state)
     const userId = store.state.login.userInfo.id
     const avatar_url = store.state.login.userInfo.avatar_url
     const handlePeople = () => {
@@ -224,4 +215,5 @@ export default {
   margin-right: 40px;
   color: rgb(133, 144, 166);
 }
+
 </style>

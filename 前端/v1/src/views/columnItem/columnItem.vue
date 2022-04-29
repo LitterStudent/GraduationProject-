@@ -2,31 +2,24 @@
   <div class="column-item">
     <div class="column-item-header">
       <div class="column-item-header-box">
-        <h1>ImageJ实用教程</h1>
-        <span class="column-item-header-description"
-          >科研图像处理一站式解决方案</span
-        >
+        <h1>{{ column.title }}</h1>
+        <span class="column-item-header-description">{{
+          column.description
+        }}</span>
         <div class="column-item-header-footer">
-          <el-avatar
-            shape="square"
-            :src="'https://pic2.zhimg.com/v2-e78af8b171c11931fb8073528deedca1_s.jpg?source=d16d100b'"
-          ></el-avatar>
-          <span class="writer-name"> Treasure琛 </span>
-          <span class="article-num"> 76 篇内容</span>
+          <el-avatar shape="square" :src="user.avatar_url"></el-avatar>
+          <span class="writer-name"> {{ user.username }} </span>
+          <span class="article-num"> {{ articleList.length }} 篇内容</span>
         </div>
       </div>
+      <div class="column-item-header-controller"></div>
     </div>
     <div class="column-article-content">
-      <div class="column-article-content-item">
-        <column-content :item="item"></column-content>
-      </div>
-      <div class="column-article-content-item">
-        <column-content :item="item"></column-content>
-      </div>
-      <div class="column-article-content-item">
-        <column-content :item="item"></column-content>
-      </div>
-      <div class="column-article-content-item">
+      <div
+        class="column-article-content-item"
+        v-for="item in articleList"
+        :key="item.id"
+      >
         <column-content :item="item"></column-content>
       </div>
     </div>
@@ -34,12 +27,35 @@
 </template>
 
 <script>
+import { useRoute } from 'vue-router'
 import ColumnContent from './cpns/content.vue'
+import { getColumnAllArticle } from '@/service/user/user'
+import { reactive } from 'vue'
 export default {
   components: {
     ColumnContent
   },
   setup() {
+    const route = useRoute()
+    const column_id = route.params.id
+    const articleList = reactive([])
+    const user = reactive({
+      avatar_url: '',
+      username: ''
+    })
+    const column = reactive({
+      title: '',
+      description: ''
+    })
+    getColumnAllArticle(column_id).then((res) => {
+      res.articleList.forEach((item) => {
+        articleList.push(item)
+      })
+      user.avatar_url = res.user.avatar_url
+      user.username = res.user.username
+      column.title = res.column.title
+      column.description = res.column.description
+    })
     const item = {
       title: 'ImageJ实用技巧——Western Blot定量分析深入探究(定量分析篇)',
       cover_url:
@@ -50,7 +66,10 @@ export default {
       comment_num: 0
     }
     return {
-      item
+      item,
+      articleList,
+      user,
+      column
     }
   }
 }

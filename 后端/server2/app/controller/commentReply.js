@@ -11,9 +11,16 @@ class CommentReplyCtl {
     const user_id = ctx.auth.id;
     const comment_id = comment.id;
     const answer_id = comment.answer_id;
+    const article_id = comment.article_id;
     const { content, reply_user_id } = ctx.request.body;
     const reply = new CommentReply();
-    reply.set({ user_id, comment_id, answer_id, content, reply_user_id });
+    const initObj = { user_id, comment_id, content, reply_user_id };
+    if (answer_id) {
+      initObj["answer_id"] = answer_id;
+    } else if (article_id) {
+      initObj["article_id"] = article_id;
+    }
+    reply.set(initObj);
     await reply.save();
     const user = await User.scope("bh").findByPk(user_id);
     const commentReplyCopy = reply["dataValues"];
@@ -75,6 +82,52 @@ class CommentReplyCtl {
     page = Math.max(page * 1, 1) - 1;
     per_page = Math.max(per_page * 1, 1);
     const filter = { status: 1, answer_id };
+    // 一级评论列表
+    const commentReplyList = await CommentReply.findAll({
+      where: filter,
+      //  limit: per_page,
+      //  offset: page * per_page,
+      order: [["created_at", "DESC"]],
+    });
+    const commentReplyListCopy = commentReplyList.map((item) => {
+      return item["dataValues"];
+    });
+    const userIds = commentReplyList.map((item) => item.user_id);
+    const userList = await User.scope("bh").findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const userMap = {};
+    userList.forEach((item) => {
+      userMap[item.id] = item;
+    });
+    const replyUserIds = commentReplyList.map((item) => item.reply_user_id);
+    const replyUserList = await User.scope("bh").findAll({
+      where: {
+        id: {
+          [Op.in]: replyUserIds,
+        },
+      },
+    });
+    const replyUserMap = {};
+    replyUserList.forEach((item) => {
+      replyUserMap[item.id] = item;
+    });
+    for (const item of commentReplyListCopy) {
+      item["user"] = userMap[item.user_id];
+      item["reply_user"] = replyUserMap[item.reply_user_id];
+    }
+    ctx.body = commentReplyList;
+  }
+  async findOneArticleAllReply(ctx) {
+    const article_id = ctx.params.id;
+    let { per_page = 10, page = 1 } = ctx.query;
+    page = Math.max(page * 1, 1) - 1;
+    per_page = Math.max(per_page * 1, 1);
+    const filter = { status: 1, article_id };
     // 一级评论列表
     const commentReplyList = await CommentReply.findAll({
       where: filter,
