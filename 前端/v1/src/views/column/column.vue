@@ -206,11 +206,13 @@
 import { reactive, ref } from 'vue'
 import { createColumn } from '@/service/user/user'
 import { Refresh } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
 export default {
   components: {
     Refresh
   },
   setup() {
+    const router = useRouter()
     const centerDialogVisible = ref(false)
     const handleAppluColumn = () => {
       centerDialogVisible.value = true
@@ -223,8 +225,7 @@ export default {
         description: columnItem.description
       }
       const res = await createColumn(data)
-      console.log(res)
-      //   router.push()
+      router.push(`/column/${res.id}`)
     }
     const handleStartWrite = () => {
       window.open('/#/editor')

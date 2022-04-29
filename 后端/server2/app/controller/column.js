@@ -45,7 +45,13 @@ class ColumnCtl {
     ctx.body = ColumnList;
   }
   async checkColumnExist(ctx, next) {
-    const column = await Column.findByPk(ctx.params.column_id);
+    let id = "";
+    if (ctx.params.column_id) {
+      id = ctx.params.column_id;
+    } else if (ctx.params.id) {
+      id = ctx.params.id;
+    }
+    const column = await Column.findByPk(id);
     if (!column || column.status != 1) {
       ctx.throw(404, "专栏不存在");
     }
@@ -92,6 +98,20 @@ class ColumnCtl {
     });
     ctx.body = { articleList, user, column };
   }
+  async findArticleNoInColumn(ctx) {
+    const column_id = ctx.params.id;
+    const user_id = ctx.auth.id;
+    const articleList = await Article.findAll({
+      where: { user_id, status: 1 },
+    });
+    const columnArticleList = await ColumnArticle.findAll({
+      where: { column_id, status: 1 },
+    });
+    const res = articleList.filter(
+      (item) => !columnArticleList.find((item2) => item2.article_id == item.id)
+    );
+    ctx.body = res;
+  }
   async findByUserId(ctx) {
     const user_id = ctx.params.id;
     const columnList = await Column.findAll({
@@ -122,11 +142,23 @@ class ColumnCtl {
   async addingColumn(ctx) {
     const column_id = ctx.params.column_id;
     const article_id = ctx.params.article_id;
-    const column_article = new ColumnArticle();
-    column_article.column_id = column_id;
-    column_article.article_id = article_id;
-    await column_article.save();
-    ctx.status = 200;
+    const column_article_one = await ColumnArticle.findOne({
+      where: {
+        column_id,
+        article_id,
+      },
+    });
+    if (!column_article_one) {
+      const column_article = new ColumnArticle();
+      column_article.column_id = column_id;
+      column_article.article_id = article_id;
+      await column_article.save();
+      ctx.status = 200;
+    } else {
+      column_article_one.status = 1;
+      await column_article_one.save();
+      ctx.status = 200;
+    }
   }
   // 将文章从专栏删除
   async deleteFromColumn(ctx) {

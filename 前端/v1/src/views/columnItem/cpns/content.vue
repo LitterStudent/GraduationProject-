@@ -26,20 +26,38 @@
           </button> -->
           <button class="comment_button">{{ item.comment_num }} 条评论</button>
         </span>
+        <span v-if="isWriter">
+          <el-dropdown class="more">
+            <el-icon><more-filled /></el-icon>
+            <template #dropdown>
+              <el-dropdown-item style="padding: 10px" @click="handleNoCollect"
+                >取消收录</el-dropdown-item
+              >
+            </template>
+          </el-dropdown>
+        </span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { CaretTop, ChatRound } from '@element-plus/icons-vue'
+import { CaretTop, ChatRound, MoreFilled } from '@element-plus/icons-vue'
 export default {
   components: {
     CaretTop,
-    ChatRound
+    ChatRound,
+    MoreFilled
   },
-  props: ['item'],
-  setup() {}
+  props: ['item', 'isWriter'],
+  setup(props, { emit }) {
+    const handleNoCollect = () => {
+      emit('nocollect', props.item)
+    }
+    return {
+      handleNoCollect
+    }
+  }
 }
 </script>
 
@@ -120,5 +138,12 @@ export default {
   background-color: rgba(0, 0, 0, 0);
   color: rgb(133, 144, 166);
   font-size: 14px;
+}
+.more {
+  vertical-align: middle;
+  margin-left: 10px;
+  font-size: 18px;
+  color: #646464;
+  cursor: pointer;
 }
 </style>

@@ -2,7 +2,12 @@
   <div class="column">
     <div class="title">{{ me }}的专栏</div>
     <template v-if="columnList.length > 0">
-      <div class="colum-item" v-for="item in columnList" :key="item.id">
+      <div
+        class="colum-item"
+        v-for="item in columnList"
+        :key="item.id"
+        @click="handleClick(item.id)"
+      >
         <h2 class="column-item-title">{{ item.title }}</h2>
         <div class="colum-item-info">
           <div class="description">{{ item.description }}</div>
@@ -20,7 +25,7 @@
 </template>
 
 <script>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { reactive, ref } from 'vue'
 import { getUserAllColumn } from '@/service/user/user'
@@ -28,6 +33,7 @@ export default {
   setup() {
     const store = useStore()
     const route = useRoute()
+    const router = useRouter()
     const pageUserId = route.params.id
     const LoginUserId = store.state.login.userInfo.id
     const me = pageUserId == LoginUserId ? ref('我') : ref('他')
@@ -37,9 +43,13 @@ export default {
         columnList.push(item)
       })
     })
+    const handleClick = (id) => {
+      router.push(`/column/${id}`)
+    }
     return {
       me,
-      columnList
+      columnList,
+      handleClick
     }
   }
 }

@@ -224,11 +224,41 @@ export function createColumn(data) {
     data
   })
 }
-
+// 用户更新专栏
+export function updateColumn(id, data) {
+  return hdRequest.patch({
+    url: `/column/${id}`,
+    data
+  })
+}
+// 用户删除专栏
+export function deleteColumn(id) {
+  return hdRequest.delete({
+    url: `/column/${id}`
+  })
+}
 // 查询某个专栏下的所有文章
 export function getColumnAllArticle(columnId) {
   return hdRequest.get({
     url: `/column/${columnId}/article`
+  })
+}
+// 查询某个专栏下的未收录的文章
+export function getArticleNoInColumn(columnId) {
+  return hdRequest.get({
+    url: `/column/${columnId}/collectarticle`
+  })
+}
+// 将某篇文章收纳至专栏下
+export function collectArticletoColumn(columnId, articleId) {
+  return hdRequest.patch({
+    url: `/column/${columnId}/article/${articleId}`
+  })
+}
+// 取消某篇文章收纳至专栏下
+export function deleteArticlefromColumn(columnId, articleId) {
+  return hdRequest.delete({
+    url: `/column/${columnId}/article/${articleId}`
   })
 }
 // 用户创建文章
