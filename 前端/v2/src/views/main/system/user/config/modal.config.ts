@@ -7,37 +7,40 @@ export const modalconfig: IForm = {
   },
   formItems: [
     {
-      field: 'name',
+      field: 'username',
       type: 'input',
-      label: '用户名',
-      placeholder: '请输入用户名'
+      label: '用户昵称',
+      placeholder: '请输入用户昵称'
     },
     {
-      field: 'realname',
+      field: 'phone',
       type: 'input',
-      label: '真实姓名',
-      placeholder: '请输入真实姓名'
+      label: '手机号',
+      placeholder: '请输入手机号'
     },
     {
-      field: 'password',
-      type: 'password',
-      label: '用户密码',
-      placeholder: '请输入用户密码',
+      field: 'location',
+      type: 'input',
+      label: '居住地',
+      placeholder: '请输入用户居住地',
       isHidden: false
     },
     {
-      field: 'departmentId',
-      type: 'select',
-      label: '选择部门',
+      field: 'business',
+      type: 'input',
+      label: '所处行业',
       placeholder: '请选择部门',
       options: []
     },
     {
-      field: 'roleId',
+      field: 'gender',
       type: 'select',
-      label: '选择角色',
-      placeholder: '请选择角色',
-      options: []
+      label: '性别',
+      placeholder: '请输入性别',
+      options: [
+        { label: '男', value: 0 },
+        { label: '女', value: 1 }
+      ]
     }
   ]
 }

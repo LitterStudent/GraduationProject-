@@ -28,6 +28,7 @@ const {
   commentAnswerReply,
   listUserAllAnswer,
   getUserinForm,
+  undeleteById
 } = require("../controller/users");
 const { checkTopicExist } = require("../controller/topics");
 const { checkAnswerExist } = require("../controller/answer");
@@ -74,9 +75,11 @@ router.get("/:id", findById);
 // 更新本人用户信息 认证和鉴权
 // Auth可以鉴别token是否有效与权限范围
 router.patch("/:id", new Auth(AUTH_USER).m, checkOwner, updateById);
-// 删除用户
+// 禁用用户
 // router.delete('/:id',auth, checkOwner, deleteById)
 router.delete("/:id", new Auth(AUTH_ADMIN).m, deleteById);
+// 解禁用户
+router.patch("/undelete/:id", new Auth(AUTH_ADMIN).m, undeleteById);
 router.post("/login", login);
 
 // 获取用户的关注列表

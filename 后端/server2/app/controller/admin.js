@@ -31,7 +31,16 @@ class AdminCtl {
     };
     ctx.body = data;
   }
-
+  async findById(ctx) {
+    const id = ctx.auth.id;
+    const admin = await Admin.findOne({
+      where: { id },
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+    ctx.body = admin;
+  }
   async login(ctx) {
     ctx.verifyParams({
       email: { type: "string", required: true },

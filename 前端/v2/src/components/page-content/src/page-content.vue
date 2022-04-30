@@ -42,12 +42,12 @@
           修改</el-button
         >
         <el-button
-          type="danger"
+          :type="scope.row.status == 0 ? '' : 'danger'"
           size="small"
           v-if="isDelete"
-          @click="handleDelete(scope.row)"
+          @click="handleDelete(scope.row, scope.row.status)"
         >
-          禁用</el-button
+          {{ scope.row.status == 0 ? '解禁' : '禁用' }}</el-button
         >
       </template>
       <!-- 再封装一层动态插槽 让外部组件引用该表格组件时可以动态的定义字段样式 -->
@@ -90,6 +90,11 @@ export default defineComponent({
     },
     // 删除的url
     url2: {
+      type: String,
+      required: false
+    },
+    // 取消删除的url
+    url3: {
       type: String,
       required: false
     }
@@ -145,16 +150,29 @@ export default defineComponent({
       }
     )
     // 5.
-    const handleDelete = async (item: any) => {
+    const handleDelete = async (item: any, status: any) => {
       console.log(item)
-      // 删除该项
-      store.dispatch('system/deletePageDataAction', {
-        pageName: prop.pageName,
-        id: item.id,
-        url: prop.url2
-      })
-      // 获取删除后的表格数据
-      getPageData()
+      if (status == 1) {
+        // 删除该项
+        store.dispatch('system/deletePageDataAction', {
+          pageName: prop.pageName,
+          id: item.id,
+          url: prop.url2
+        })
+        // 获取删除后的表格数据
+        setTimeout(() => {
+          getPageData()
+        }, 500)
+      } else if (status == 0) {
+        store.dispatch('system/undeletePageDataAction', {
+          pageName: prop.pageName,
+          id: item.id,
+          url: prop.url3
+        })
+        setTimeout(() => {
+          getPageData()
+        }, 500)
+      }
     }
     const handleUpdate = (item: any) => {
       // console.log(22)

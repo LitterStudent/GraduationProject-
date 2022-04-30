@@ -46,26 +46,26 @@ const loginModule: Module<ILoginState, IRootState> = {
       const loginResult: any = await accountLoginRequest(payload)
       const { id, token } = loginResult
       commit('changeToken', token)
+      console.log(id)
       localCache.setCache('token', token)
       // 发送初始化请求 （role,department）
       console.log('11')
       dispatch('getInitialDataAction', null, { root: true })
       // 2. 获取用户信息
-      const userInfoResult = await userInfoRequest(id)
-      const userInfo = userInfoResult.data
-      userInfo.name = 'coderDong'
+      const userInfoResult = await userInfoRequest()
+      const userInfo = userInfoResult
       commit('changeUserInfo', userInfo)
       localCache.setCache('userInfo', userInfo)
       // 3.请求用户菜单
-      const userMenusResult = await userMenusByRoleIdRequest(userInfo.role.id)
-      const userMenus = userMenusResult.data
-      userMenus.forEach((item: any) => {
-        if (item.name === '随便聊聊') {
-          item.name = '其他组件'
-          item.children[0].name = '富文本'
-          item.children.pop()
-        }
-      })
+      // const userMenusResult = await userMenusByRoleIdRequest(userInfo.role.id)
+      // const userMenus = userMenusResult.data
+      // userMenus.forEach((item: any) => {
+      //   if (item.name === '随便聊聊') {
+      //     item.name = '其他组件'
+      //     item.children[0].name = '富文本'
+      //     item.children.pop()
+      //   }
+      // })
       const menus = [
         {
           id: 38,

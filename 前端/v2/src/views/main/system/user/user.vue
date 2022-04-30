@@ -10,6 +10,7 @@
       pageName="users"
       url="/users"
       url2="/users"
+      url3="/users/undelete"
       :contnetTableConfig="tableconfig"
       @updateBtnClick="handleUpdate"
       @createBtnClick="handleCreate"
@@ -23,6 +24,9 @@
       ref="pageModalRef"
       pageName="users"
       :pageFromConfig="modalconfigRef"
+      url1="/users"
+      url2="/users"
+      url3="/users"
     ></page-modal>
   </div>
 </template>
@@ -47,44 +51,41 @@ export default defineComponent({
   },
   setup() {
     let [pageContentRef, handleResetEvent, handlesearchEvent] = usePageSearch()
-    // 更新时隐藏password 输入项
-    const updateCb = () => {
+    // 点击更新按钮的初始化回答
+    const updateCb = (item: any) => {
       const passwordItem = modalconfig.formItems.find((item) => {
         return item.field === 'password'
       })
       if (passwordItem) {
         passwordItem.isHidden = true
       }
+      console.log(item, pageModalRef)
     }
+    // 点击创建按钮的初始化回答
     const createCb = () => {
-      const passwordItem = modalconfig.formItems.find((item) => {
-        return item.field === 'password'
-      })
-      if (passwordItem) {
-        passwordItem.isHidden = false
-      }
+      console.log(pageModalRef)
     }
     let [pageModalRef, defaultInfo, handleCreate, handleUpdate] = usePageModal(
       updateCb,
       createCb
     )
     const modalconfigRef = computed(() => {
-      const store = useStore()
-      const departmentItem = modalconfig.formItems.find((item) => {
-        return item.field === 'departmentId'
-      })
-      const roleItem = modalconfig.formItems.find((item) => {
-        return item.field === 'roleId'
-      })
+      // const store = useStore()
+      // const departmentItem = modalconfig.formItems.find((item) => {
+      //   return item.field === 'departmentId'
+      // })
+      // const roleItem = modalconfig.formItems.find((item) => {
+      //   return item.field === 'roleId'
+      // })
 
-      departmentItem!.options = store.state.entireDepartment.map(
-        (item: any) => {
-          return { label: item.name, value: item.id }
-        }
-      )
-      roleItem!.options = store.state.entireRole.map((item: any) => {
-        return { label: item.name, value: item.id }
-      })
+      // departmentItem!.options = store.state.entireDepartment.map(
+      //   (item: any) => {
+      //     return { label: item.name, value: item.id }
+      //   }
+      // )
+      // roleItem!.options = store.state.entireRole.map((item: any) => {
+      //   return { label: item.name, value: item.id }
+      // })
       return modalconfig
     })
     return {

@@ -2,7 +2,7 @@
   <div class="page-modal">
     <el-dialog
       v-model="centerDialogVisible"
-      title="Warning"
+      title="提示"
       width="30%"
       center
       destroy-on-close
@@ -11,8 +11,8 @@
       <slot></slot>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="centerDialogVisible = false">Cancel</el-button>
-          <el-button type="primary" @click="handleConfirm">Confirm</el-button>
+          <el-button @click="centerDialogVisible = false">确定</el-button>
+          <el-button type="primary" @click="handleConfirm">取消</el-button>
         </span>
       </template>
     </el-dialog>
@@ -40,6 +40,18 @@ export default defineComponent({
     otherInfo: {
       type: Object,
       default: () => ({})
+    },
+    url1: {
+      type: String, //修改
+      required: false
+    },
+    url2: {
+      type: String, //删除
+      required: false
+    },
+    url3: {
+      type: String, //查询
+      required: false
     }
   },
   components: {
@@ -54,6 +66,8 @@ export default defineComponent({
         //  编辑按钮
         store.dispatch('system/editPageDataAction', {
           pageName: props.pageName,
+          url: props.url1,
+          url3: props.url3,
           editData: { ...formData, ...props.otherInfo },
           id: props.defaultInfo.id
         })
@@ -61,7 +75,9 @@ export default defineComponent({
         // 新建按钮
         store.dispatch('system/createPageDataAction', {
           pageName: props.pageName,
-          createData: { ...formData, ...props.otherInfo }
+          url: props.url2,
+          url3: props.url3,
+          createData: { ...formData, ...props.otherInfo, password: '123456' }
         })
       }
       centerDialogVisible.value = false

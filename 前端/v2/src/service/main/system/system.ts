@@ -13,6 +13,12 @@ export function deletePageData(url: string) {
   })
 }
 
+export function undeletePageData(url: string) {
+  return hdRequest.patch<IDataType>({
+    url
+  })
+}
+
 export function editPageData(url: string, editData: any) {
   return hdRequest.patch<IDataType>({
     url: url,

@@ -2,6 +2,7 @@ import { Module } from 'vuex'
 import { ISystemState } from './type'
 import { IRootState } from '@/store/type'
 import {
+  undeletePageData,
   deletePageData,
   getPageListData,
   editPageData,
@@ -102,25 +103,41 @@ const system: Module<ISystemState, IRootState> = {
       const pageUrl = url ? `${url}/${id}` : `/${pageName}/${id}`
       await deletePageData(pageUrl)
     },
+    async undeletePageDataAction({ commit }, payload: any) {
+      console.log(commit)
+      const { pageName, id, url } = payload
+      const pageUrl = url ? `${url}/${id}` : `/${pageName}/${id}`
+      await undeletePageData(pageUrl)
+    },
     async editPageDataAction({ dispatch }, payload: any) {
-      const { pageName, editData, id } = payload
-      const pageUrl = `/${pageName}/${id}`
-      const res = await editPageData(pageUrl, editData)
+      const { url, editData, id, pageName } = payload
+      const pageUrl = url + `/${id}`
+      console.log(editData)
+      const res = await editPageData(pageUrl, editData['_rawValue'])
       console.log(res)
       dispatch('getPageListAction', {
         pageName,
         queryInfo: {
           offset: 0,
           size: 10
-        }
+        },
+        url
       })
     },
     async createPageDataAction({ dispatch }, payload: any) {
-      const { pageName, createData } = payload
-      const pageUrl = `/${pageName}`
-      await createPageData(pageUrl, createData)
+      const { pageName, createData, url3, url } = payload
+      const pageUrl = url
+      console.log({
+        ...createData['_value'],
+        password: '123456'
+      })
+      await createPageData(pageUrl, {
+        ...createData['_value'],
+        password: '123456'
+      })
       dispatch('getPageListAction', {
         pageName,
+        url: url3,
         queryInfo: {
           offset: 0,
           size: 10

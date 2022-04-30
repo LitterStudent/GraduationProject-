@@ -18,7 +18,7 @@ const Article = require("../model/article");
 const Inform = require("../model/inform");
 class UsersCtl {
   async checkOwner(ctx, next) {
-    if (ctx.params.id != ctx.auth.id) {
+    if (ctx.params.id != ctx.auth.id && ctx.auth.scope <= 8) {
       ctx.throw(403, "没有权限");
     }
     await next();
@@ -145,11 +145,15 @@ class UsersCtl {
       avatar_url,
       background_url,
       password,
+      phone,
     } = ctx.request.body;
+    if (phone) {
+      user.phone = phone;
+    }
     if (username) {
       user.username = username;
     }
-    if (gender) {
+    if (gender == 0 || gender == 1) {
       user.gender = gender - 0;
     }
     if (headline) {
@@ -185,21 +189,27 @@ class UsersCtl {
     user.save();
     ctx.status = 204;
   }
+  async undeleteById(ctx) {
+    const user_id = ctx.params.id;
+    const user = await User.findByPk(user_id);
+    user.status = 1;
+    await user.save();
+    ctx.status = 204;
+  }
   async create(ctx) {
     ctx.verifyParams({
-      name: { type: "string", required: true },
+      username: { type: "string", required: true },
       password: { type: "string", required: true },
-      email: { type: "string", required: true },
     });
-    const { name, password, email } = ctx.request.body;
-    const repeateUser = await User.findOne({
-      where: {
-        email,
-      },
-    });
-    if (repeateUser) {
-      ctx.throw(409, "该邮箱已经注册");
-    }
+    const { username, password, email, phone, location, gender, business } = ctx.request.body;
+    // const repeateUser = await User.findOne({
+    //   where: {
+    //     email,
+    //   },
+    // });
+    // if (repeateUser) {
+    //   ctx.throw(409, "该邮箱已经注册");
+    // }
     // const Client = require("./controller/ailiyun");
 
     // try {
@@ -208,9 +218,18 @@ class UsersCtl {
     //   console.log(err);
     // }
     const user = new User();
-    user.username = name;
-    user.email = email;
+    user.username = username;
+    user.phone = phone;
     user.password = password;
+    if(location){
+      user.location = location
+    }
+    if(business) {
+      user.business = business
+    }
+    if(gender) {
+      user.gender = gender
+    }
     const res = await user.save();
     const data = {
       code: 200,

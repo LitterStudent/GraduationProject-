@@ -5,7 +5,7 @@ import type { IDataType } from '../type'
 
 enum LoginAPI {
   AccountLogin = '/admin/login',
-  UserInfo = '/users/',
+  UserInfo = '/admin/',
   UserMenus = '/role/'
 }
 export function accountLoginRequest(account: IAccount) {
@@ -16,9 +16,9 @@ export function accountLoginRequest(account: IAccount) {
   })
 }
 
-export function userInfoRequest(id: string) {
+export function userInfoRequest() {
   return hdRequest.get<IDataType>({
-    url: LoginAPI.UserInfo + id,
+    url: LoginAPI.UserInfo,
     showLoading: false
   })
 }
