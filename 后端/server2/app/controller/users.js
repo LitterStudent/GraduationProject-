@@ -28,13 +28,24 @@ class UsersCtl {
     // ctx.body = await User.find().select('password').select('name')
     // const { fileds } = ctx.query || []
     // const selectFileds = fileds.split(';').filter(f => f).map(f => ' +' + f).join('')
-    let { per_page = 10, page = 1, email, status, username } = ctx.query;
+    let {
+      per_page = 10,
+      page = 1,
+      email,
+      status,
+      username,
+      phone,
+      location,
+      business,
+    } = ctx.query;
     const scop = "bh";
     per_page = per_page - 0;
     page = page - 0;
     const filter = {};
     if (email) {
-      filter.email = email;
+      filter.email = {
+        [Op.like]: `%${email}%`,
+      };
     }
     if (status) {
       filter.status = status;
@@ -44,12 +55,31 @@ class UsersCtl {
         [Op.like]: `%${username}%`,
       };
     }
-    const user = await User.scope(scop).findAndCountAll({
+    if (phone) {
+      filter.phone = {
+        [Op.like]: `%${phone}%`,
+      };
+    }
+    if (location) {
+      filter.location = {
+        [Op.like]: `%${location}%`,
+      };
+    }
+    if (business) {
+      filter.business = {
+        [Op.like]: `%${business}%`,
+      };
+    }
+    const user = await User.findAndCountAll({
       where: filter,
       limit: per_page,
       offset: (page - 1) * per_page,
-      order: [["created_at", "DESC"]],
+      order: [["created_at", "ASC"]],
+      attributes: {
+        exclude: ["password"],
+      },
     });
+    const user2 = await User.findAndCountAll();
     const data = {
       data: user.rows,
       // 分页
@@ -57,7 +87,7 @@ class UsersCtl {
         current_page: parseInt(page),
         per_page: 10,
         count: user.count,
-        total: user.count,
+        total: user2.count,
         total_pages: Math.ceil(user.count / 10),
       },
     };

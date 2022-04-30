@@ -37,6 +37,12 @@ User.init({
         unique: 'user_email_unique',
         comment: '登录邮箱'
     },
+    phone: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        unique: 'user_phone_unique',
+        comment: '登录手机号'
+    },
     gender: {
         type: DataTypes.TINYINT,
         allowNull: true,
