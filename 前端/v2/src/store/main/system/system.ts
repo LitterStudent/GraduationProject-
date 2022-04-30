@@ -18,10 +18,10 @@ const system: Module<ISystemState, IRootState> = {
       roleList: [],
       goodsCount: 0,
       goodsList: [],
-      menuCount: 0,
-      menuList: [],
-      departmentList: [],
-      departmentCount: 0,
+      questionCount: 0,
+      questionList: [],
+      topicList: [],
+      topicCount: 0,
       categoryList: [],
       categoryCount: 0
     }
@@ -57,17 +57,17 @@ const system: Module<ISystemState, IRootState> = {
     changeGoodsCount(state, roleCount: number) {
       state.goodsCount = roleCount
     },
-    changeMenuList(state, menuList: any[]) {
-      state.menuList = menuList
+    changeQuestionList(state, questionList: any[]) {
+      state.questionList = questionList
     },
-    changeMenuCount(state, menuCount: number) {
-      state.menuCount = menuCount
+    changeQuestionCount(state, questionCount: number) {
+      state.questionCount = questionCount
     },
-    changeDepartmentList(state, departmentList: any[]) {
-      state.departmentList = departmentList
+    changeTopicList(state, topicList: any[]) {
+      state.topicList = topicList
     },
-    changeDepartmentCount(state, departmentCount: number) {
-      state.departmentCount = departmentCount
+    changeTopicCount(state, topicCount: number) {
+      state.topicCount = topicCount
     },
     changeCategoryList(state, categoryList: any) {
       state.categoryList = categoryList

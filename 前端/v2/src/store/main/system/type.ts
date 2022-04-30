@@ -5,10 +5,10 @@ export interface ISystemState {
   roleCount: number
   goodsCount: number
   goodsList: any[]
-  menuCount: number
-  menuList: any[]
-  departmentList: any[]
-  departmentCount: number
+  questionCount: number
+  questionList: any[]
+  topicList: any[]
+  topicCount: number
   categoryList: any[]
   categoryCount: number
 }

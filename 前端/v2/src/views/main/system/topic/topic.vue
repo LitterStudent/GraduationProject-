@@ -1,13 +1,27 @@
 <template>
-  <div class="department">
-    <h2>{{ msg }}</h2>
-    <page-search :config="formconfig"></page-search>
+  <div class="topic">
+    <page-search
+      :config="formconfig"
+      @resetEvent="handleResetEvent"
+      @searchEvent="handlesearchEvent"
+    ></page-search>
     <page-contnet
-      pageName="department"
+      pageName="topic"
+      url="/topics/adminfind"
+      url2="/users"
+      url3="/users/undelete"
       :contnetTableConfig="contentTableConfig"
       @createBtnClick="handleCreate"
       @updateBtnClick="handleUpdate"
-    ></page-contnet>
+    >
+      <template #picture="scope">
+        <el-image
+          :src="scope.row.avatar_url"
+          style="width: 100px; height: 100px"
+          :fit="fit"
+        ></el-image>
+      </template>
+    </page-contnet>
     <page-modal ref="pageModalRef" :pageFromConfig="modalconfig"></page-modal>
   </div>
 </template>
@@ -32,15 +46,13 @@ export default defineComponent({
     const [pageModalRef, defaultInfo, handleCreate, handleUpdate] =
       usePageModal()
     console.log(111)
-    let msg = 1111122334
     return {
       pageModalRef,
       formconfig,
       contentTableConfig,
       modalconfig,
       handleCreate,
-      handleUpdate,
-      msg
+      handleUpdate
     }
   }
 })

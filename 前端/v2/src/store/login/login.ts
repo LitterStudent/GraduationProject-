@@ -151,7 +151,7 @@ const loginModule: Module<ILoginState, IRootState> = {
             },
             {
               id: 3,
-              url: '/main/system/department',
+              url: '/main/system/topic',
               name: '话题管理',
               sort: 101,
               type: 2,
@@ -163,7 +163,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 3,
-                  permission: 'system:department:create'
+                  permission: 'system:topic:create'
                 },
                 {
                   id: 18,
@@ -172,7 +172,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 3,
-                  permission: 'system:department:delete'
+                  permission: 'system:topic:delete'
                 },
                 {
                   id: 19,
@@ -181,7 +181,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 3,
-                  permission: 'system:department:update'
+                  permission: 'system:topic:update'
                 },
                 {
                   id: 20,
@@ -190,14 +190,14 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 3,
-                  permission: 'system:department:query'
+                  permission: 'system:topic:query'
                 }
               ],
               parentId: 1
             },
             {
               id: 4,
-              url: '/main/system/menu',
+              url: '/main/system/question',
               name: '问题管理',
               sort: 103,
               type: 2,
@@ -209,7 +209,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 4,
-                  permission: 'system:menu:create'
+                  permission: 'system:question:create'
                 },
                 {
                   id: 22,
@@ -218,7 +218,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 4,
-                  permission: 'system:menu:delete'
+                  permission: 'system:question:delete'
                 },
                 {
                   id: 23,
@@ -227,7 +227,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 4,
-                  permission: 'system:menu:update'
+                  permission: 'system:question:update'
                 },
                 {
                   id: 24,
@@ -236,7 +236,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 4,
-                  permission: 'system:menu:query'
+                  permission: 'system:question:query'
                 }
               ],
               parentId: 1

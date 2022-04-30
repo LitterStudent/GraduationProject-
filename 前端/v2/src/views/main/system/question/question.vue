@@ -1,8 +1,8 @@
 <template>
-  <div class="menu">
+  <div class="question">
     <page-search :config="formconfig"></page-search>
     <page-contnet
-      pageName="menu"
+      pageName="question"
       :contnetTableConfig="contentTableConfig"
     ></page-contnet>
   </div>

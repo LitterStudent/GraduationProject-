@@ -88,7 +88,7 @@ class UsersCtl {
         per_page: 10,
         count: user.count,
         total: user2.count,
-        total_pages: Math.ceil(user.count / 10),
+        total_pages: Math.ceil(user2.count / 10),
       },
     };
     ctx.body = data;

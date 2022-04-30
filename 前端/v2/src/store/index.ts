@@ -10,21 +10,21 @@ const store = createStore<IRootState>({
     return {
       name: 'dongdong',
       age: 12,
-      entireDepartment: [],
+      entiretopic: [],
       entireRole: [],
-      entireMenus: []
+      entireQuestion: []
     }
   },
   getters: {},
   mutations: {
-    changeEntiresDepartment(state, list) {
-      state.entireDepartment = list
+    changeEntiresTopic(state, list) {
+      state.entiretopic = list
     },
     changeEntiresRole(state, list) {
       state.entireRole = list
     },
-    changeEntireMenus(state, list) {
-      state.entireMenus = list
+    changeEntireQuestion(state, list) {
+      state.entireQuestion = list
     }
   },
   actions: {
