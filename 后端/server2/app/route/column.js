@@ -11,13 +11,16 @@ const {
   deleteArticle,
   addingColumn,
   deleteFromColumn,
+  undeleteArticle,
   findArticleByColumn,
   findArticleNoInColumn,
+  findAllByAdmin
 } = require("../controller/column");
 const { Auth } = require("../utils/auth");
 const AUTH_USER = 8;
 // 查询所有专栏
 router.get("/", findAll);
+router.get("/allcolumn", findAllByAdmin)
 // 创建专栏
 router.post("/", new Auth(AUTH_USER).m, create);
 // 查询某篇专栏
@@ -42,6 +45,13 @@ router.delete(
   checkColumnExist,
   checkColumner,
   deleteArticle
+);
+// 取消删除专栏
+router.patch(
+  "/undelete/:id",
+  new Auth(AUTH_USER).m,
+  checkColumner,
+  undeleteArticle
 );
 // 将文章加入专栏
 router.patch(

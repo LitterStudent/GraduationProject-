@@ -1,6 +1,7 @@
 const Answer = require("../model/answer");
 const { Op } = require("sequelize");
 const User = require("../model/user");
+const Question = require("../model/question");
 class AnswerssCtl {
   async create(ctx) {
     ctx.verifyParams({
@@ -24,11 +25,104 @@ class AnswerssCtl {
   async checkAnswerer(ctx, next) {
     const user_id = ctx.auth.id;
     const answer = ctx.state.answer;
-    if (answer.user_id != user_id) {
+    if (ctx.auth.scope <= 8 && answer.user_id != user_id) {
       ctx.throw(403, "没有权限");
     }
     await next();
   }
+  // 管理员查找所有答案
+  async findAllAnswer(ctx) {
+    let {
+      per_page = 10,
+      page = 1,
+      username,
+      question_name,
+      status,
+    } = ctx.query;
+    per_page = per_page - 0;
+    page = page - 0;
+    const filter = {};
+    if (status) {
+      filter.status = status;
+    }
+    if (username) {
+      const userList = await User.findAll({
+        where: {
+          username: {
+            [Op.like]: `%${username}%`,
+          },
+        },
+      });
+      const userIds = userList.map((item) => item.id);
+      filter.user_id = {
+        [Op.in]: userIds,
+      };
+    }
+    if (question_name) {
+      const questionList = await Question.findAll({
+        where: {
+          question_name: {
+            [Op.like]: `%${question_name}%`,
+          },
+        },
+      });
+      const questionIds = questionList.map((item) => item.id);
+      filter.question_id = {
+        [Op.in]: questionIds,
+      };
+    }
+    const answer = await Answer.findAll({
+      where: filter,
+      limit: per_page,
+      offset: (page - 1) * per_page,
+      order: [["created_at", "ASC"]],
+    });
+    const userIds = answer.map((item) => item.user_id);
+    const questionIds = answer.map((item) => item.question_id);
+    const userList = await User.findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const questionList = await Question.findAll({
+      where: {
+        id: {
+          [Op.in]: questionIds,
+        },
+      },
+    });
+    const userMap = {};
+    const questionMap = {};
+    userList.forEach((item) => {
+      userMap[item.id] = item;
+    });
+    questionList.forEach((item) => {
+      questionMap[item.id] = item;
+    });
+    const answerCopy = answer.map((item) => {
+      item["dataValues"]["username"] =
+        userMap[item["dataValues"]["user_id"]]["username"];
+      item["dataValues"]["question_name"] =
+        questionMap[item["dataValues"]["question_id"]]["question_name"];
+      return item["dataValues"];
+    });
+    const answer2 = await Answer.findAndCountAll();
+    const data = {
+      data: answerCopy,
+      // 分页
+      meta: {
+        current_page: parseInt(page),
+        per_page: per_page,
+        count: answer.count,
+        total: answer2.count,
+        total_pages: Math.ceil(answer2.count / per_page),
+      },
+    };
+    ctx.body = data;
+  }
+  // 查找某个问题下的所有答案
   async findAll(ctx) {
     let { per_page = 10, page = 1, keyword } = ctx.query;
     page = Math.max(page * 1, 1) - 1;
@@ -86,13 +180,20 @@ class AnswerssCtl {
     ctx.state.answer = answer;
     await next();
   }
+  async checkAnswerExist3(ctx, next) {
+    const answer = await Answer.findByPk(ctx.params.id);
+    ctx.state.answer = answer;
+    await next();
+  }
   async findById(ctx) {
     const answer = ctx.state.answer;
     const user = await User.scope("bh").findByPk(answer.user_id);
     // 如果答案待审核
     if (answer.status == 2) {
-      const writer = await User.scope("bh").findByPk(ctx.auth.id);
-      if (writer.id != user.id) {
+      const writer_id = ctx.auth.id;
+      const writer_scope = ctx.auth.scope;
+      // 如果不是管理员
+      if (writer_scope <= 8 && writer_id != user.id) {
         // 如果登录用户不是该答案作者
         ctx.throw(403, "禁止获取未审核的答案");
         return;
@@ -148,6 +249,18 @@ class AnswerssCtl {
   async deleteAnswer(ctx) {
     const answer = ctx.state.answer;
     answer.status = 0;
+    await answer.save();
+    ctx.status = 204;
+  }
+  async undeleteAnswer(ctx) {
+    const answer = ctx.state.answer;
+    answer.status = 2;
+    await answer.save();
+    ctx.status = 204;
+  }
+  async checkAnswer(ctx) {
+    const answer = ctx.state.answer;
+    answer.status = 1;
     await answer.save();
     ctx.status = 204;
   }

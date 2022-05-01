@@ -3,20 +3,44 @@ export const formconfig: IForm = {
   labelWidth: 120,
   formItems: [
     {
-      field: 'name',
+      field: 'question_name',
       type: 'input',
-      label: '菜单名称',
-      placeholder: '请输入菜单名称'
+      label: '问题名称',
+      placeholder: '请输入问题名称'
     },
     {
-      field: 'createTime',
-      type: 'dateselect',
-      label: '创建时间',
-      otherOptions: {
-        startPlaceholder: '开始时间',
-        endPlaceholder: '结束时间',
-        type: 'daterange'
-      }
+      field: 'description',
+      type: 'input',
+      label: '问题描述',
+      placeholder: '请输入问题描述'
+    },
+    {
+      field: 'description',
+      type: 'input',
+      label: '问题描述',
+      placeholder: '请输入问题描述'
+    },
+    {
+      field: 'username',
+      type: 'input',
+      label: '用户名称',
+      placeholder: '请输入提出问题的用户名称'
+    },
+    {
+      field: 'topic_name',
+      type: 'input',
+      label: '话题名称',
+      placeholder: '请输入问题所属的话题名称'
+    },
+    {
+      field: 'status',
+      type: 'select',
+      label: '问题状态',
+      placeholder: '请输入问题状态',
+      options: [
+        { label: '启用', value: 1 },
+        { label: '禁用', value: 0 }
+      ]
     }
   ]
 }

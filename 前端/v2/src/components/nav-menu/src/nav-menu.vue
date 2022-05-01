@@ -2,7 +2,7 @@
   <div class="nav-menu">
     <div class="logo">
       <img class="img" src="~@/assets/img/logo.svg" alt="logo " />
-      <span v-if="!collapse" class="title">VUE3Admin</span>
+      <span v-if="!collapse" class="title">知识社区</span>
     </div>
     <el-menu
       active-text-color="#ffd04b"

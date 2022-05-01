@@ -1,10 +1,11 @@
 const Question = require("../model/question");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const Topic = require("../model/topic");
 const Follow = require("../model/follow");
 const FollowQuestion = require("../model/followQuestion");
 const Invite = require("../model/invite");
 const User = require("../model/user");
+const Admin = require("../model/admin");
 const Inform = require("../model/inform");
 class QuestionsCtl {
   async findAll(ctx) {
@@ -24,6 +25,123 @@ class QuestionsCtl {
       order: [["created_at", "DESC"]],
     });
   }
+  async adminfindAll(ctx) {
+    let {
+      per_page = 10,
+      page = 1,
+      question_name,
+      description,
+      status,
+      username,
+      topic_name: topic_name1,
+    } = ctx.query;
+    page = Math.max(page * 1, 1) - 1;
+    per_page = Math.max(per_page * 1, 1);
+    const filter = {};
+    if (question_name) {
+      filter.question_name = {
+        [Op.like]: `%${question_name}%`,
+      };
+    }
+    if (description) {
+      filter.description = {
+        [Op.like]: `%${description}%`,
+      };
+    }
+    if (status) {
+      filter.status = status;
+    }
+    if (username) {
+      const userList = await User.findAll({
+        where: {
+          username: {
+            [Op.like]: `%${username}%`,
+          },
+        },
+      });
+      const userIds = userList.map((item) => item.id);
+      filter.created_user = {
+        [Op.in]: userIds,
+      };
+    }
+    if (topic_name1) {
+      const topicList = await Topic.findAll({
+        where: {
+          topic_name: {
+            [Op.like]: `%${topic_name1}%`,
+          },
+        },
+      });
+      const topicIds = topicList.map((item) => item.id);
+      filter.topic_id = {
+        [Op.in]: topicIds,
+      };
+    }
+    const questionList = await Question.findAll({
+      where: filter,
+      limit: per_page,
+      offset: page * per_page,
+      order: [["created_at", "DESC"]],
+    });
+    const userIds = questionList.map((item) => item.created_user);
+    const adminIds = questionList.map((item) => item.created_admin);
+    const topicIds = questionList.map((item) => item.topic_id);
+    const userList = await User.scope("bh").findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const adminList = await Admin.findAll({
+      where: {
+        id: {
+          [Op.in]: adminIds,
+        },
+      },
+    });
+    const topicList = await Topic.findAll({
+      where: {
+        id: {
+          [Op.in]: topicIds,
+        },
+      },
+    });
+    const userMap = {};
+    const topicMap = {};
+    const adminMap = {};
+    topicList.forEach((item) => (topicMap[item.id] = item));
+    userList.forEach((item) => (userMap[item.id] = item));
+    adminList.forEach((item) => {
+      adminMap[item.id] = item;
+    });
+    const questionListCopy = questionList.map((item) => {
+      item["dataValues"]["topic_name"] = topicMap[item.topic_id]["topic_name"];
+      if (item.created_user) {
+        item["dataValues"]["username"] = userMap[item.created_user]["username"];
+      } else if (item.created_admin) {
+        item["dataValues"]["username"] =
+          adminMap[item.created_admin]["nickname"];
+      }
+      // const li = document.createElement("li");
+      // li.innerHTML = item["dataValues"]["description"];
+      // console.log(li.innerText);
+      return item["dataValues"];
+    });
+    const question2 = await Question.findAndCountAll();
+    const data = {
+      data: questionListCopy,
+      // 分页
+      meta: {
+        current_page: parseInt(page),
+        per_page: per_page,
+        count: questionListCopy.count,
+        total: question2.count,
+        total_pages: Math.ceil(question2.count / 10),
+      },
+    };
+    ctx.body = data;
+  }
   async findById(ctx) {
     const id = ctx.params.id;
     const question = await Question.findByPk(id);
@@ -38,12 +156,19 @@ class QuestionsCtl {
     ctx.verifyParams({
       question_name: { type: "string", required: true },
       description: { type: "string", required: false },
-      topic_id: { type: "string", require: true },
     });
-    const { question_name, description, topic_id } = ctx.request.body;
-    const created_user = ctx.auth.id;
+
     const question = new Question();
-    question.created_user = created_user;
+    let { question_name, description, topic_id } = ctx.request.body;
+    if (ctx.auth.scope > 8) {
+      // 如果是管理员
+      topic_id = ctx.request.body.topic_name;
+      const created_admin = ctx.auth.id;
+      question.created_admin = created_admin;
+    } else {
+      const created_user = ctx.auth.id;
+      question.created_user = created_user;
+    }
     question.question_name = question_name;
     question.topic_id = topic_id - 0;
     if (description) {
@@ -60,13 +185,16 @@ class QuestionsCtl {
       question_name: { type: "string", required: false },
       description: { type: "string", required: false },
     });
-    const { question_name, description } = ctx.request.body;
+    const { question_name, description, topic_name } = ctx.request.body;
     const question = ctx.state.question;
     if (question_name) {
       question.question_name = question_name;
     }
     if (description) {
       question.description = description;
+    }
+    if (topic_name) {
+      question.topic_id = topic_name;
     }
     await question.save();
     ctx.body = question;
@@ -98,9 +226,20 @@ class QuestionsCtl {
     }
     ctx.status = 204;
   }
+  async undeleteQuestion(ctx) {
+    const question = await Question.findByPk(ctx.params.id);
+    if (question.status == 0) {
+      question.status = 1;
+      await question.save();
+      const topic = await Topic.findByPk(question.topic_id);
+      topic.question_num++;
+      await topic.save();
+    }
+    ctx.status = 204;
+  }
   async checkQuestioner(ctx, next) {
     const { question } = ctx.state;
-    if (question.created_user != ctx.auth.id) {
+    if (ctx.auth.scope <= 8 && question.created_user != ctx.auth.id) {
       ctx.throw(403, "没有权限");
     }
     await next();

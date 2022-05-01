@@ -27,8 +27,13 @@ Question.init({
     },
     created_user: {
         type: DataTypes.INTEGER(10),
-        allowNull: false,
+        allowNull: true,
         comment: '创建问题的用户id'
+    },
+    created_admin: {
+        type: DataTypes.INTEGER(10),
+        allowNull: true,
+        comment: '创建问题的管理员id'
     },
     topic_id: {
         type: DataTypes.INTEGER(10),

@@ -14,8 +14,12 @@ const system: Module<ISystemState, IRootState> = {
     return {
       usersCount: 0,
       usersList: [],
-      roleCount: 0,
-      roleList: [],
+      answerCount: 0,
+      answerList: [],
+      articleCount: 0,
+      articleList: [],
+      columnCount: 0,
+      columnList: [],
       goodsCount: 0,
       goodsList: [],
       questionCount: 0,
@@ -45,17 +49,29 @@ const system: Module<ISystemState, IRootState> = {
     changeUsersCount(state, userCount: number) {
       state.usersCount = userCount
     },
-    changeRoleList(state, roleList: any[]) {
-      state.roleList = roleList
+    changeAnswerList(state, answerList: any[]) {
+      state.answerList = answerList
     },
-    changeRoleCount(state, roleCount: number) {
-      state.roleCount = roleCount
+    changeAnswerCount(state, answerCount: number) {
+      state.answerCount = answerCount
+    },
+    changeColumnList(state, columnList: any[]) {
+      state.columnList = columnList
+    },
+    changeColumnCount(state, columnCount: number) {
+      state.columnCount = columnCount
+    },
+    changeArticleList(state, articleList: any[]) {
+      state.articleList = articleList
+    },
+    changeArticleCount(state, articleCount: number) {
+      state.articleCount = articleCount
     },
     changeGoodsList(state, goodsList: any[]) {
       state.goodsList = goodsList
     },
-    changeGoodsCount(state, roleCount: number) {
-      state.goodsCount = roleCount
+    changeGoodsCount(state, answerCount: number) {
+      state.goodsCount = answerCount
     },
     changeQuestionList(state, questionList: any[]) {
       state.questionList = questionList
@@ -93,7 +109,8 @@ const system: Module<ISystemState, IRootState> = {
       const pageResult: any = await getPageListData(pageUrl, queryInfo)
       const { data, meta } = pageResult
       const pageNameUp = pageName.slice(0, 1).toUpperCase() + pageName.slice(1)
-
+      console.log(`change${pageNameUp}List`)
+      console.log(pageResult)
       commit(`change${pageNameUp}List`, data)
       commit(`change${pageNameUp}Count`, meta.total)
     },
@@ -110,7 +127,7 @@ const system: Module<ISystemState, IRootState> = {
       await undeletePageData(pageUrl)
     },
     async editPageDataAction({ dispatch }, payload: any) {
-      const { url, editData, id, pageName } = payload
+      const { url, editData, id, pageName, url3 } = payload
       const pageUrl = url + `/${id}`
       console.log(editData)
       const res = await editPageData(pageUrl, editData['_rawValue'])
@@ -121,7 +138,7 @@ const system: Module<ISystemState, IRootState> = {
           offset: 0,
           size: 10
         },
-        url
+        url: url3
       })
     },
     async createPageDataAction({ dispatch }, payload: any) {

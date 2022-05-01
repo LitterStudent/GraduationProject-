@@ -32,3 +32,27 @@ export function createPageData(url: string, newData: any) {
     data: newData
   })
 }
+
+export function getAllTopic() {
+  return hdRequest.get({
+    url: '/topics/adminfind?per_page=1000'
+  })
+}
+
+export function getOneAnswer(id: any) {
+  return hdRequest.get({
+    url: `/questions/1/answers/${id}`
+  })
+}
+
+export function checkAnswer(url: any, id: any) {
+  return hdRequest.patch({
+    url: `${url}/${id}`
+  })
+}
+
+export function getOneArticle(id: any) {
+  return hdRequest.get({
+    url: `/article/${id}`
+  })
+}

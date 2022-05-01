@@ -8,6 +8,8 @@ const {
   listFollowers,
   listQuestions,
   adminfindAll,
+  deletetopic,
+  undeletetopic,
 } = require("../controller/topics");
 const { checkTopicExist } = require("../controller/topics");
 
@@ -17,6 +19,8 @@ const AUTH_ADMIN = 16;
 router.get("/", findAll);
 router.get("/adminfind", adminfindAll);
 router.post("/", new Auth(AUTH_ADMIN).m, create);
+router.delete("/delete/:id", new Auth(AUTH_ADMIN).m, deletetopic);
+router.patch("/undelete/:id", new Auth(AUTH_ADMIN).m, undeletetopic);
 router.get("/:id", findById);
 router.patch("/:id", new Auth(AUTH_ADMIN).m, checkTopicExist, updateById);
 router.get("/:id/followers", checkTopicExist, listFollowers);

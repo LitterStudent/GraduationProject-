@@ -6,10 +6,11 @@
       @searchEvent="handlesearchEvent"
     ></page-search>
     <page-contnet
+      ref="pageContentRef"
       pageName="topic"
       url="/topics/adminfind"
-      url2="/users"
-      url3="/users/undelete"
+      url2="/topics/delete"
+      url3="/topics/undelete"
       :contnetTableConfig="contentTableConfig"
       @createBtnClick="handleCreate"
       @updateBtnClick="handleUpdate"
@@ -22,7 +23,16 @@
         ></el-image>
       </template>
     </page-contnet>
-    <page-modal ref="pageModalRef" :pageFromConfig="modalconfig"></page-modal>
+    <page-modal
+      :defaultInfo="defaultInfo"
+      pageName="topic"
+      url1="/topics"
+      url2="/topics"
+      url3="/topics/adminfind"
+      ref="pageModalRef"
+      :pageFromConfig="modalconfig"
+    >
+    </page-modal>
   </div>
 </template>
 
@@ -35,6 +45,7 @@ import { formconfig } from './config/form.config'
 import { contentTableConfig } from './config/table.config'
 import { modalconfig } from './config/modal.config'
 import { usePageModal } from '@/hooks/use-page-modal'
+import { usePageSearch } from '@/hooks/use-page-search'
 export default defineComponent({
   name: 'department',
   components: {
@@ -43,16 +54,27 @@ export default defineComponent({
     PageModal
   },
   setup() {
+    let [pageContentRef, handleResetEvent, handlesearchEvent] = usePageSearch()
     const [pageModalRef, defaultInfo, handleCreate, handleUpdate] =
       usePageModal()
     console.log(111)
+    const handleCoverSuccess = (res: any) => {
+      console.log(res)
+      console.log(defaultInfo)
+      defaultInfo.avatar_url = res.data.url
+    }
     return {
       pageModalRef,
       formconfig,
       contentTableConfig,
+      defaultInfo,
       modalconfig,
       handleCreate,
-      handleUpdate
+      handleUpdate,
+      pageContentRef,
+      handleResetEvent,
+      handlesearchEvent,
+      handleCoverSuccess
     }
   }
 })

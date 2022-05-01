@@ -5,6 +5,7 @@
       @resetEvent="handleResetEvent"
       @searchEvent="handlesearchEvent"
     ></page-search>
+    <!-- 1查询 2删除 3取消删除 -->
     <page-contnet
       ref="pageContentRef"
       pageName="users"
@@ -19,6 +20,7 @@
         {{ scope.row.gender == 0 ? '男' : '女' }}
       </template>
     </page-contnet>
+    <!-- 1修改 2.新增 3.查询 -->
     <page-modal
       :defaultInfo="defaultInfo"
       ref="pageModalRef"
@@ -41,7 +43,6 @@ import PageContnet from '@/components/page-content'
 import PageModal from '@/components/page-modal'
 import { usePageSearch } from '@/hooks/use-page-search'
 import { usePageModal } from '@/hooks/use-page-modal'
-import { useStore } from 'vuex'
 export default defineComponent({
   name: 'user',
   components: {

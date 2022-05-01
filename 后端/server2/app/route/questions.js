@@ -8,13 +8,16 @@ const {
   checkQuestionExist,
   checkQuestioner,
   deleteQuestion,
+  undeleteQuestion,
   inviteUserAnswer,
   getUsersInvite,
+  adminfindAll,
 } = require("../controller/questions");
 
 const { Auth } = require("../utils/auth");
 const AUTH_USER = 8;
 router.get("/", findAll);
+router.get("/adminfind", adminfindAll);
 router.post("/", new Auth(AUTH_USER).m, create);
 router.get("/:id", findById);
 router.patch(
@@ -30,6 +33,12 @@ router.delete(
   checkQuestionExist,
   checkQuestioner,
   deleteQuestion
+);
+router.patch(
+  "/undelete/:id",
+  new Auth(AUTH_USER).m,
+  checkQuestioner,
+  undeleteQuestion
 );
 router.patch(
   "/:id/invite/:userid",

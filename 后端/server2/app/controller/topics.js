@@ -26,7 +26,13 @@ class TopicsCtl {
     // ctx.body = await User.find().select('password').select('name')
     // const { fileds } = ctx.query || []
     // const selectFileds = fileds.split(';').filter(f => f).map(f => ' +' + f).join('')
-    let { per_page = 10, page = 1, topic_name, status } = ctx.query;
+    let {
+      per_page = 10,
+      page = 1,
+      topic_name,
+      status,
+      introduction,
+    } = ctx.query;
     const scop = "bh";
     per_page = per_page - 0;
     page = page - 0;
@@ -37,6 +43,11 @@ class TopicsCtl {
     if (topic_name) {
       filter.topic_name = {
         [Op.like]: `%${topic_name}%`,
+      };
+    }
+    if (introduction) {
+      filter.introduction = {
+        [Op.like]: `%${introduction}%`,
       };
     }
     const topic = await Topic.findAndCountAll({
@@ -84,6 +95,20 @@ class TopicsCtl {
     const data = ctx.request.body;
     data.created_admin = ctx.auth.id;
     const topic = await new Topic(data).save();
+    ctx.body = topic;
+  }
+  async deletetopic(ctx) {
+    const topic_id = ctx.params.id;
+    const topic = await Topic.findByPk(topic_id);
+    topic.status = 0;
+    topic.save();
+    ctx.body = topic;
+  }
+  async undeletetopic(ctx) {
+    const topic_id = ctx.params.id;
+    const topic = await Topic.findByPk(topic_id);
+    topic.status = 1;
+    topic.save();
     ctx.body = topic;
   }
   async updateById(ctx) {

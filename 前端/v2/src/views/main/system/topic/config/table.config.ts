@@ -30,6 +30,7 @@ export const contentTableConfig = {
       label: '文章数量',
       minWidth: '50'
     },
+    { prop: 'status', label: '状态', slotName: 'enable' },
     { prop: 'created_at', label: '创建时间', slotName: 'createAt' },
     { prop: 'updated_at', label: '更新时间', slotName: 'updateAt' },
     { label: '操作', minWidth: '160', slotName: 'handler' }

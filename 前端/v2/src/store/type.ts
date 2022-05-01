@@ -4,7 +4,7 @@ export interface IRootState {
   name: string
   age: number
   entiretopic: any[]
-  entireRole: any[]
+  entireAnswer: any[]
   entireQuestion: any[]
 }
 

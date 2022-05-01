@@ -16,7 +16,13 @@ const routes: RouteRecordRaw[] = [
     path: '/main',
     name: 'main',
     component: () => import('@/views/main/main.vue'),
-    children: []
+    children: [
+      {
+        path: '/main/system/textview/:type/:id',
+        name: 'textview',
+        component: () => import('@/views/main/system/textview/textview.vue')
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)*',

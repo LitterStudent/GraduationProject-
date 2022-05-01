@@ -7,12 +7,33 @@
       center
       destroy-on-close
     >
-      <hd-form v-bind="pageFromConfig" v-model="formData"></hd-form>
+      <hd-form v-bind="pageFromConfig" v-model="formData">
+        <template
+          v-for="item in pageFromConfig.formItems"
+          :key="item.field"
+          #[item.slotName]="scope"
+        >
+          <template v-if="item.slotName">
+            <slot :name="item.slotName" :info="scope.info"></slot>
+          </template>
+        </template>
+      </hd-form>
       <slot></slot>
+      <!-- 再封装一层动态插槽 让外部组件引用该表格组件时可以动态的定义字段样式 -->
+      <!-- <template
+        v-for="item in pageFromConfig.formItems"
+        :key="item.field"
+        #[item.slotName]="scope"
+      >
+        <template v-if="item.slotName">
+          <slot :name="item.slotName" :info="scope.info"></slot>
+        </template>
+      </template> -->
+
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="centerDialogVisible = false">确定</el-button>
-          <el-button type="primary" @click="handleConfirm">取消</el-button>
+          <el-button @click="centerDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleConfirm">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -46,7 +67,7 @@ export default defineComponent({
       required: false
     },
     url2: {
-      type: String, //删除
+      type: String, //新增
       required: false
     },
     url3: {
@@ -61,9 +82,11 @@ export default defineComponent({
     const centerDialogVisible = ref(false)
     const formData = ref<any>({})
     const store = useStore()
+    console.log(props.pageName)
     const handleConfirm = () => {
       if (Object.keys(props.defaultInfo).length > 0) {
         //  编辑按钮
+
         store.dispatch('system/editPageDataAction', {
           pageName: props.pageName,
           url: props.url1,
@@ -88,6 +111,9 @@ export default defineComponent({
         for (const item of props.pageFromConfig?.formItems) {
           formData.value[item.field] = newValue[item.field]
         }
+      },
+      {
+        deep: true
       }
     )
     return { centerDialogVisible, formData, handleConfirm }

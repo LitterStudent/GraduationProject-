@@ -243,46 +243,156 @@ const loginModule: Module<ILoginState, IRootState> = {
             },
             {
               id: 25,
-              url: '/main/system/role',
+              url: '/main/system/answer',
               name: '回答管理',
               sort: 102,
               type: 2,
               children: [
-                {
-                  id: 26,
-                  url: null,
-                  name: '创建角色',
-                  sort: null,
-                  type: 3,
-                  parentId: 25,
-                  permission: 'system:role:create'
-                },
+                // {
+                //   id: 26,
+                //   url: null,
+                //   name: '创建回答',
+                //   sort: null,
+                //   type: 3,
+                //   parentId: 25,
+                //   permission: 'system:answer:create'
+                // },
                 {
                   id: 27,
                   url: null,
-                  name: '删除角色',
+                  name: '删除回答',
                   sort: null,
                   type: 3,
                   parentId: 25,
-                  permission: 'system:role:delete'
+                  permission: 'system:answer:delete'
+                },
+                // {
+                //   id: 28,
+                //   url: null,
+                //   name: '修改回答',
+                //   sort: null,
+                //   type: 3,
+                //   parentId: 25,
+                //   permission: 'system:answer:update'
+                // },
+                {
+                  id: 29,
+                  url: null,
+                  name: '查询回答',
+                  sort: null,
+                  type: 3,
+                  parentId: 25,
+                  permission: 'system:answer:query'
+                },
+                {
+                  id: 30,
+                  url: null,
+                  name: '审核回答',
+                  sort: null,
+                  type: 3,
+                  parentId: 25,
+                  permission: 'system:answer:check'
+                }
+              ],
+              parentId: 1
+            },
+            {
+              id: 30,
+              url: '/main/system/article',
+              name: '文章管理',
+              sort: 102,
+              type: 2,
+              children: [
+                // {
+                //   id: 26,
+                //   url: null,
+                //   name: '创建文章',
+                //   sort: null,
+                //   type: 3,
+                //   parentId: 25,
+                //   permission: 'system:article:create'
+                // },
+                {
+                  id: 27,
+                  url: null,
+                  name: '删除文章',
+                  sort: null,
+                  type: 3,
+                  parentId: 25,
+                  permission: 'system:article:delete'
+                },
+                // {
+                //   id: 28,
+                //   url: null,
+                //   name: '修改文章',
+                //   sort: null,
+                //   type: 3,
+                //   parentId: 25,
+                //   permission: 'system:article:update'
+                // },
+                {
+                  id: 29,
+                  url: null,
+                  name: '查询文章',
+                  sort: null,
+                  type: 3,
+                  parentId: 25,
+                  permission: 'system:article:query'
+                },
+                {
+                  id: 30,
+                  url: null,
+                  name: '审核文章',
+                  sort: null,
+                  type: 3,
+                  parentId: 25,
+                  permission: 'system:article:check'
+                }
+              ],
+              parentId: 1
+            },
+            {
+              id: 31,
+              url: '/main/system/column',
+              name: '专栏管理',
+              sort: 102,
+              type: 2,
+              children: [
+                // {
+                //   id: 26,
+                //   url: null,
+                //   name: '创建文章',
+                //   sort: null,
+                //   type: 3,
+                //   parentId: 25,
+                //   permission: 'system:article:create'
+                // },
+                {
+                  id: 27,
+                  url: null,
+                  name: '删除专栏',
+                  sort: null,
+                  type: 3,
+                  parentId: 25,
+                  permission: 'system:column:delete'
                 },
                 {
                   id: 28,
                   url: null,
-                  name: '修改角色',
+                  name: '修改专栏',
                   sort: null,
                   type: 3,
                   parentId: 25,
-                  permission: 'system:role:update'
+                  permission: 'system:column:update'
                 },
                 {
                   id: 29,
                   url: null,
-                  name: '查询角色',
+                  name: '查询专栏',
                   sort: null,
                   type: 3,
                   parentId: 25,
-                  permission: 'system:role:query'
+                  permission: 'system:column:query'
                 }
               ],
               parentId: 1

@@ -11,7 +11,7 @@ const store = createStore<IRootState>({
       name: 'dongdong',
       age: 12,
       entiretopic: [],
-      entireRole: [],
+      entireAnswer: [],
       entireQuestion: []
     }
   },
@@ -20,8 +20,8 @@ const store = createStore<IRootState>({
     changeEntiresTopic(state, list) {
       state.entiretopic = list
     },
-    changeEntiresRole(state, list) {
-      state.entireRole = list
+    changeEntiresAnswer(state, list) {
+      state.entireAnswer = list
     },
     changeEntireQuestion(state, list) {
       state.entireQuestion = list

@@ -53,6 +53,18 @@
                 >
                 </el-date-picker>
               </template>
+              <template v-else-if="item.slotName == 'picture'">
+                <el-upload
+                  action="/api/upload"
+                  :show-file-list="false"
+                  :on-success="handleCoverSuccess"
+                >
+                  <el-image
+                    style="width: 70px; height: 70px"
+                    :src="modelValue[`${item.field}`]"
+                  ></el-image>
+                </el-upload>
+              </template>
             </el-form-item>
           </el-col>
         </template>
@@ -102,7 +114,14 @@ export default defineComponent({
     const handelModel = (value: string, field: string) => {
       emit(`update:modelValue`, { ...prop.modelValue, [field]: value })
     }
-    return { handelModel }
+    const handleCoverSuccess = (res: any) => {
+      console.log(res)
+      emit(`update:modelValue`, {
+        ...prop.modelValue,
+        avatar_url: res.data.url
+      })
+    }
+    return { handelModel, handleCoverSuccess }
   }
 })
 </script>

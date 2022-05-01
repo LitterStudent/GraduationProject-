@@ -37,7 +37,7 @@ class AnswerssCtl {
   async checkWriter(ctx, next) {
     const user_id = ctx.auth.id;
     const answer = ctx.state.article;
-    if (answer.user_id != user_id) {
+    if (ctx.auth.scope <= 8 && answer.user_id != user_id) {
       ctx.throw(403, "没有权限");
     }
     await next();
@@ -52,7 +52,7 @@ class AnswerssCtl {
         [Op.like]: `%${keyword}%`,
       };
     }
-    filter.question_id = ctx.params.questionId - 0;
+    // filter.question_id = ctx.params.questionId - 0;
     const AnswerList = await Answer.findAll({
       where: filter,
       limit: per_page,
@@ -60,6 +60,103 @@ class AnswerssCtl {
       order: [["created_at", "DESC"]],
     });
     ctx.body = AnswerList;
+  }
+  async findAllByAdmin(ctx) {
+    let {
+      per_page = 10,
+      page = 1,
+      title,
+      username,
+      topic_name,
+      status,
+    } = ctx.query;
+    per_page = per_page - 0;
+    page = page - 0;
+    const filter = {};
+    if (status) {
+      filter.status = status;
+    }
+    if (title) {
+      filter.title = {
+        [Op.like]: `%${title}%`,
+      };
+    }
+    if (username) {
+      const userList = await User.findAll({
+        where: {
+          username: {
+            [Op.like]: `%${username}%`,
+          },
+        },
+      });
+      const userIds = userList.map((item) => item.id);
+      filter.user_id = {
+        [Op.in]: userIds,
+      };
+    }
+    if (topic_name) {
+      const topicList = await Topic.findAll({
+        where: {
+          topic_name: {
+            [Op.like]: `%${topic_name}%`,
+          },
+        },
+      });
+      const topicIds = topicList.map((item) => item.id);
+      filter.topic_id = {
+        [Op.in]: topicIds,
+      };
+    }
+    const article = await Article.findAll({
+      where: filter,
+      limit: per_page,
+      offset: (page - 1) * per_page,
+      order: [["created_at", "ASC"]],
+    });
+    const userIds = article.map((item) => item.user_id);
+    const topicIds = article.map((item) => item.topic_id);
+    const userList = await User.findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const topicList = await Topic.findAll({
+      where: {
+        id: {
+          [Op.in]: topicIds,
+        },
+      },
+    });
+    const userMap = {};
+    const topicMap = {};
+    userList.forEach((item) => {
+      userMap[item.id] = item;
+    });
+    topicList.forEach((item) => {
+      topicMap[item.id] = item;
+    });
+    const articleCopy = article.map((item) => {
+      item["dataValues"]["username"] =
+        userMap[item["dataValues"]["user_id"]]["username"];
+      item["dataValues"]["topic_name"] =
+        topicMap[item["dataValues"]["topic_id"]]["topic_name"];
+      return item["dataValues"];
+    });
+    const article2 = await Article.findAndCountAll();
+    const data = {
+      data: articleCopy,
+      // 分页
+      meta: {
+        current_page: parseInt(page),
+        per_page: per_page,
+        count: articleCopy.count,
+        total: article2.count,
+        total_pages: Math.ceil(article2.count / per_page),
+      },
+    };
+    ctx.body = data;
   }
   async checkArticleExist(ctx, next) {
     let id = undefined;
@@ -143,6 +240,23 @@ class AnswerssCtl {
   async deleteArticle(ctx) {
     const article = ctx.state.article;
     article.status = 0;
+    await article.save();
+    ctx.status = 204;
+  }
+  async undeleteArticle(ctx) {
+    const id = ctx.params.id;
+    const article = await Article.findOne({
+      where: {
+        id: id,
+      },
+    });
+    article.status = 2;
+    await article.save();
+    ctx.status = 204;
+  }
+  async checkArticle(ctx) {
+    const article = ctx.state.article;
+    article.status = 1;
     await article.save();
     ctx.status = 204;
   }

@@ -6,16 +6,31 @@ export const modalconfig: IForm = {
   },
   formItems: [
     {
-      field: 'name',
+      label: '话题名称',
       type: 'input',
-      label: '部门名称',
-      placeholder: '请输入部门名称'
+      field: 'topic_name',
+      placeholder: '请输入查询的话题名称'
     },
     {
-      field: 'intro',
+      label: '话题介绍',
       type: 'input',
-      label: '权限介绍',
-      placeholder: '请输入权限介绍'
+      field: 'introduction',
+      placeholder: '请输入话题介绍'
+    },
+    {
+      label: '图片',
+      field: 'avatar_url',
+      slotName: 'picture'
+    },
+    {
+      field: 'status',
+      type: 'select',
+      label: '话题状态',
+      placeholder: '请输入话题状态',
+      options: [
+        { label: '启用', value: 1 },
+        { label: '禁用', value: 0 }
+      ]
     }
   ]
 }

@@ -21,9 +21,9 @@
         <el-button
           plain
           size="small"
-          :type="scope.row.status == 1 ? 'primary' : ''"
+          :type="computedStatusStyle(scope.row.status)"
         >
-          {{ scope.row.status === 1 ? '正常' : '废除' }}
+          {{ computedStatus(scope.row.status) }}
         </el-button>
       </template>
       <template #createAt="scope">
@@ -49,6 +49,20 @@
         >
           {{ scope.row.status == 0 ? '解禁' : '禁用' }}</el-button
         >
+        <el-button
+          :type="scope.row.status == 2 ? 'warning' : 'success'"
+          size="small"
+          v-if="isCheck"
+          @click="handleCheck(scope.row, scope.row.status)"
+        >
+          {{
+            scope.row.status == 2
+              ? '审核通过'
+              : scope.row.status == 1
+              ? '已通过'
+              : '被禁用'
+          }}</el-button
+        >
       </template>
       <!-- 再封装一层动态插槽 让外部组件引用该表格组件时可以动态的定义字段样式 -->
       <template
@@ -71,6 +85,8 @@ import HdTable from '@/base-ui/table'
 import { useStore } from 'vuex'
 import { computed, ref, watch } from 'vue'
 import { usePermission } from '@/hooks/use-permission'
+import { checkAnswer } from '@/service/main/system/system'
+
 export default defineComponent({
   components: {
     HdTable
@@ -97,6 +113,11 @@ export default defineComponent({
     url3: {
       type: String,
       required: false
+    },
+    // 审核通过的url
+    url4: {
+      type: String,
+      required: false
     }
   },
   emits: ['updateBtnClick', 'createBtnClick'],
@@ -107,6 +128,7 @@ export default defineComponent({
     const isUpdate = usePermission(prop.pageName, 'update')
     const isDelete = usePermission(prop.pageName, 'delete')
     const isQuery = usePermission(prop.pageName, 'query')
+    const isCheck = usePermission(prop.pageName, 'check')
     // console.log(prop.pageName)
     // 1.
     const pageInfo = ref({
@@ -152,7 +174,7 @@ export default defineComponent({
     // 5.
     const handleDelete = async (item: any, status: any) => {
       console.log(item)
-      if (status == 1) {
+      if (status == 1 || status == 2) {
         // 删除该项
         store.dispatch('system/deletePageDataAction', {
           pageName: prop.pageName,
@@ -174,6 +196,19 @@ export default defineComponent({
         }, 500)
       }
     }
+    // 审核
+    const handleCheck = async (item: any, status: any) => {
+      console.log(status)
+      if (status == 0 || status == 1) {
+        // 被禁用或者已经审核通过
+        console.log('doNoThing')
+      } else if (status == 2) {
+        checkAnswer(prop.url4, item.id)
+        setTimeout(() => {
+          getPageData()
+        }, 1000)
+      }
+    }
     const handleUpdate = (item: any) => {
       // console.log(22)
       emit('updateBtnClick', item)
@@ -181,6 +216,24 @@ export default defineComponent({
 
     const handleCreate = () => {
       emit('createBtnClick')
+    }
+    const computedStatus = (status: any) => {
+      if (status == 0) {
+        return '禁用'
+      } else if (status == 1) {
+        return '正常'
+      } else if (status == 2) {
+        return '待审核'
+      }
+    }
+    const computedStatusStyle = (status: any) => {
+      if (status == 0) {
+        return 'warning'
+      } else if (status == 1) {
+        return 'primary'
+      } else if (status == 2) {
+        return 'success'
+      }
     }
 
     return {
@@ -192,9 +245,13 @@ export default defineComponent({
       isCreate,
       isUpdate,
       isDelete,
+      isCheck,
       handleDelete,
       handleUpdate,
-      handleCreate
+      handleCreate,
+      handleCheck,
+      computedStatus,
+      computedStatusStyle
     }
   }
 })

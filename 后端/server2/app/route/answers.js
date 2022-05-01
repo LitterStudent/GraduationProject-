@@ -7,9 +7,12 @@ const {
   findById,
   checkAnswerExist,
   checkAnswerExist2,
+  checkAnswerExist3,
   checkAnswerer,
   deleteAnswer,
   findByUserId,
+  undeleteAnswer,
+  checkAnswer
 } = require("../controller/answer");
 const { checkUserExist } = require("../controller/users");
 const { checkQuestionExist2 } = require("../controller/questions");
@@ -39,5 +42,19 @@ router.delete(
   checkAnswerExist2,
   checkAnswerer,
   deleteAnswer
+);
+router.patch(
+  "/undelete/:id",
+  new Auth(AUTH_USER).m,
+  checkAnswerExist3,
+  checkAnswerer,
+  undeleteAnswer
+);
+router.patch(
+  "/check/:id",
+  new Auth(AUTH_USER).m,
+  checkAnswerExist3,
+  checkAnswerer,
+  checkAnswer
 );
 module.exports = router;

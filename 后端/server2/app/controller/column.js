@@ -21,7 +21,7 @@ class ColumnCtl {
   async checkColumner(ctx, next) {
     const user_id = ctx.auth.id;
     const column = ctx.state.column;
-    if (column.user_id != user_id) {
+    if (ctx.auth.scope <= 8 && column.user_id != user_id) {
       ctx.throw(403, "没有权限");
     }
     await next();
@@ -44,6 +44,83 @@ class ColumnCtl {
     });
     ctx.body = ColumnList;
   }
+  async findAllByAdmin(ctx) {
+    let {
+      per_page = 10,
+      page = 1,
+      title,
+      username,
+      description,
+      status,
+    } = ctx.query;
+    per_page = per_page - 0;
+    page = page - 0;
+    const filter = {};
+    if (status) {
+      filter.status = status;
+    }
+    if (title) {
+      filter.title = {
+        [Op.like]: `%${title}%`,
+      };
+    }
+    if (description) {
+      filter.description = {
+        [Op.like]: `%${description}%`,
+      };
+    }
+    if (username) {
+      const userList = await User.findAll({
+        where: {
+          username: {
+            [Op.like]: `%${username}%`,
+          },
+        },
+      });
+      const userIds = userList.map((item) => item.id);
+      filter.user_id = {
+        [Op.in]: userIds,
+      };
+    }
+
+    const column = await Column.findAll({
+      where: filter,
+      limit: per_page,
+      offset: (page - 1) * per_page,
+      order: [["created_at", "ASC"]],
+    });
+    const userIds = column.map((item) => item.user_id);
+    const userList = await User.findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const userMap = {};
+    userList.forEach((item) => {
+      userMap[item.id] = item;
+    });
+
+    const columnCopy = column.map((item) => {
+      item["dataValues"]["username"] =
+        userMap[item["dataValues"]["user_id"]]["username"];
+      return item["dataValues"];
+    });
+    const column2 = await Column.findAndCountAll();
+    const data = {
+      data: columnCopy,
+      // 分页
+      meta: {
+        current_page: parseInt(page),
+        per_page: per_page,
+        count: columnCopy.count,
+        total: column2.count,
+        total_pages: Math.ceil(column2.count / per_page),
+      },
+    };
+    ctx.body = data;
+  }
   async checkColumnExist(ctx, next) {
     let id = "";
     if (ctx.params.column_id) {
@@ -52,7 +129,7 @@ class ColumnCtl {
       id = ctx.params.id;
     }
     const column = await Column.findByPk(id);
-    if (!column || column.status != 1) {
+    if (ctx.auth.scope <= 8 && (!column || column.status != 1)) {
       ctx.throw(404, "专栏不存在");
     }
     ctx.state.column = column;
@@ -171,7 +248,17 @@ class ColumnCtl {
     await column_article.save();
     ctx.status = 204;
   }
-
+  async undeleteArticle(ctx) {
+    const id = ctx.params.id;
+    const column = await Column.findOne({
+      where: {
+        id,
+      },
+    });
+    column.status = 1;
+    await column.save();
+    ctx.body = 204;
+  }
   // 查找用户关注的专栏
   async getUserFollowingColumn(ctx) {
     const user_id = ctx.params.id;

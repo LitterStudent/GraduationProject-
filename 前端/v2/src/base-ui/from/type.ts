@@ -2,6 +2,7 @@ type IFromTypes = 'input' | 'password' | 'select' | 'dateselect'
 
 export interface IFormItem {
   field: string
+  slotName?: string
   type?: IFromTypes
   label?: string
   rules?: any[]

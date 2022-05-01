@@ -1,5 +1,5 @@
 <template>
-  <div class="role">
+  <div class="article">
     <page-search
       v-bind:config="formconfig"
       @searchEvent="handlesearchEvent"
@@ -7,16 +7,29 @@
     ></page-search>
     <page-contnet
       ref="pageContentRef"
-      pageName="role"
+      pageName="article"
+      url="/article/allArticle"
+      url2="/article"
+      url3="/article/undelete"
+      url4="/article/check"
       :contnetTableConfig="tableconfig"
       @createBtnClick="handleCreate"
       @updateBtnClick="handleUpdate"
-    ></page-contnet>
+    >
+      <template #content="scope">
+        <el-button type="primary" @click="handleClick(scope.row.id)"
+          >查看回答</el-button
+        >
+      </template>
+    </page-contnet>
     <page-modal
       ref="pageModalRef"
-      pageName="role"
+      pageName="article"
       :defaultInfo="defaultInfo"
       :pageFromConfig="modalconfig"
+      url1="/users"
+      url2="/users"
+      url3="/article/allArticle"
     >
       <div class="tree">
         <el-tree
@@ -46,8 +59,9 @@ import { useStore } from 'vuex'
 import { ElTree } from 'element-plus'
 import { menusMapLeafKeys } from '@/utils/map-menus'
 import { usePageSearch } from '@/hooks/use-page-search'
+import { useRouter } from 'vue-router'
 export default defineComponent({
-  name: 'role',
+  name: 'article',
   components: {
     PageSearch,
     PageContnet,
@@ -76,6 +90,17 @@ export default defineComponent({
       const menuList = [...halfCheckedKeys, ...checkedKeys]
       otherInfo.value = { menuList }
     }
+    const dialogFormVisible = ref(false)
+    const router = useRouter()
+    const handleClick = (id: any) => {
+      // dialogFormVisible.value = true
+      // nextTick(() => {
+      //   const container = document.querySelector('#text-content')
+      //   console.log(container)
+      //   container!.innerHTML = content
+      // })
+      router.push(`/main/system/textview/article/${id}`)
+    }
     return {
       formconfig,
       tableconfig,
@@ -90,7 +115,9 @@ export default defineComponent({
       elTreeRef,
       pageContentRef,
       handleResetEvent,
-      handlesearchEvent
+      handlesearchEvent,
+      handleClick,
+      dialogFormVisible
     }
   }
 })
