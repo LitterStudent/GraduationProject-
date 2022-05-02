@@ -5,9 +5,9 @@
     </el-header>
     <router-view />
     <el-dialog
-      width="600px"
-      v-model="dialogFormVisible"
-      title="Shipping address"
+        width="600px"
+        v-model="dialogFormVisible"
+        title="Shipping address"
     >
       <template #title>
         <div class="askquestion-tile">

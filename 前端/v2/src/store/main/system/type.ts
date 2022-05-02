@@ -15,4 +15,6 @@ export interface ISystemState {
   topicCount: number
   categoryList: any[]
   categoryCount: number
+  hotList: any[]
+  hotCount: number
 }

@@ -27,7 +27,9 @@ const system: Module<ISystemState, IRootState> = {
       topicList: [],
       topicCount: 0,
       categoryList: [],
-      categoryCount: 0
+      categoryCount: 0,
+      hotList: [],
+      hotCount: 0
     }
   },
   getters: {
@@ -90,6 +92,12 @@ const system: Module<ISystemState, IRootState> = {
     },
     changeCategoryCount(state, categoryCount: number) {
       state.categoryCount = categoryCount
+    },
+    changeHotList(state, hotList: any) {
+      state.hotList = hotList
+    },
+    changeHotCount(state, hotCount: number) {
+      state.hotCount = hotCount
     }
   },
   actions: {

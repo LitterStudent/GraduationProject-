@@ -19,7 +19,7 @@
         <el-image
           :src="scope.row.avatar_url"
           style="width: 100px; height: 100px"
-          :fit="fit"
+          :fit="'fit'"
         ></el-image>
       </template>
     </page-contnet>

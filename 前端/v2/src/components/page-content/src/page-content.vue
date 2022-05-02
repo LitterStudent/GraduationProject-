@@ -140,6 +140,7 @@ export default defineComponent({
     })
     // 2.
     const getPageData = (queryInfo: any = {}) => {
+      console.log(isQuery)
       if (!isQuery) return
       let url = prop.url
       store.dispatch('system/getPageListAction', {

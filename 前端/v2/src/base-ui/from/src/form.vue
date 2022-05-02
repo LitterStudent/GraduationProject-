@@ -114,11 +114,17 @@ export default defineComponent({
     const handelModel = (value: string, field: string) => {
       emit(`update:modelValue`, { ...prop.modelValue, [field]: value })
     }
+    let picture = ''
+    prop.formItems.forEach((item) => {
+      if (item.slotName === 'picture') {
+        picture = item.field
+      }
+    })
     const handleCoverSuccess = (res: any) => {
-      console.log(res)
+      console.log(res, picture)
       emit(`update:modelValue`, {
         ...prop.modelValue,
-        avatar_url: res.data.url
+        [picture]: res.data.url
       })
     }
     return { handelModel, handleCoverSuccess }

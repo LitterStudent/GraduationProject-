@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 import { HDRquestConfig, HDRequestInterceptors } from './type'
-import { ElLoading } from 'element-plus'
+import { ElLoading, ElNotification } from 'element-plus'
 // import type { ILoadingInstance } from 'element-plus/lib/el-loading/src/loading.type'
 
 // 封装一层 解耦axios 当axios库不用时 我们可以直接修改这一层的代码 调用这一层的代码不变
@@ -48,13 +48,27 @@ class HDRequest {
         // console.log('所有的实例都有的拦截器:响应成功拦截')
         this.loading?.close()
         const data = res.data
-        // console.log(res)
+        ElNotification({
+          title: '成功',
+          message: '操作完成',
+          type: 'success',
+          duration: 500
+        })
+        // console.log(data)
         return data
       },
       (err) => {
         // console.log('所有的实例都有的拦截器:响应失败拦截')
+        console.log(err, 'dddddddddddd')
         if (err.response.status === 404) {
           console.log('404错误')
+        }
+        if (err.response.status === 403) {
+          ElNotification({
+            title: '出错啦',
+            message: '操作失败，请重试',
+            type: 'error'
+          })
         }
         return err
       }
@@ -78,9 +92,11 @@ class HDRequest {
             res = config.interceptors?.responseInterceptor(res)
           }
           this.showLoading = true
+          console.log(res)
           resolve(res)
         })
         .catch((err) => {
+          console.log(err)
           reject(err)
         })
     })

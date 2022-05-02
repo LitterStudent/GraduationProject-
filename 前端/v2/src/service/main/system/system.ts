@@ -56,3 +56,9 @@ export function getOneArticle(id: any) {
     url: `/article/${id}`
   })
 }
+
+export function getAllQuestion() {
+  return hdRequest.get({
+    url: '/questions/adminfind'
+  })
+}

@@ -1,5 +1,6 @@
 import { IForm } from '@/base-ui/from/type'
 export const modalconfig: IForm = {
+  title: '用户信息',
   labelWidth: 100,
   itemStyle: {},
   colLayout: {
@@ -29,7 +30,7 @@ export const modalconfig: IForm = {
       field: 'business',
       type: 'input',
       label: '所处行业',
-      placeholder: '请选择部门',
+      placeholder: '请输入用户所处行业',
       options: []
     },
     {

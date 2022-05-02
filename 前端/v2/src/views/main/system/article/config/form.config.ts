@@ -23,7 +23,7 @@ export const formconfig: IForm = {
     {
       field: 'status',
       type: 'select',
-      label: '回答状态',
+      label: '文章状态',
       placeholder: '请输入回答状态',
       options: [
         { label: '启用', value: 1 },

@@ -9,7 +9,7 @@ export const tableconfig = {
     { prop: 'topic_name', label: '所属话题', minWidth: '60' },
     {
       prop: 'content',
-      label: '回答内容',
+      label: '文章内容',
       minWidth: '100',
       slotName: 'content'
     },

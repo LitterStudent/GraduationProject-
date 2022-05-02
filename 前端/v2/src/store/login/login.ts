@@ -401,16 +401,16 @@ const loginModule: Module<ILoginState, IRootState> = {
         },
         {
           id: 9,
-          name: '商品中心',
+          name: '其他管理',
           type: 1,
-          url: '/main/product',
+          url: '/main/hot',
           icon: 'el-icon-goods',
           sort: 3,
           children: [
             {
               id: 15,
-              url: '/main/product/category',
-              name: '商品类别',
+              url: '/main/hot/hot',
+              name: '排行榜管理',
               sort: 104,
               type: 2,
               children: [
@@ -421,7 +421,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 15,
-                  permission: 'system:category:create'
+                  permission: 'system:hot:create'
                 },
                 {
                   id: 31,
@@ -430,7 +430,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 15,
-                  permission: 'system:category:delete'
+                  permission: 'system:hot:delete'
                 },
                 {
                   id: 32,
@@ -439,7 +439,7 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 15,
-                  permission: 'system:category:update'
+                  permission: 'system:hot:update'
                 },
                 {
                   id: 33,
@@ -448,78 +448,79 @@ const loginModule: Module<ILoginState, IRootState> = {
                   sort: null,
                   type: 3,
                   parentId: 15,
-                  permission: 'system:category:query'
-                }
-              ],
-              parentId: 9
-            },
-            {
-              id: 16,
-              url: '/main/product/goods',
-              name: '商品信息',
-              sort: 105,
-              type: 2,
-              children: [
-                {
-                  id: 34,
-                  url: null,
-                  name: '创建商品',
-                  sort: null,
-                  type: 3,
-                  parentId: 16,
-                  permission: 'system:goods:create'
-                },
-                {
-                  id: 35,
-                  url: null,
-                  name: '删除商品',
-                  sort: null,
-                  type: 3,
-                  parentId: 16,
-                  permission: 'system:goods:delete'
-                },
-                {
-                  id: 36,
-                  url: null,
-                  name: '修改商品',
-                  sort: null,
-                  type: 3,
-                  parentId: 16,
-                  permission: 'system:goods:update'
-                },
-                {
-                  id: 37,
-                  url: null,
-                  name: '查询商品',
-                  sort: null,
-                  type: 3,
-                  parentId: 16,
-                  permission: 'system:goods:query'
+                  permission: 'system:hot:query'
                 }
               ],
               parentId: 9
             }
-          ]
-        },
-        {
-          id: 41,
-          name: '其他组件',
-          type: 1,
-          url: '/main/story',
-          icon: 'el-icon-chat-line-round',
-          sort: 4,
-          children: [
-            {
-              id: 42,
-              url: '/main/story/chat',
-              name: '富文本',
-              sort: 108,
-              type: 2,
-              children: null,
-              parentId: 41
-            }
+            // },
+            // {
+            //   id: 16,
+            //   url: '/main/product/goods',
+            //   name: '商品信息',
+            //   sort: 105,
+            //   type: 2,
+            //   children: [
+            //     {
+            //       id: 34,
+            //       url: null,
+            //       name: '创建商品',
+            //       sort: null,
+            //       type: 3,
+            //       parentId: 16,
+            //       permission: 'system:goods:create'
+            //     },
+            //     {
+            //       id: 35,
+            //       url: null,
+            //       name: '删除商品',
+            //       sort: null,
+            //       type: 3,
+            //       parentId: 16,
+            //       permission: 'system:goods:delete'
+            //     },
+            //     {
+            //       id: 36,
+            //       url: null,
+            //       name: '修改商品',
+            //       sort: null,
+            //       type: 3,
+            //       parentId: 16,
+            //       permission: 'system:goods:update'
+            //     },
+            //     {
+            //       id: 37,
+            //       url: null,
+            //       name: '查询商品',
+            //       sort: null,
+            //       type: 3,
+            //       parentId: 16,
+            //       permission: 'system:goods:query'
+            //     }
+            //   ],
+            //   parentId: 9
+            // }
           ]
         }
+        // {
+        //   id: 41,
+        //   name: '其他组件',
+        //   type: 1,
+        //   url: '/main/story',
+        //   icon: 'el-icon-chat-line-round',
+        //   sort: 4,
+        //   children: [
+        //     {
+        //       id: 42,
+        //       url: '/main/story/chat',
+        //       name: '富文本',
+        //       sort: 108,
+        //       type: 2,
+        //       children: null,
+        //       parentId: 41
+        //     }
+        //   ]
+        // }
       ]
       commit('changeUserMenus', menus)
       localCache.setCache('userMenus', menus)

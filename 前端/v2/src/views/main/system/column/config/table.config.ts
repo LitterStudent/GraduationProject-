@@ -5,13 +5,13 @@ export const tableconfig = {
   },
   propList: [
     { prop: 'title', label: '专栏标题', minWidth: '100' },
-    { prop: 'username', label: '用户昵称', minWidth: '60' },
+    { prop: 'username', label: '所属用户昵称', minWidth: '60' },
     {
       prop: 'description',
       label: '专栏内容',
       minWidth: '100'
     },
-    { prop: 'follow_num', label: '关注数量', minWidth: '50' },
+    { prop: 'follow_num', label: '关注人数', minWidth: '50' },
     { prop: 'article_num', label: '文章数量', minWidth: '50' },
     { prop: 'favorite_num', label: '点赞数量', minWidth: '50' },
     { prop: 'status', label: '状态', slotName: 'enable' },

@@ -18,7 +18,7 @@
     >
       <template #content="scope">
         <el-button type="primary" @click="handleClick(scope.row.id)"
-          >查看回答</el-button
+          >查看文章</el-button
         >
       </template>
     </page-contnet>

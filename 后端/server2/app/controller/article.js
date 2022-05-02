@@ -183,7 +183,11 @@ class AnswerssCtl {
       ctx.throw(404, "文章不存在");
     }
     const user_id = ctx.auth.id;
-    if (article.status == 2 && article.user_id !== user_id) {
+    if (
+      ctx.auth.scope <= 8 &&
+      article.status == 2 &&
+      article.user_id !== user_id
+    ) {
       ctx.throw(403, "该文章待审核，除了作者不能查看");
     }
     const user = await User.scope("bh").findByPk(article.user_id);

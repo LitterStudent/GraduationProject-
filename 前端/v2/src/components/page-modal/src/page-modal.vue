@@ -2,7 +2,7 @@
   <div class="page-modal">
     <el-dialog
       v-model="centerDialogVisible"
-      title="提示"
+      :title="pageFromConfig.title ? pageFromConfig.title : '提示'"
       width="30%"
       center
       destroy-on-close

@@ -16,14 +16,19 @@ const hdRequest = new HDRequest({
       return config
     },
     requestInterceptorCatch: (err) => {
+      console.log(err)
+      console.log(err.status)
       return err
     },
     responseInterceptor: (res) => {
       return res
-    },
-    responseInterceptorCatch: (err) => {
-      return err
     }
+    // responseInterceptorCatch: (err) => {
+    //   console.log(err)
+    //   console.log({ ...err })
+    //   console.log(err.response.data.status)
+    //   return err
+    // }
   }
 })
 export default hdRequest
