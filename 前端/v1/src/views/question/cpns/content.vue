@@ -97,6 +97,7 @@ export default {
     CommentDialog,
     Loading
   },
+  emits: ['DianZan'],
   setup(props, { emit }) {
     const itemAddStyle = computed(() => {
       const richcontent = document.createElement('div')

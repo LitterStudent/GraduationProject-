@@ -1,10 +1,9 @@
 <template>
   <div class="aside_header">
     <el-menu
-      :default-active="2"
+      :default-active="'2'"
       class="el-menu-demo"
       mode="horizontal"
-      @select="handleSelect"
       :ellipsis="false"
     >
       <template v-for="item in menus" :key="item.index">
@@ -21,9 +20,9 @@ import { useRouter } from 'vue-router'
 export default {
   setup() {
     const menus = [
-      { index: 1, value: '关注', url: '/follow' },
-      { index: 2, value: '推荐', url: '/' },
-      { index: 3, value: '热榜', url: '/hot' }
+      { index: '1', value: '关注', url: '/follow' },
+      { index: '2', value: '推荐', url: '/' },
+      { index: '3', value: '热榜', url: '/hot' }
     ]
     const router = useRouter()
     const handleCilck = (menuItem) => {

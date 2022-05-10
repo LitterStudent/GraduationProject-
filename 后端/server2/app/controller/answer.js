@@ -2,6 +2,7 @@ const Answer = require("../model/answer");
 const { Op } = require("sequelize");
 const User = require("../model/user");
 const Question = require("../model/question");
+const Dynamic = require("../model/dynamic");
 class AnswerssCtl {
   async create(ctx) {
     ctx.verifyParams({
@@ -19,6 +20,12 @@ class AnswerssCtl {
       answerItem.question_id = question_id;
       answerItem.content = content;
       await answerItem.save();
+      // 创建动态
+      const dynamic = new Dynamic();
+      dynamic.type = 3;
+      dynamic.user_id = user_id;
+      dynamic.answer_id = answerItem.id;
+      await dynamic.save();
       ctx.body = answerItem;
     }
   }

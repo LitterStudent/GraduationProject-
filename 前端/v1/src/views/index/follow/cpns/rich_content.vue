@@ -1,32 +1,42 @@
 <template>
   <div class="container">
-    <h2 class="title" v-if="!question">{{ item.title }}</h2>
-    <h2 class="title" v-else>{{ question.question_name }}</h2>
-    <user-avatar :user="user"></user-avatar>
+    <h2 class="title">
+      <template v-if="item.article">{{ item.article.title }}</template>
+      <template v-else-if="item.answer">{{
+        item.question.question_name
+      }}</template>
+    </h2>
     <div class="rich_content">
-      <div class="cover" v-if="item.cover_url">
-        <img class="pic" :src="item.cover_url" />
+      <div class="cover" v-if="item.article">
+        <img class="pic" :src="item.article.cover_url" />
       </div>
       <div class="content">
-        <div>
-          <span v-if="item.user_name"> {{ item.user_name + ': ' }}</span>
-          <span v-html="item.content"> </span>
-          <button class="content_button">阅读全文</button>
-        </div>
+        <span class="text" v-if="item.article">
+          {{ item.article.content }}
+        </span>
+        <span class="text" v-else-if="item.answer">
+          {{ item.answer.content }}
+        </span>
+        <button class="content_button">阅读全文</button>
       </div>
       <div class="action">
         <span>
           <button class="action_button">
             <el-icon><caret-top /></el-icon>
-            赞同{{ item.favorite_num }}
+            赞同<span v-if="item.article">{{ item.article.favorite_num }}</span>
+            <span v-else-if="item.answer">{{ item.answer.favorite_num }}</span>
           </button>
         </span>
         <span class="comment">
           <el-icon style="vertical-align: middle"><chat-round /></el-icon>
-          <!-- <button v-if="!item.comment_num" class="comment_button">
+          <button v-if="!item.comment_num" class="comment_button">
             添加评论
-          </button> -->
-          <button class="comment_button">{{ item.comment_num }} 条评论</button>
+          </button>
+          <button v-else class="comment_button">
+            <span v-if="item.article">{{ item.article.comment_num }}</span>
+            <span v-else-if="item.answer">{{ item.answer.comment_num }}</span>
+            条评论
+          </button>
         </span>
       </div>
     </div>
@@ -35,14 +45,12 @@
 
 <script>
 import { CaretTop, ChatRound } from '@element-plus/icons-vue'
-import UserAvatar from './user_avatar.vue'
 export default {
   components: {
     CaretTop,
-    ChatRound,
-    UserAvatar
+    ChatRound
   },
-  props: ['item', 'user', 'question'],
+  props: ['item'],
   setup() {}
 }
 </script>
@@ -67,7 +75,8 @@ export default {
   color: rgb(18, 18, 18);
   line-height: 25.05px;
   margin-top: 9px;
-  overflow: hidden;
+}
+.text {
 }
 .cover {
   position: relative;
@@ -111,7 +120,7 @@ export default {
   color: #06f;
   font-size: 14px;
   font-weight: 400;
-  /* cursor: pointer; */
+  cursor: pointer;
 }
 .comment {
   cursor: pointer;
@@ -121,15 +130,10 @@ export default {
   font-size: 18px;
 }
 .comment_button {
-  /* cursor: pointer; */
+  cursor: pointer;
   border-color: transparent;
   background-color: rgba(0, 0, 0, 0);
   color: rgb(133, 144, 166);
   font-size: 14px;
-}
-</style>
-<style>
-p {
-  padding: 0;
 }
 </style>

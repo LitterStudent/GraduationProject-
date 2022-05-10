@@ -5,6 +5,7 @@ const User = require("../model/user");
 const Topic = require("../model/topic");
 const ColumnArticle = require("../model/column_article");
 const Column = require("../model/column");
+const Dynamic = require("../model/dynamic");
 
 class AnswerssCtl {
   async create(ctx) {
@@ -26,6 +27,12 @@ class AnswerssCtl {
     }
     article.set(articleInit);
     await article.save();
+    // 创建动态
+    const dynamic = new Dynamic();
+    dynamic.type = 4;
+    dynamic.user_id = user_id;
+    dynamic.article_id = article.id;
+    await dynamic.save();
     if (column_id) {
       const column_article = new ColumnArticle();
       column_article.column_id = column_id;

@@ -67,7 +67,7 @@
     </el-header>
     <el-container class="profile-main">
       <el-aside class="main">
-        <aside-header :menus="menus"></aside-header>
+        <aside-header :menus="menus" :defaultActive="'1'"></aside-header>
         <router-view></router-view>
         <!-- this is aside one -->
       </el-aside>
@@ -180,11 +180,12 @@ export default {
     getUserFollowerList(realUserId).then((res) => {
       userInfo.followerNum = res.length
     })
-    getUserFollowList(realUserId).then((res) => {
+    getUserFollowList(userId).then((res) => {
       const userFollowList = res
       userInfo.followNum = userFollowList.length
       // 如果当前页不是登录用户首页，就需要判断该用户是否已经被关注
       if (realUserId != userId) {
+        console.log(userFollowList, realUserId)
         userFollowList.forEach((item) => {
           if (item.id == realUserId) {
             isFollow.value = true
@@ -194,12 +195,12 @@ export default {
     })
 
     const menus = [
-      { index: 1, value: '动态', url: `/people/${realUserId}/index` },
-      { index: 2, value: '回答', url: `/people/${realUserId}/answer` },
-      { index: 3, value: '提问', url: `/people/${realUserId}/question` },
-      { index: 4, value: '文章', url: `/people/${realUserId}/article` },
-      { index: 5, value: '专栏', url: `/people/${realUserId}/column` },
-      { index: 6, value: '关注', url: `/people/${realUserId}/follow` }
+      { index: '1', value: '动态', url: `/people/${realUserId}/index` },
+      { index: '2', value: '回答', url: `/people/${realUserId}/answer` },
+      { index: '3', value: '提问', url: `/people/${realUserId}/question` },
+      { index: '4', value: '文章', url: `/people/${realUserId}/article` },
+      { index: '5', value: '专栏', url: `/people/${realUserId}/column` },
+      { index: '6', value: '关注', url: `/people/${realUserId}/follow` }
     ]
     const handleEditProfile = () => {
       router.push('/editProfile')

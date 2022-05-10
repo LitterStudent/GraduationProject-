@@ -5,12 +5,12 @@
         <el-avatar
           :src="user.avatar_url"
           alt=""
-          style="width: 100%; height: 100%;"
+          style="width: 100%; height: 100%"
         ></el-avatar>
       </div>
-      <span class="pic-name">{{ user.name }} </span>
+      <span class="pic-name">{{ user.username }} </span>
       <span>,</span>
-      <span class="pic-line">{{ user.line }}</span>
+      <span class="pic-line">{{ user.headline }}</span>
     </div>
   </div>
 </template>

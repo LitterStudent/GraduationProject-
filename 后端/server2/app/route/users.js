@@ -28,7 +28,11 @@ const {
   commentAnswerReply,
   listUserAllAnswer,
   getUserinForm,
-  undeleteById
+  readUserinForm,
+  undeleteById,
+  getUserRecommend,
+  getUserDynamic,
+  getUserFollowDynamic
 } = require("../controller/users");
 const { checkTopicExist } = require("../controller/topics");
 const { checkAnswerExist } = require("../controller/answer");
@@ -48,6 +52,7 @@ const {
   findByUserId,
 } = require("../controller/column");
 const { getUserAllArticle } = require("../controller/article");
+
 // const jsonwebtoken = require('jsonwebtoken')
 
 //  1.手写认证
@@ -172,6 +177,9 @@ router.delete(
 // 用户所有的文章
 router.get("/:id/allarticle", new Auth(AUTH_USER).m, getUserAllArticle);
 
+// 用户的动态
+router.get("/:id/dynamic", new Auth(AUTH_USER).m, getUserDynamic);
+
 // 关注专栏
 router.put(
   "/followingcolum/:column_id",
@@ -193,4 +201,10 @@ router.get("/:id/findallcolumn", findByUserId);
 
 // 查询用户的最近通知
 router.get("/:id/inform", new Auth(AUTH_USER).m, getUserinForm);
+router.patch("/:id/readinform", new Auth(AUTH_USER).m, readUserinForm);
+
+//获取首页推荐
+router.get("/:id/recommend", new Auth(AUTH_USER).m, getUserRecommend);
+// 获取首页用户动态
+router.get("/:id/followerrecommend", new Auth(AUTH_USER).m, getUserFollowDynamic);
 module.exports = router;

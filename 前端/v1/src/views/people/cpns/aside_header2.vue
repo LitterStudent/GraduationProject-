@@ -4,7 +4,6 @@
       :default-active="defaultActive"
       class="el-menu-demo"
       mode="horizontal"
-      @select="handleSelect"
       :ellipsis="false"
     >
       <template v-for="item in menus" :key="item.index">

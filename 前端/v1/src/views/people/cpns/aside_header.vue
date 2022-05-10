@@ -1,10 +1,9 @@
 <template>
   <div class="aside_header">
     <el-menu
-      :default-active="1"
+      :default-active="'1'"
       class="el-menu-demo"
       mode="horizontal"
-      @select="handleSelect"
       :ellipsis="false"
     >
       <template v-for="item in menus" :key="item.index">

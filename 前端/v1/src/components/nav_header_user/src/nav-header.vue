@@ -26,9 +26,8 @@
     <div class="search">
       <el-autocomplete
         v-model="state"
-        :fetch-suggestions="querySearch"
         popper-class="my-autocomplete"
-        placeholder="Please input"
+        placeholder=" 搜索问题/文章/话题/用户"
         @select="handleSelect"
         style="width: 100%"
       >
@@ -51,7 +50,9 @@
     >
 
     <div class="info">
+      <!-- 提示icon -->
       <inform></inform>
+      <!-- 头像 -->
       <el-dropdown>
         <span class="el-dropdown-link">
           <el-avatar shape="square" :src="avatar_url" />
@@ -215,5 +216,4 @@ export default {
   margin-right: 40px;
   color: rgb(133, 144, 166);
 }
-
 </style>

@@ -83,8 +83,8 @@ export default {
     const answerList = reactive([])
     const user = reactive({
       avatar_url: '',
-      name: '',
-      line: ''
+      username: '',
+      headline: ''
     })
     getUserAllAnswer(pageUserId).then((res) => {
       res.forEach((item) => {
@@ -94,8 +94,8 @@ export default {
     })
     getUserInfo(pageUserId).then((res) => {
       user.avatar_url = res.user.avatar_url
-      user.name = res.user.username
-      user.line = res.user.headline
+      user.username = res.user.username
+      user.headline = res.user.headline
     })
     const handleClick = (item) => {
       window.open(`/#/question/${item.question_id}/answer/${item.id}`)

@@ -168,6 +168,7 @@ export default {
   },
   created() {},
   props: ['questionInfo', 'isWrite', 'isAnswer', 'answerOne', 'questionId'],
+  emits: ['follow_numberIncre', 'follow_numberDecre'],
   setup(props, { emit }) {
     const store = useStore()
     const userId = store.state.login.userInfo.id
@@ -295,6 +296,9 @@ export default {
 </script>
 
 <style scoped>
+/* .box-card {
+  padding-left: 240px;
+} */
 .question-header-content {
   display: flex;
   justify-content: flex-start;

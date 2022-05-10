@@ -331,3 +331,31 @@ export function getUserInform(userId) {
     url: `/users/${userId}/inform`
   })
 }
+// 已读用户最近通知
+export function readUserInform(userId) {
+  return hdRequest.patch({
+    url: `/users/${userId}/readinform`
+  })
+}
+
+// 获取首页推荐列表
+export function getIndexRecomment(page) {
+  return hdRequest.get({
+    url: `/users/1/recommend?page=${page}`
+  })
+}
+
+// 获取用户动态
+export function getUserDynamic(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/dynamic`
+  })
+}
+
+
+// 获取首页关注动态列表
+export function getFollowUserDynamic(userId) {
+  return hdRequest.get({
+    url: `/users/${userId}/followerrecommend`
+  })
+}

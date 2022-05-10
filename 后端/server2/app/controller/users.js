@@ -16,6 +16,10 @@ const LikeArticle = require("../model/likeArticle");
 const Comment = require("../model/comment");
 const Article = require("../model/article");
 const Inform = require("../model/inform");
+const jsdom = require("jsdom");
+const Dynamic = require("../model/dynamic");
+const article = require("./article");
+const { JSDOM } = jsdom;
 class UsersCtl {
   async checkOwner(ctx, next) {
     if (ctx.params.id != ctx.auth.id && ctx.auth.scope <= 8) {
@@ -201,7 +205,8 @@ class UsersCtl {
       username: { type: "string", required: true },
       password: { type: "string", required: true },
     });
-    const { username, password, email, phone, location, gender, business } = ctx.request.body;
+    const { username, password, email, phone, location, gender, business } =
+      ctx.request.body;
     // const repeateUser = await User.findOne({
     //   where: {
     //     email,
@@ -221,14 +226,14 @@ class UsersCtl {
     user.username = username;
     user.phone = phone;
     user.password = password;
-    if(location){
-      user.location = location
+    if (location) {
+      user.location = location;
     }
-    if(business) {
-      user.business = business
+    if (business) {
+      user.business = business;
     }
-    if(gender) {
-      user.gender = gender
+    if (gender) {
+      user.gender = gender;
     }
     const res = await user.save();
     const data = {
@@ -483,6 +488,23 @@ class UsersCtl {
         await inform.save();
       }
     }
+    // 创建动态
+    const dynamicItem = await Dynamic.findOne({
+      where: {
+        user_id,
+        answer_id: answer.id,
+      },
+    });
+    if (dynamicItem) {
+      dynamicItem.status = 1;
+      await dynamicItem.save();
+    } else {
+      const dynamic = new Dynamic();
+      dynamic.type = 0;
+      dynamic.user_id = user_id;
+      dynamic.answer_id = answer.id;
+      dynamic.save();
+    }
 
     ctx.status = 204;
   }
@@ -510,6 +532,16 @@ class UsersCtl {
         });
         inform.status = 2;
         await inform.save();
+      }
+      const dynamic = await Dynamic.findOne({
+        where: {
+          user_id,
+          answer_id,
+        },
+      });
+      if (dynamic) {
+        dynamic.status = 0;
+        await dynamic.save();
       }
     }
     ctx.status = 204;
@@ -608,6 +640,23 @@ class UsersCtl {
         await inform.save();
       }
     }
+    // 创建动态
+    const dynamicItem = await Dynamic.findOne({
+      where: {
+        user_id,
+        article_id: article.id,
+      },
+    });
+    if (dynamicItem) {
+      dynamicItem.status = 1;
+      await dynamicItem.save();
+    } else {
+      const dynamic = new Dynamic();
+      dynamic.type = 1;
+      dynamic.user_id = user_id;
+      dynamic.article_id = article.id;
+      await dynamic.save();
+    }
 
     ctx.status = 204;
   }
@@ -636,6 +685,16 @@ class UsersCtl {
         });
         inform.status = 2;
         await inform.save();
+      }
+      const dynamic = await Dynamic.findOne({
+        where: {
+          user_id,
+          article_id,
+        },
+      });
+      if (dynamic) {
+        dynamic.status = 0;
+        await dynamic.save();
       }
     }
     ctx.status = 204;
@@ -812,6 +871,289 @@ class UsersCtl {
       }
     });
     ctx.body = res;
+  }
+  // 将用户通知设置为已读状态
+  async readUserinForm(ctx) {
+    const user_id = ctx.auth.id;
+    const informList = await Inform.findAll({
+      where: {
+        inform_user_id: user_id,
+        status: {
+          // 未读 | 已读
+          [Op.in]: [0],
+        },
+      },
+    });
+    informList.forEach(async (item) => {
+      item.status = 1;
+      await item.save();
+    });
+    ctx.status = 204;
+  }
+  // 获取用户推荐
+  async getUserRecommend(ctx) {
+    let { per_page = 10, page = 1 } = ctx.query;
+    per_page = per_page - 0;
+    page = page - 0;
+    const answer = await Answer.findAll({
+      where: {
+        status: 1,
+      },
+      order: [["favorite_num", "DESC"]],
+      offset: per_page * (page - 1),
+      limit: per_page,
+    });
+    const article = await Article.findAll({
+      where: {
+        status: 1,
+      },
+      order: [["favorite_num", "DESC"]],
+      offset: 2 * (page - 1),
+      limit: 2,
+    });
+    const res = [];
+    const userIds = [];
+    const questionIds = [];
+    answer.forEach((item) => {
+      const dom = new JSDOM(item.content);
+      item["dataValues"]["content"] =
+        dom.window.document.body.textContent.substring(0, 100) + "...";
+      res.push(item);
+      userIds.push(item.user_id);
+      questionIds.push(item.question_id);
+    });
+    article.forEach((item) => {
+      const dom = new JSDOM(item.content);
+      item["dataValues"]["content"] =
+        dom.window.document.body.textContent.substring(0, 160) + "...";
+      userIds.push(item.user_id);
+    });
+    const userList = await User.findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const questionList = await Question.findAll({
+      where: {
+        id: {
+          [Op.in]: questionIds,
+        },
+      },
+    });
+    const userMap = {};
+    const questionMap = {};
+    userList.forEach((item) => {
+      userMap[item.id] = item;
+    });
+    questionList.forEach((item) => {
+      questionMap[item.id] = item;
+    });
+    answer.forEach((item) => {
+      item["dataValues"]["user_name"] = userMap[item.user_id]["username"];
+      item["dataValues"]["title"] =
+        questionMap[item.question_id]["question_name"];
+    });
+    article.forEach((item) => {
+      item["dataValues"]["user_name"] = userMap[item.user_id]["username"];
+    });
+    res.splice(4, 0, article[0]);
+    res.splice(8, 0, article[1]);
+    ctx.body = res;
+  }
+  // 获取用户动态
+  async getUserDynamic(ctx) {
+    let { per_page = 10, page = 1 } = ctx.query;
+    per_page = per_page - 0;
+    page = page - 0;
+    const user_id = ctx.auth.id;
+    const dynamicList = await Dynamic.findAll({
+      where: {
+        user_id,
+        status: 1,
+      },
+      limit: per_page,
+      offset: (page - 1) * per_page,
+      order: [["created_at", "DESC"]],
+    });
+    const userIds = [];
+    const answerIds = [];
+    const articleIds = [];
+    dynamicList.forEach((item) => {
+      userIds.push(item.user_id);
+      if (item.answer_id) {
+        answerIds.push(item.answer_id);
+      }
+      if (item.article_id) {
+        articleIds.push(item.article_id);
+      }
+    });
+    const answerList = await Answer.findAll({
+      where: {
+        id: {
+          [Op.in]: answerIds,
+        },
+      },
+    });
+    answerList.forEach((item) => {
+      userIds.push(item.user_id);
+    });
+    const articleList = await Article.findAll({
+      where: {
+        id: {
+          [Op.in]: articleIds,
+        },
+      },
+    });
+    articleList.forEach((item) => {
+      userIds.push(item.user_id);
+    });
+    const userList = await User.scope("bh").findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const questionIds = answerList.map((item) => item.question_id);
+    const questionList = await Question.findAll({
+      where: {
+        id: {
+          [Op.in]: questionIds,
+        },
+      },
+    });
+    const userMap = {};
+    const answerMap = {};
+    const articleMap = {};
+    const questionMap = {};
+    userList.forEach((item) => (userMap[item.id] = item));
+    answerList.forEach((item) => (answerMap[item.id] = item));
+    articleList.forEach((item) => (articleMap[item.id] = item));
+    questionList.forEach((item) => (questionMap[item.id] = item));
+    dynamicList.forEach((item) => {
+      if (item.type == 0 || item.type == 2) {
+        item["dataValues"]["answer"] = answerMap[item["answer_id"]];
+        item["dataValues"]["question"] =
+          questionMap[answerMap[item["answer_id"]]["question_id"]];
+        item["dataValues"]["user"] =
+          userMap[item["dataValues"]["answer"]["user_id"]];
+      } else if (item.type == 1 || item.type == 3) {
+        item["dataValues"]["article"] = articleMap[item["article_id"]];
+        item["dataValues"]["user"] =
+          userMap[item["dataValues"]["article"]["user_id"]];
+      }
+    });
+    ctx.body = dynamicList;
+  }
+  // 获取关注用户的动态
+  async getUserFollowDynamic(ctx) {
+    let { per_page = 10, page = 1 } = ctx.query;
+    per_page = per_page - 0;
+    page = page - 0;
+    const user_id = ctx.auth.id;
+    const followList = await Follow.findAll({
+      where: {
+        user_id,
+      },
+    });
+    const userIds = followList.map((item) => item.followed_id);
+    const dynamicList = await Dynamic.findAll({
+      where: {
+        user_id: {
+          [Op.in]: userIds,
+        },
+      },
+      limit: per_page,
+      offset: (page - 1) * per_page,
+      order: [["created_at", "DESC"]],
+    });
+    const answerIds = [];
+    const articleIds = [];
+    dynamicList.forEach((item) => {
+      userIds.push(item.user_id);
+      if (item.answer_id) {
+        answerIds.push(item.answer_id);
+      }
+      if (item.article_id) {
+        articleIds.push(item.article_id);
+      }
+    });
+    const answerList = await Answer.findAll({
+      where: {
+        id: {
+          [Op.in]: answerIds,
+        },
+      },
+    });
+    answerList.forEach((item) => {
+      userIds.push(item.user_id);
+    });
+    const articleList = await Article.findAll({
+      where: {
+        id: {
+          [Op.in]: articleIds,
+        },
+      },
+    });
+    articleList.forEach((item) => {
+      userIds.push(item.user_id);
+    });
+    const userList = await User.scope("bh").findAll({
+      where: {
+        id: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+    const questionIds = answerList.map((item) => item.question_id);
+    const questionList = await Question.findAll({
+      where: {
+        id: {
+          [Op.in]: questionIds,
+        },
+      },
+    });
+    answerList.forEach((item) => {
+      const dom = new JSDOM(item.content);
+      item["dataValues"]["content"] =
+        dom.window.document.body.textContent.substring(0, 100) + "...";
+    });
+    articleList.forEach((item) => {
+      const dom = new JSDOM(item.content);
+      item["dataValues"]["content"] =
+        dom.window.document.body.textContent.substring(0, 160) + "...";
+    });
+    const userMap = {};
+    const answerMap = {};
+    const articleMap = {};
+    const questionMap = {};
+    userList.forEach((item) => (userMap[item.id] = item));
+    answerList.forEach((item) => (answerMap[item.id] = item));
+    articleList.forEach((item) => (articleMap[item.id] = item));
+    questionList.forEach((item) => (questionMap[item.id] = item));
+    dynamicList.forEach((item) => {
+      if (item.type == 0 || item.type == 2) {
+        item["dataValues"]["answer"] = answerMap[item["answer_id"]];
+        item["dataValues"]["question"] =
+          questionMap[answerMap[item["answer_id"]]["question_id"]];
+        // item["dataValues"]["title"] =
+        //   questionMap[answerMap[item["answer_id"]]["question_id"]][
+        //     "question_name"
+        //   ];
+        item["dataValues"]["user"] =
+          userMap[item["dataValues"]["answer"]["user_id"]];
+        item["dataValues"]["user2"] = userMap[item["dataValues"]["user_id"]];
+      } else if (item.type == 1 || item.type == 3) {
+        item["dataValues"]["article"] = articleMap[item["article_id"]];
+        item["dataValues"]["user"] =
+          userMap[item["dataValues"]["article"]["user_id"]];
+        // item["dataValues"]["title"] = articleMap[item["article_id"]]["title"];
+        item["dataValues"]["user2"] = userMap[item["dataValues"]["user_id"]];
+      }
+    });
+    ctx.body = dynamicList;
   }
 }
 

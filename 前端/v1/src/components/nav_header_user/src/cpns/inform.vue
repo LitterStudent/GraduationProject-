@@ -1,6 +1,10 @@
 <template>
   <el-dropdown class="inform" trigger="click">
-    <el-badge :value="noReadNum" @click="handleClick">
+    <el-badge
+      :value="noReadNum"
+      @click="handleClick"
+      :type="noReadNum == 0 ? 'info' : 'danger'"
+    >
       <el-icon style="font-size: 26px"><bell-filled /></el-icon>
     </el-badge>
     <template #dropdown>
@@ -79,6 +83,9 @@
               >{{ item.question.question_name }}</span
             >
           </template>
+          <span style="margin-left: 10px; color: grey">{{
+            formatUtcString(item.created_at, 'YYYY-MM-DD')
+          }}</span>
         </div>
       </div>
     </template>
@@ -88,8 +95,9 @@
 <script>
 import { BellFilled } from '@element-plus/icons-vue'
 import { useStore } from 'vuex'
-import { getUserInform } from '@/service/user/user'
+import { getUserInform, readUserInform } from '@/service/user/user'
 import { reactive, ref } from 'vue'
+import { formatUtcString } from '@/utils/date-format'
 export default {
   components: {
     BellFilled
@@ -100,6 +108,7 @@ export default {
     const InformList = reactive([])
     const noReadNum = ref(0)
     getUserInform(userId).then((res) => {
+      console.log(res)
       let num = 0
       res.forEach((item) => {
         InformList.push(item)
@@ -121,8 +130,9 @@ export default {
     const toQuestion = (item) => {
       window.open(`/#/question/${item.question.id}`)
     }
-    const handleClick = () => {
+    const handleClick = async () => {
       noReadNum.value = 0
+      await readUserInform(userId)
       console.log(noReadNum.value)
     }
     return {
@@ -132,7 +142,8 @@ export default {
       toArticle,
       toQuestion,
       noReadNum,
-      handleClick
+      handleClick,
+      formatUtcString
     }
   }
 }

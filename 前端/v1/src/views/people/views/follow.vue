@@ -61,25 +61,25 @@ export default {
     console.log(loginUserId)
     const me = loginUserId == userId ? '我' : '他'
     const menus = [
-      { index: 1, value: `${me}关注的人`, url: `/people/${userId}/follow` },
-      { index: 2, value: `关注${me}的人`, url: `/people/${userId}/follower` },
+      { index: '1', value: `${me}关注的人`, url: `/people/${userId}/follow` },
+      { index: '2', value: `关注${me}的人`, url: `/people/${userId}/follower` },
       {
-        index: 3,
+        index: '3',
         value: `${me}关注的问题`,
         url: `/people/${userId}/followquestion`
       },
       {
-        index: 4,
+        index: '4',
         value: `${me}关注的专栏`,
         url: `/people/${userId}/followcolumn`
       },
       {
-        index: 5,
+        index: '5',
         value: `${me}关注的话题`,
         url: `/people/${userId}/followtopic`
       }
     ]
-    const defaultActive = 6
+    const defaultActive = '6'
     const followList = reactive([])
     getUserFollowList(userId).then((res) => {
       // console.log(res)

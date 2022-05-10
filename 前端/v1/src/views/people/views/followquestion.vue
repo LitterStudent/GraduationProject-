@@ -60,7 +60,7 @@ export default {
         url: `/people/${userId}/followtopic`
       }
     ]
-    const defaultActive = 3
+    const defaultActive = '3'
     const questionList = reactive([])
     getUserFollowQuestionList(userId).then((res) => {
       res.forEach((item) => {
