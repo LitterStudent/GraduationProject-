@@ -29,7 +29,7 @@ class AnswerssCtl {
     await article.save();
     // 创建动态
     const dynamic = new Dynamic();
-    dynamic.type = 4;
+    dynamic.type = 3;
     dynamic.user_id = user_id;
     dynamic.article_id = article.id;
     await dynamic.save();

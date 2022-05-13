@@ -13,7 +13,20 @@
         </div>
         <div class="column-item-header-controller">
           <div class="user" v-if="!isWriter">
-            <button class="user-button">关注专栏</button>
+            <button
+              class="user-button2"
+              v-if="isFollow"
+              @click="isFollow = !isFollow"
+            >
+              已关注
+            </button>
+            <button
+              class="user-button"
+              v-if="!isFollow"
+              @click="isFollow = !isFollow"
+            >
+              关注专栏
+            </button>
           </div>
           <div class="writer" v-else>
             <button
@@ -231,6 +244,7 @@ export default {
       await deleteColumn(column_id)
       router.push(`/people/${login_user_id}/index`)
     }
+    const isFollow = ref(true)
     return {
       item,
       articleList,
@@ -246,7 +260,8 @@ export default {
       editDialogVisible,
       handleEditCommit,
       handledeleteColumn,
-      deleteDialogVisible
+      deleteDialogVisible,
+      isFollow
     }
   }
 }
@@ -310,6 +325,19 @@ export default {
 .user-button {
   color: #fff;
   background-color: #06f;
+  border-color: #06f;
+  display: inline-block;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.user-button2 {
+  color: #fff;
+  background-color: grey;
   border-color: #06f;
   display: inline-block;
   padding: 0 16px;

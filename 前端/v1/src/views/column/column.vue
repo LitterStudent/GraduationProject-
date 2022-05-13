@@ -32,23 +32,21 @@
         <div class="avatar">
           <el-avatar
             style="width: 48px; height: 48px"
-            :src="'https://pic3.zhimg.com/v2-916a76ddd87369dc9fd5889bbd24c95c_xs.jpg?source=d16d100b'"
+            :src="'http://dongboke.oss-cn-beijing.aliyuncs.com/upload_7d8e3da45d2d548f72538b593aafcab2.png'"
           ></el-avatar>
         </div>
-        <div class="column-item-title">「雾中风景」电影视与听</div>
+        <div class="column-item-title">儿童学画画</div>
         <div class="column-item-description">
-          Dear Readers: In my humble opinion, Sight and Sound, plain and simple,
-          are really what cinema is all about. In this column, I will share my
-          understanding of VISUAL LITERACY, and how I train my EYE and HEART to
-          find my unique VIEW and VOICE as a film director and Director of
-          Photography. I hope it might also help you find yours. Cheers
+          所有的少儿绘画+育儿问题，这里都有答案。
         </div>
         <div class="column-item-status">
-          <span>706 人关注</span> |
-          <span> 12 篇文章</span>
+          <span>5 人关注</span> |
+          <span> 3 篇文章</span>
         </div>
         <div class="column-item-enter">
-          <button class="column-item-enter-button">进入专栏</button>
+          <button class="column-item-enter-button" @click="handleClick">
+            进入专栏
+          </button>
         </div>
       </div>
       <div class="column-item">
@@ -230,12 +228,16 @@ export default {
     const handleStartWrite = () => {
       window.open('/#/editor')
     }
+    const handleClick = () => {
+      window.open('/#/column/9')
+    }
     return {
       centerDialogVisible,
       handleAppluColumn,
       handleCommit,
       columnItem,
-      handleStartWrite
+      handleStartWrite,
+      handleClick
     }
   }
 }

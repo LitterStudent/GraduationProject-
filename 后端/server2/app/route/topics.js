@@ -10,6 +10,7 @@ const {
   adminfindAll,
   deletetopic,
   undeletetopic,
+  getTopicContent,
 } = require("../controller/topics");
 const { checkTopicExist } = require("../controller/topics");
 
@@ -25,4 +26,5 @@ router.get("/:id", findById);
 router.patch("/:id", new Auth(AUTH_ADMIN).m, checkTopicExist, updateById);
 router.get("/:id/followers", checkTopicExist, listFollowers);
 router.get("/:id/questions", checkTopicExist, listQuestions);
+router.get("/:id/content", getTopicContent);
 module.exports = router;

@@ -5,23 +5,35 @@ const Question = require("../model/question");
 const { Op } = require("sequelize");
 const Rank = require("../model/rank");
 const Admin = require("../model/admin");
-class TopicsCtl {
+class RankCtl {
   async findAll(ctx) {
-    let { per_page = 10, page = 1, keyword } = ctx.query;
+    let { per_page = 10, page = 1 } = ctx.query;
     page = Math.max(page * 1, 1) - 1;
     per_page = Math.max(per_page * 1, 1);
     const filter = { status: 1 };
-    if (keyword) {
-      filter.topic_name = {
-        [Op.like]: `%${keyword}%`,
-      };
-    }
-    ctx.body = await Rank.findAll({
+
+    const rankList = await Rank.findAll({
       where: filter,
       limit: per_page,
       offset: page * per_page,
-      order: [["ranl_num", "DESC"]],
+      order: [["rank_num", "DESC"]],
     });
+    const questionIds = rankList.map((item) => item.question_id);
+    const questionList = await Question.findAll({
+      where: {
+        id: {
+          [Op.in]: questionIds,
+        },
+      },
+    });
+    const questionMap = {};
+    questionList.forEach((item) => {
+      questionMap[item.id] = item;
+    });
+    rankList.forEach((item) => {
+      item["dataValues"]["question"] = questionMap[item.question_id];
+    });
+    ctx.body = rankList;
   }
   async adminfindAll(ctx) {
     // select 可以让select为false 的字段显示出来
@@ -217,4 +229,4 @@ class TopicsCtl {
   }
 }
 
-module.exports = new TopicsCtl();
+module.exports = new RankCtl();

@@ -44,7 +44,7 @@ export default defineComponent({
     }
     const counterOption2 = {
       decimalPlaces: 0, // 保留两位
-      prefix: '￥' // 单位
+      prefix: '' // 单位
     }
     return {
       counterOption1,

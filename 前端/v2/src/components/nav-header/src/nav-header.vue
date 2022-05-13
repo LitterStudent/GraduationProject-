@@ -12,7 +12,7 @@
         <el-dropdown>
           <span class="el-dropdown-link">
             <el-avatar
-              src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+              src="https://p26-passport.byteacctimg.com/img/user-avatar/ee3070fb60dc33aae317a4af5337034e~300x300.image"
             ></el-avatar>
             {{ userName }}
             <el-icon class="el-icon--right">

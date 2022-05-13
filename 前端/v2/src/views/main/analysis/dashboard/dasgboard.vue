@@ -9,22 +9,22 @@
     </el-row>
     <el-row :gutter="10">
       <el-col :span="7">
-        <hdCard class="center-echart echart-pie1" title="分类商品数量(饼图)">
+        <hdCard class="center-echart echart-pie1" title="用户创作分析(饼图)">
           <pie-echart :pieData="categoryGoodsCount"></pie-echart>
         </hdCard>
       </el-col>
       <el-col :span="10">
-        <hdCard class="center-echart echart-earth" title="不同城市商品销量">
+        <hdCard class="center-echart echart-earth" title="不同城市用户数量">
           <map-echart :mapData="addressGoodsSale"></map-echart>
         </hdCard>
       </el-col>
       <el-col :span="7">
-        <hdCard class="center-echart echart-pie1" title="分类商品数量(玫瑰图)">
+        <hdCard class="center-echart echart-pie1" title="用户创作分析(玫瑰图)">
           <rose-echart :roseData="categoryGoodsCount"></rose-echart>
         </hdCard>
       </el-col>
     </el-row>
-    <el-row :gutter="10">
+    <!-- <el-row :gutter="10">
       <el-col :span="12">
         <hdCard title="分类商品的销量">
           <line-echart v-bind="categoryGoodsSale"></line-echart>
@@ -35,7 +35,7 @@
           <bar-echart v-bind="categoryGoodsFavor"></bar-echart>
         </hdCard>
       </el-col>
-    </el-row>
+    </el-row> -->
   </div>
 </template>
 
@@ -44,56 +44,61 @@ import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import HdCard from '@/base-ui/card'
 import HyStatisticalPanel from '@/components/statistical-panel'
-import { PieEchart, RoseEchart, LineEchart, BarEchart, MapEchart } from './cpns'
+import { PieEchart, RoseEchart, MapEchart } from './cpns'
 export default defineComponent({
   name: 'dasgboard',
   components: {
     HdCard,
     PieEchart,
     RoseEchart,
-    BarEchart,
-    LineEchart,
+    // BarEchart,
+    // LineEchart,
     MapEchart,
     HyStatisticalPanel
   },
   setup() {
     const store = useStore()
     if (store.state.dashboard.categoryGoodsCount.length === 0) {
-      store.dispatch('dashboard/getDashboardDataAction')
+      // store.dispatch('dashboard/getDashboardDataAction')
     }
 
     const topPanelDatas = [
       {
-        title: '销量1',
-        tips: '苹果的销量',
-        price: 124541,
-        subTitle: '销售总量： ',
-        number: 8233
+        title: '近七日用户提问数',
+        tips: '用户提问数',
+        price: 13,
+        subTitle: '问题总数： ',
+        number: 766
       },
       {
-        title: '销量2',
-        tips: '苹果的销量',
-        price: 24541,
-        subTitle: '销售总量： ',
-        number: 3133
+        title: '近七日用户回答数',
+        tips: '用户回答数',
+        price: 56,
+        subTitle: '回答总数： ',
+        number: 422
       },
       {
-        title: '销量3',
-        tips: '苹果的销量',
-        price: 4541,
+        title: '近七日用户新增文章数',
+        tips: '用户新增文章数',
+        price: 43,
         subTitle: '销售总量： ',
         number: 233
       },
       {
-        title: '销量4',
-        tips: '苹果的销量',
-        price: 424541,
+        title: '近七日用户申请专栏数',
+        tips: '用户申请专栏数',
+        price: 6,
         subTitle: '销售总量： ',
-        number: 1233
+        number: 76
       }
     ]
     const categoryGoodsCount = computed(() => {
-      return store.state.dashboard.categoryGoodsCount.map((item: any) => {
+      return [
+        { name: '问题', goodsCount: 12 },
+        { name: '回答', goodsCount: 56 },
+        { name: '文章', goodsCount: 43 },
+        { name: '专栏', goodsCount: 6 }
+      ].map((item: any) => {
         return { name: item.name, value: item.goodsCount }
       })
     })
@@ -118,7 +123,14 @@ export default defineComponent({
       return { xLabels, values }
     })
     const addressGoodsSale = computed(() => {
-      return store.state.dashboard.addressGoodsSale.map((item: any) => {
+      return [
+        { address: '广州', count: 12 },
+        { address: '东莞', count: 12 },
+        { address: '深圳', count: 3 },
+        { address: '青岛', count: 2 },
+        { address: '北京', count: 4 },
+        { address: '杭州', count: 4 }
+      ].map((item: any) => {
         return { name: item.address, value: item.count }
       })
     })

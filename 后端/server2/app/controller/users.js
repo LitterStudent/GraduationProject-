@@ -967,7 +967,7 @@ class UsersCtl {
     let { per_page = 10, page = 1 } = ctx.query;
     per_page = per_page - 0;
     page = page - 0;
-    const user_id = ctx.auth.id;
+    const user_id = ctx.params.id;
     const dynamicList = await Dynamic.findAll({
       where: {
         user_id,

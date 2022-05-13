@@ -24,11 +24,10 @@
       </svg>
     </a>
     <div class="search">
-      <el-autocomplete
+      <el-input
         v-model="state"
         popper-class="my-autocomplete"
         placeholder=" 搜索问题/文章/话题/用户"
-        @select="handleSelect"
         style="width: 100%"
       >
         <template #suffix>
@@ -36,11 +35,7 @@
             <search />
           </el-icon>
         </template>
-        <template #default="{ item }">
-          <div class="value">{{ item.value }}</div>
-          <span class="link">{{ item.link }}</span>
-        </template>
-      </el-autocomplete>
+      </el-input>
     </div>
     <el-button @click="handClickQuestion" color="rgb(0, 102, 255)" round
       >提问</el-button
@@ -94,9 +89,8 @@ export default {
   },
   emits: ['dialogVisible'],
   setup(props, { emit }) {
-    const handleIconClick = (e) => {
-      console.log(e)
-      console.log(this)
+    const handleIconClick = () => {
+      router.push(`/search/question?keyword=${state.value}`)
     }
     const handlelogout = () => {
       localCache.deleteCache('token')
@@ -109,7 +103,7 @@ export default {
       const path = `/people/${userId}/index`
       router.push(path)
     }
-    const state = ref('叮当的')
+    const state = ref('')
     const loadAll = () => {
       return [
         { value: 'vue', link: 'https://github.com/vuejs/vue' },
@@ -143,9 +137,6 @@ export default {
         )
       }
     }
-    const handleSelect = (item) => {
-      console.log(item)
-    }
     onMounted(() => {
       links.value = loadAll()
     })
@@ -163,7 +154,6 @@ export default {
     }
     return {
       state,
-      handleSelect,
       handleIconClick,
       querySearch,
       squareUrl,

@@ -3,7 +3,12 @@
     <!-- <div class="title">我的关注</div> -->
     <aside-header :menus="menus" :defaultActive="defaultActive"></aside-header>
     <template v-if="topicList.length > 0">
-      <div class="topic-item" v-for="item in topicList" :key="item.id">
+      <div
+        class="topic-item"
+        v-for="item in topicList"
+        :key="item.id"
+        @click="handleClick(item.id)"
+      >
         <div class="img">
           <!-- <img
           :src="item.avatar_url"
@@ -69,10 +74,14 @@ export default {
         topicList.push(item)
       })
     })
+    const handleClick = (id) => {
+      window.open(`/#/topic/${id}`)
+    }
     return {
       menus,
       defaultActive,
-      topicList
+      topicList,
+      handleClick
     }
   }
 }

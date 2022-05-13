@@ -12,7 +12,7 @@ const defaultOptions: CountUpOptions = {
   duration: 2, // 动画时长
   separator: ',', // 千位分割
   decimal: '.', // 小数分割
-  prefix: '￥' // 单位
+  prefix: '' // 单位
 }
 export default defineComponent({
   components: {},

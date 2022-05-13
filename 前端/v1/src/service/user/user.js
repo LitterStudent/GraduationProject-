@@ -352,10 +352,44 @@ export function getUserDynamic(userId) {
   })
 }
 
-
 // 获取首页关注动态列表
 export function getFollowUserDynamic(userId) {
   return hdRequest.get({
     url: `/users/${userId}/followerrecommend`
   })
 }
+
+// 查询问题列表
+export function getQuestionList(keyword, page = 1) {
+  return hdRequest.get({
+    url: `/questions?keyword=${keyword}&page=${page}`
+  })
+}
+
+// 查询文章列表
+export function getArticleList(keyword, page = 1) {
+  return hdRequest.get({
+    url: `/article?keyword=${keyword}&page=${page}`
+  })
+}
+
+// 查询话题内容列表
+export function getTopicContentList(id, page = 1) {
+  return hdRequest.get({
+    url: `/topics/${id}/content?page=${page}`
+  })
+}
+// 查询话题
+export function getTopic(id) {
+  return hdRequest.get({
+    url: `/topics/${id}`
+  })
+}
+
+// 查询排行榜
+export function getRank() {
+  return hdRequest.get({
+    url: `/rank/`
+  })
+}
+

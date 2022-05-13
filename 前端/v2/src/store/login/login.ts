@@ -77,22 +77,22 @@ const loginModule: Module<ILoginState, IRootState> = {
           children: [
             {
               id: 39,
-              url: '/main/analysis/overview',
-              name: '核心技术',
+              url: '/main/analysis/dashboard',
+              name: '社区总览',
               sort: 106,
               type: 2,
               children: null,
               parentId: 38
-            },
-            {
-              id: 40,
-              url: '/main/analysis/dashboard',
-              name: '商品统计',
-              sort: 107,
-              type: 2,
-              children: null,
-              parentId: 38
             }
+            // {
+            //   id: 40,
+            //   url: '/main/analysis/dashboard',
+            //   name: '商品统计',
+            //   sort: 107,
+            //   type: 2,
+            //   children: null,
+            //   parentId: 38
+            // }
           ]
         },
         {

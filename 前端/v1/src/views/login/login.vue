@@ -25,7 +25,12 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit" style="width: 100%"
+          <el-button @click="onSubmit" style="width: 40%">注册</el-button>
+
+          <el-button
+            type="primary"
+            @click="onSubmit"
+            style="margin-left: 50px; width: 40%"
             >登录</el-button
           >
         </el-form-item>
@@ -39,6 +44,33 @@ import { reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 export default {
   setup() {
+    const invalidate = (name) => {
+      if (name == '13433638802') {
+        return '123456789@qq.com'
+      } else if (name == '13433638803') {
+        return '123456@qq.com'
+      } else if (name == '13433638804') {
+        return '123456a@qq.com'
+      } else if (name == '13433638805') {
+        return '123456b@qq.com'
+      } else if (name == '13433638806') {
+        return '123456c@qq.com'
+      } else if (name == '13533630001') {
+        return '123456d@qq.com'
+      } else if (name == '13433630002') {
+        return '123456e@qq.com'
+      } else if (name == '13433630003') {
+        return '123456f@qq.com'
+      } else if (name == '13433630004') {
+        return '123456g@qq.com'
+      } else if (name == '13433630005') {
+        return '123456h@qq.com'
+      } else if (name == '13433630006') {
+        return '123456i@qq.com'
+      } else if (name == '13433630007') {
+        return ''
+      }
+    }
     const form = reactive({
       name: '',
       password: ''
@@ -47,10 +79,10 @@ export default {
     const centerDialogVisible = ref(false)
     const onSubmit = () => {
       console.log(form.name, form.password)
-      console.log('submit!')
+      const name = invalidate(form.name)
       store
         .dispatch('login/userLoginAction', {
-          email: form.name,
+          email: name,
           password: form.password
         })
         .catch((e) => {

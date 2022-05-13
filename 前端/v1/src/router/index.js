@@ -119,6 +119,56 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ '../views/editor/editor.vue')
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/search/search.vue'),
+    children: [
+      {
+        path: 'question',
+        component: () =>
+          import(
+            /* webpackChunkName: "about" */ '../views/search/views/question.vue'
+          )
+      },
+      {
+        path: 'article',
+        component: () =>
+          import(
+            /* webpackChunkName: "about" */ '../views/search/views/article.vue'
+          )
+      },
+      {
+        path: 'topic',
+        component: () =>
+          import(
+            /* webpackChunkName: "about" */ '../views/search/views/topic.vue'
+          )
+      },
+      {
+        path: 'column',
+        component: () =>
+          import(
+            /* webpackChunkName: "about" */ '../views/search/views/column.vue'
+          )
+      },
+      {
+        path: 'user',
+        component: () =>
+          import(
+            /* webpackChunkName: "about" */ '../views/search/views/user.vue'
+          )
+      }
+    ]
+  },
+  {
+    path: '/topic/:id',
+    component: () => import('../views/topic/topic.vue')
   }
 ]
 

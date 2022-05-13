@@ -31,7 +31,7 @@
           <span style="margin-left: 460px">{{ item.created_at }}</span>
         </div>
         <rich-content
-          v-bind:item="item.article"
+          v-bind:item="item.answer"
           :user="item.user"
           :question="item.question"
           @click="handleClickQuestion(item)"
@@ -49,6 +49,7 @@
         ></rich-content>
       </template>
     </div>
+    <div class="content-item2" v-if="resList.length == 0">还没有任何动态</div>
   </div>
 </template>
 
@@ -68,10 +69,11 @@ export default {
     const pageUserId = route.params.id
     const LoginUserId = store.state.login.userInfo.id
     const me = pageUserId == LoginUserId ? ref('我') : ref('他')
-    getUserDynamic(LoginUserId).then((res) => {
+    const resList = reactive([])
+    getUserDynamic(pageUserId).then((res) => {
+      console.log(res)
       res.forEach((item) => resList.push(item))
     })
-    const resList = reactive([])
     const handleClickQuestion = (item) => {
       window.open(`/#/question/${item.question.id}/answer/${item.answer.id}`)
     }
@@ -113,5 +115,9 @@ export default {
   align-items: center;
   color: rgb(133, 144, 166);
   font-size: 16px;
+}
+.content-item2 {
+  margin: 100px 0;
+  text-align: center;
 }
 </style>

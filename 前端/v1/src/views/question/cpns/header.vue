@@ -5,7 +5,11 @@
         <div class="question-header-content">
           <div class="question-header-main">
             <div class="question-header-tag">
-              <span>{{ questionInfo.topic.topic_name }}</span>
+              <span
+                @click="handleClickTopic(questionInfo.topic)"
+                class="topic-span"
+                >{{ questionInfo.topic.topic_name }}</span
+              >
             </div>
             <h1 class="question-header-title">
               {{ questionInfo.question.question_name }}
@@ -272,6 +276,9 @@ export default {
       const res = await InviteUserAnswer(props.questionId, item.id)
       console.log(res)
     }
+    const handleClickTopic = (topic) => {
+      window.open(`/#/topic/${topic.id}`)
+    }
     return {
       handleShowAll,
       isShowAll,
@@ -289,16 +296,17 @@ export default {
       follow_num,
       dialogFormVisible,
       userList,
-      inviteUser
+      inviteUser,
+      handleClickTopic
     }
   }
 }
 </script>
 
 <style scoped>
-/* .box-card {
-  padding-left: 240px;
-} */
+.box-card {
+  padding-left: 30px;
+}
 .question-header-content {
   display: flex;
   justify-content: flex-start;
@@ -452,5 +460,8 @@ export default {
 .item-head-title {
   color: black;
   margin-bottom: 4px;
+}
+.topic-span {
+  cursor: pointer;
 }
 </style>

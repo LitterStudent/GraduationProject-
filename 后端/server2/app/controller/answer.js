@@ -12,6 +12,71 @@ class AnswerssCtl {
     const user_id = ctx.auth.id;
     const question_id = ctx.params.questionId;
     const answer = await Answer.findOne({ where: { user_id, question_id } });
+
+    var xss = require("xss");
+    const xssWhiteList = {
+      /** 去掉所有不在白名单的标签 */
+      stripIgnoreTagBody: true,
+      whiteList: {
+        a: ["style", "target", "href", "title", "rel"],
+        img: ["style", "src", "title", "alt"],
+        div: ["id", "style"],
+        table: ["style", "width", "border"],
+        tr: ["style"],
+        td: ["style", "width", "colspan"],
+        th: ["style", "width", "colspan"],
+        h1: ["style"],
+        h2: ["style"],
+        h3: ["style"],
+        h4: ["style"],
+        h5: ["style"],
+        h6: ["style"],
+        hr: ["style"],
+        span: ["style"],
+        strong: ["style"],
+        b: ["style"],
+        i: ["style"],
+        br: [],
+        p: ["style"],
+        pre: ["style"],
+        code: ["style"],
+        tbody: ["style"],
+        ul: ["style"],
+        li: ["style"],
+        ol: ["style"],
+        dl: ["style"],
+        dt: ["style"],
+        em: ["style"],
+        cite: ["style"],
+        section: ["style"],
+        header: ["style"],
+        footer: ["style"],
+        blockquote: ["style"],
+        audio: ["autoplay", "controls", "loop", "preload", "src"],
+        video: [
+          "autoplay",
+          "controls",
+          "loop",
+          "preload",
+          "src",
+          "height",
+          "width",
+        ],
+      },
+      css: {
+        whiteList: {
+          color: true,
+          "background-color": true,
+          width: true,
+          height: true,
+          "font-size": true,
+          "font-family": true,
+        },
+      },
+    };
+
+    const content2 = xss(content, xssWhiteList);
+    // console.log(content2);
     if (answer && answer.status != 0) {
       ctx.throw(403, "该用户已经回答过该问题");
     } else {
@@ -22,7 +87,7 @@ class AnswerssCtl {
       await answerItem.save();
       // 创建动态
       const dynamic = new Dynamic();
-      dynamic.type = 3;
+      dynamic.type = 2;
       dynamic.user_id = user_id;
       dynamic.answer_id = answerItem.id;
       await dynamic.save();
